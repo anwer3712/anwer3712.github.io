@@ -1,0 +1,23 @@
+{
+  "_note": "P4 驗收標準測試 payload・個人2條。同一人、鍵名規則同 single_1track.json，唯一差異＝qty:2。以 P2a 最終契約為準。",
+  "_qty_meaning": "qty=2 → 確認頁呈現階梯③完整三條（①主方案②主方案+錦囊③本源重置）vs ②雙條，mult 2/3。見 confirm.html demoOrder()。",
+  "_expected_base_price": "wrist=16 × bead=8 → 699（NT$）；②雙條=699×2=1398；③完整三條=699×3=2097",
+  "type": "single",
+  "temp_id": "T20260717-P4A2",
+  "A": {
+    "name": "王小明",
+    "gender": "男",
+    "birth": "1992-08-15",
+    "btime": "14:00",
+    "wrist": "16",
+    "bead": "8",
+    "core": "🌸 顯化擴張（財＋事業）",
+    "pain": "",
+    "vis": "🌈 自由共振",
+    "deep": false
+  },
+  "qty": 2,
+  "ship": "店長自送",
+  "contact": "0912345678",
+  "est": "NT$ 1398"
+}

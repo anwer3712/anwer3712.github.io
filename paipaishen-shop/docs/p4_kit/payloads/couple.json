@@ -1,0 +1,36 @@
+{
+  "_note": "P4 驗收標準測試 payload・情侶對串。A/B 自組虛擬人物。鍵名對照 index.html collect()（couple 分支）現況，以 P2a 最終契約為準。",
+  "_relationship_issue_caveat": "collect() 現況只有兩人各自的 pain（痛點）欄＋共用 stage（關係階段），沒有獨立的『關係議題』欄位——但 CP-WF1 盤點指出情侶版是『由關係議題推核心功能』。本測試把「溝通變少」寫進雙方 pain 欄位模擬，並在頂層加 relationship_issue 供未來若新增專屬欄位時對照；P2a 若定義正式欄位，以其為準並回頭改本檔。",
+  "_expected_base_price": "A: wrist15×bead8=656；B: wrist18×bead10=952；合計 1608（NT$，各自查表相加，非×2）",
+  "type": "couple",
+  "temp_id": "T20260717-P4C1",
+  "relationship_issue": "溝通變少",
+  "A": {
+    "name": "陳小美",
+    "gender": "女",
+    "birth": "1994-03-22",
+    "btime": "無時辰",
+    "wrist": "15",
+    "bead": "8",
+    "core": "🌸 顯化擴張（人際）",
+    "pain": "最近跟另一半溝通變少，話說得越來越少",
+    "vis": "🫧 輕盈流光",
+    "deep": false
+  },
+  "B": {
+    "name": "林小華",
+    "gender": "男",
+    "birth": "1991-11-05",
+    "btime": "10:00",
+    "wrist": "18",
+    "bead": "10",
+    "core": "🌸 顯化擴張（人際）",
+    "pain": "覺得兩人溝通變少，想找回以前聊得來的感覺",
+    "vis": "⛰️ 內斂磐石",
+    "deep": false,
+    "stage": "穩定交往／同居"
+  },
+  "ship": "店到店",
+  "contact": "0987654321",
+  "est": "NT$ 1668"
+}

@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src https://n8n.anwer3712.com; base-uri 'none'; form-action 'self'">
+<meta name="referrer" content="no-referrer">
+<meta name="description" content="拍拍深五行水晶設計研究所——以傳統五行命理為底，結合心理學自我覺察與視覺美學，一人一命一串的訂製手串。公式公開、白名單選石、命理師人工複核。">
+<meta property="og:title" content="拍拍深五行水晶設計研究所｜訂製五行手串">
+<meta property="og:description" content="一人一命，一串。五行命理×心理學×視覺美學的訂製手串工作室。">
+<meta property="og:image" content="https://anwer3712.github.io/paipaishen-shop/photos/w1.jpg">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='6' r='4' fill='%23C9B37E'/%3E%3Ccircle cx='25.5' cy='12.9' r='4' fill='%237FA98F'/%3E%3Ccircle cx='21.9' cy='24.1' r='4' fill='%235C7A99'/%3E%3Ccircle cx='10.1' cy='24.1' r='4' fill='%23C98A92'/%3E%3Ccircle cx='6.5' cy='12.9' r='4' fill='%23C2A063'/%3E%3C/svg%3E">
+<title>拍拍深五行水晶設計研究所｜訂製五行手串</title>
+<style>
+/* ═══════════ 品牌定版（莫蘭迪暖調）＋五行色 ═══════════ */
+:root{
+  --warm:#FFFFFF;--warm2:#F7F9FA;--dawn:#F7F9FA;--dawn2:#C9D6DF;--morandi:#E3EAF0;
+  --rose:#34A97B;--rose-d:#0E8F5E;--ink:#10233A;--ink2:#5A6B7C;--gold:#0E8F5E;--line:#E3EAF0;--ok:#7FA98F;
+  --e-metal:#C9B37E;--e-wood:#7FA98F;--e-water:#5C7A99;--e-fire:#C98A92;--e-earth:#C2A063;
+  --serif:"Noto Serif TC","Songti TC","Microsoft JhengHei","PingFang TC",serif;
+  --sans:system-ui,-apple-system,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;scroll-padding-top:76px;}
+body{font-family:var(--sans);color:var(--ink);background:var(--warm);line-height:1.9;-webkit-font-smoothing:antialiased;}
+h1,h2,h3{font-family:var(--serif);}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.35;
+  background-image:radial-gradient(rgba(16,35,58,.045) 1px,transparent 1px);background-size:22px 22px;}
+::selection{background:var(--morandi);}
+img{max-width:100%;display:block;}
+a{color:inherit;}
+button{font-family:inherit;}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px;position:relative;z-index:1;}
+
+/* 捲動進度條（新：手記感） */
+.scrollbar{position:fixed;top:0;left:0;height:3px;width:0%;background:linear-gradient(90deg,var(--gold),var(--rose));z-index:70;transition:width .1s linear;}
+
+/* ═══════════ 導覽 ═══════════ */
+.nav{position:fixed;top:0;left:0;right:0;z-index:60;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
+.nav-in{max-width:1080px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;}
+.nav-brand{display:flex;align-items:center;gap:9px;font-size:14.5px;font-weight:700;letter-spacing:.16em;white-space:nowrap;text-decoration:none;}
+.nav-brand .seal-mini{width:25px;height:25px;flex:none;}
+.nav-brand small{color:var(--rose);font-weight:300;letter-spacing:.28em;font-size:9px;display:block;line-height:1;margin-top:2px;}
+.nav-links{display:flex;gap:4px;align-items:center;}
+.nav-links a{text-decoration:none;font-size:13.5px;letter-spacing:.12em;padding:6px 11px;border-radius:8px;color:var(--ink2);transition:.2s;}
+.nav-links a:hover{color:var(--ink);background:var(--warm2);}
+.nav-links a.cta{background:var(--rose-d);color:#fff;margin-left:6px;padding:7px 16px;border-radius:999px;}
+.nav-links a.cta:hover{background:#0A6E48;}
+.nav-burger{display:none;border:0;background:none;cursor:pointer;padding:8px;}
+.nav-burger span{display:block;width:22px;height:2px;background:var(--ink);margin:5px 0;transition:.25s;}
+@media(max-width:900px){
+  .nav-links{position:fixed;top:60px;right:0;left:0;background:var(--warm);flex-direction:column;align-items:stretch;padding:10px 20px 18px;gap:2px;border-bottom:1px solid var(--line);transform:translateY(-130%);transition:.3s;box-shadow:0 14px 30px rgba(16,35,58,.12);}
+  .nav-links.open{transform:none;}
+  .nav-links a{padding:11px 12px;font-size:15px;}
+  .nav-links a.cta{margin:8px 0 0;text-align:center;}
+  .nav-burger{display:block;}
+  .nav-burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+  .nav-burger.open span:nth-child(2){opacity:0;}
+  .nav-burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+}
+
+/* ═══════════ Hero（重設計：置中手記式封面，非左右分欄） ═══════════ */
+.hero{position:relative;padding:118px 0 60px;background:linear-gradient(165deg,var(--dawn) 0%,var(--warm) 55%,var(--morandi) 130%);overflow:hidden;text-align:center;}
+.hero-deco{position:absolute;top:140px;writing-mode:vertical-rl;font-size:15px;letter-spacing:.6em;color:var(--ink);opacity:.07;font-weight:700;pointer-events:none;display:none;}
+.hero-deco.l{left:26px;}.hero-deco.r{right:26px;}
+@media(min-width:1100px){.hero-deco{display:block;}}
+.hero-in2{max-width:640px;margin:0 auto;position:relative;z-index:1;}
+.hero-kicker{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:22px;}
+.hero-kicker .vline{width:1px;height:16px;background:var(--gold);}
+.hero-kicker span{font-size:12px;letter-spacing:.5em;color:var(--rose);}
+h1.hero-title{font-size:clamp(34px,7vw,54px);font-weight:700;letter-spacing:.08em;line-height:1.4;}
+h1.hero-title em{font-style:normal;color:var(--rose-d);}
+.hero-sub{font-size:12.5px;letter-spacing:.36em;color:var(--ink2);font-weight:300;margin-top:12px;}
+.ring-box{position:relative;display:flex;align-items:center;justify-content:center;margin:20px auto 6px;}
+.ring-box svg{width:min(230px,58vw);height:auto;filter:drop-shadow(0 14px 28px rgba(16,35,58,.16));}
+.spin{animation:spin 70s linear infinite;transform-origin:210px 210px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
+.ring-center .v{writing-mode:vertical-rl;font-size:15px;letter-spacing:.5em;font-weight:700;color:var(--ink);}
+.hero-lead{font-size:14.5px;color:var(--ink2);font-weight:300;margin:18px auto 0;max-width:32em;line-height:2.05;}
+.hero-cta{display:flex;gap:12px;margin:30px auto 0;flex-wrap:wrap;justify-content:center;}
+.btn{display:inline-block;padding:13px 30px;border:0;border-radius:12px;background:var(--rose-d);color:#fff;font:inherit;font-size:15px;font-weight:700;letter-spacing:.2em;cursor:pointer;text-decoration:none;transition:.22s;text-align:center;}
+.btn:hover{background:#0A6E48;transform:translateY(-2px);box-shadow:0 10px 22px rgba(16,35,58,.22);}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--ink);}
+.btn.ghost:hover{background:var(--ink);color:#fff;}
+.hero-badges{display:flex;gap:16px;margin-top:30px;flex-wrap:wrap;justify-content:center;}
+.hero-badges div{font-size:11.5px;color:var(--ink2);letter-spacing:.08em;display:flex;align-items:center;gap:6px;}
+.hero-badges i{width:6px;height:6px;border-radius:50%;background:var(--gold);flex:none;}
+@media(max-width:900px){.hero{padding:100px 0 46px;}}
+@media(prefers-reduced-motion:reduce){.spin{animation:none;}html{scroll-behavior:auto;}}
+
+/* ═══════════ 章節標記（新：印章式編號，取代原本細長列） ═══════════ */
+section.blk{padding:64px 0 26px;}
+.tint-dawn{background:linear-gradient(180deg,var(--warm) 0%,var(--dawn) 45%,var(--warm) 100%);}
+.tint-morandi{background:linear-gradient(180deg,var(--warm) 0%,var(--morandi) 42%,var(--warm) 100%);}
+.sec-head2{display:flex;align-items:center;gap:16px;margin-bottom:8px;}
+.chapter-mark{width:50px;height:50px;border-radius:50%;border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--rose-d);flex:none;position:relative;background:var(--warm);}
+.chapter-mark::after{content:"";position:absolute;inset:-6px;border:1px dashed var(--rose);border-radius:50%;opacity:.42;}
+.sec-head2 h2{font-size:clamp(22px,3.2vw,30px);font-weight:700;letter-spacing:.12em;line-height:1.3;}
+.sec-head2 .en{font-size:10px;letter-spacing:.36em;color:var(--rose);font-weight:300;}
+.sec-lead{color:var(--ink2);font-weight:300;font-size:14.5px;max-width:44em;margin-bottom:26px;}
+.gold-rule{border:0;height:1px;background:linear-gradient(90deg,var(--gold),transparent);margin:10px 0 24px;max-width:280px;}
+.rv{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease;}
+.rv.in{opacity:1;transform:none;}
+@media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none;}}
+
+/* ═══════════ 最新消息 ═══════════ */
+.news-list{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line);}
+.news-item{display:grid;grid-template-columns:110px 84px 1fr;gap:16px;padding:16px 6px;border-bottom:1px solid var(--line);align-items:baseline;}
+.news-item time{font-size:12.5px;color:var(--ink2);letter-spacing:.08em;font-variant-numeric:tabular-nums;}
+.news-item .tag{font-size:11px;letter-spacing:.14em;color:var(--rose-d);border:1px solid var(--rose);border-radius:20px;text-align:center;padding:1px 0;}
+.news-item p{font-size:14px;font-weight:300;}
+@media(max-width:640px){.news-item{grid-template-columns:92px 1fr;}.news-item .tag{display:none;}}
+
+/* ═══════════ 本店介紹 ═══════════ */
+.about-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:38px;align-items:start;}
+.about-story p{font-size:14.5px;font-weight:300;margin-bottom:14px;color:var(--ink);}
+.about-story p.soft{color:var(--ink2);font-size:13.5px;}
+.steps{counter-reset:st;display:flex;flex-direction:column;gap:12px;margin-top:8px;}
+.step{counter-increment:st;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px 13px;position:relative;padding-left:64px;}
+.step::before{content:counter(st,cjk-ideographic);position:absolute;left:20px;top:14px;font-size:22px;color:var(--gold);font-weight:700;}
+.step h3{font-size:15px;font-weight:700;margin-bottom:3px;}
+.step p{font-size:13px;color:var(--ink2);font-weight:300;}
+.vows{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:26px;}
+.vow{background:linear-gradient(180deg,#fff,var(--warm2));border:1px solid var(--line);border-radius:14px;padding:16px 16px 13px;}
+.vow b{font-size:14px;display:block;margin-bottom:4px;letter-spacing:.08em;}
+.vow p{font-size:12.5px;color:var(--ink2);font-weight:300;line-height:1.8;}
+.contact-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;}
+.chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;border-radius:22px;padding:7px 16px;font-size:13px;text-decoration:none;transition:.2s;}
+.chip:hover{border-color:var(--rose);background:#EAF7F1;}
+.chip b{font-weight:700;letter-spacing:.04em;}
+@media(max-width:900px){.about-grid{grid-template-columns:1fr;}.vows{grid-template-columns:1fr 1fr;}}
+@media(max-width:560px){.vows{grid-template-columns:1fr;}}
+
+/* ═══════════ 作品集（輪播＋半透明浮動元素，裁決11 更正版） ═══════════ */
+#works{overflow:hidden;}          /* 浮動元素外溢時不讓整頁橫向捲動 */
+.port-wrap{position:relative;}
+.port-grid{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;padding:2px 2px 10px;-ms-overflow-style:none;scrollbar-width:none;}
+.port-grid::-webkit-scrollbar{display:none;}
+.port-grid figure{position:relative;flex:0 0 78%;max-width:340px;scroll-snap-align:center;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#fff;aspect-ratio:4/5;cursor:default;box-shadow:0 8px 26px rgba(43,54,66,.07);}
+@media(min-width:700px){.port-grid figure{flex:0 0 30%;}}
+.port-grid figure[data-real] img{cursor:zoom-in;}
+.port-grid img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease;}
+.port-grid figure:hover img{transform:scale(1.05);}
+.port-grid figcaption{position:absolute;left:0;right:0;bottom:0;padding:10px 12px 8px;font-size:11px;letter-spacing:.06em;background:linear-gradient(transparent,rgba(43,54,66,.72));color:#fff;}
+/* 半透明浮動元素（背景飄動，純裝飾） */
+.port-orb{position:absolute;border-radius:50%;pointer-events:none;z-index:0;filter:blur(1px);opacity:.5;
+  background:radial-gradient(circle at 32% 30%,rgba(255,255,255,.85),rgba(52,169,123,.34) 55%,rgba(14,143,94,.16) 100%);}
+.port-orb.o1{width:130px;height:130px;left:-42px;top:6%;animation:orbA 17s ease-in-out infinite;}
+.port-orb.o2{width:78px;height:78px;right:4%;top:-26px;animation:orbB 13s ease-in-out infinite;}
+.port-orb.o3{width:184px;height:184px;right:-64px;bottom:-52px;opacity:.34;animation:orbA 23s ease-in-out infinite reverse;}
+@keyframes orbA{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(16px,-22px,0)}}
+@keyframes orbB{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(-14px,18px,0)}}
+@media(prefers-reduced-motion:reduce){.port-orb{animation:none;}.port-grid{scroll-behavior:auto;}}
+.port-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);
+  background:rgba(255,255,255,.72);backdrop-filter:blur(6px);cursor:pointer;font-size:15px;line-height:1;color:var(--ink);transition:.2s;}
+.port-nav:hover{background:#fff;border-color:var(--rose);}
+.port-nav.prev{left:-6px;} .port-nav.next{right:-6px;}
+@media(max-width:560px){.port-nav{display:none;}}
+.port-dots{display:flex;gap:6px;justify-content:center;margin-top:10px;}
+.port-dots i{width:6px;height:6px;border-radius:50%;background:var(--line);transition:.25s;}
+.port-dots i.on{background:var(--rose);width:18px;border-radius:4px;}
+.works-more{display:block;max-width:320px;margin:24px auto 0;}
+.gal-note{font-size:12.5px;color:var(--ink2);font-weight:300;margin-top:14px;text-align:center;}
+.lightbox{position:fixed;inset:0;z-index:90;background:rgba(43,54,66,.86);display:none;align-items:center;justify-content:center;padding:26px;cursor:zoom-out;}
+.lightbox.on{display:flex;}
+.lightbox img{max-width:min(920px,94vw);max-height:88vh;width:auto;height:auto;border-radius:12px;box-shadow:0 30px 70px rgba(0,0,0,.4);}
+
+/* ═══════════ 運算方式 ═══════════ */
+.m-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0;}
+.m-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 20px 16px;min-width:0;}
+.m-card.full{grid-column:1/-1;}
+.m-card h3{font-size:16px;font-weight:700;letter-spacing:.1em;margin-bottom:10px;display:flex;align-items:center;gap:9px;}
+.m-card h3 i{width:8px;height:8px;border-radius:50%;flex:none;}
+.m-card p{font-size:13.5px;font-weight:300;color:var(--ink2);margin-bottom:8px;}
+.m-card p b{color:var(--ink);font-weight:500;}
+.formula{background:var(--warm2);border:1px dashed var(--line);border-radius:10px;padding:12px 14px;font-size:13px;letter-spacing:.03em;margin:10px 0;overflow-x:auto;white-space:nowrap;font-family:Consolas,"Noto Serif TC",monospace;}
+.wbars{display:flex;flex-direction:column;gap:7px;margin:12px 0 6px;}
+.wbar{display:grid;grid-template-columns:150px 1fr 46px;gap:10px;align-items:center;font-size:12.5px;}
+.wbar .tr{height:9px;border-radius:6px;background:var(--warm2);overflow:hidden;}
+.wbar .fl{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--dawn2),var(--rose));}
+.wbar .pc{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink2);}
+.flow{display:flex;gap:0;align-items:stretch;flex-wrap:wrap;margin:14px 0 6px;}
+.flow .fstep{flex:1;min-width:130px;background:var(--warm2);border:1px solid var(--line);padding:12px 12px 10px;position:relative;text-align:center;}
+.flow .fstep:first-child{border-radius:12px 0 0 12px;}
+.flow .fstep:last-child{border-radius:0 12px 12px 0;}
+.flow .fstep+.fstep{border-left:0;}
+.flow .fstep b{display:block;font-size:13.5px;letter-spacing:.1em;}
+.flow .fstep span{font-size:11px;color:var(--ink2);font-weight:300;display:block;margin-top:2px;line-height:1.6;}
+.schools{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-top:10px;}
+.school{background:var(--warm2);border:1px solid var(--line);border-radius:12px;padding:12px 10px;text-align:center;}
+.school b{font-size:13px;display:block;letter-spacing:.06em;}
+.school span{font-size:11px;color:var(--ink2);font-weight:300;display:block;margin-top:4px;line-height:1.65;}
+@media(max-width:860px){.m-grid{grid-template-columns:1fr;}.schools{grid-template-columns:repeat(2,1fr);}.school:last-child{grid-column:1/-1;}}
+table.mt{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;}
+table.mt th,table.mt td{border:1px solid var(--line);padding:7px 9px;text-align:center;}
+table.mt th{background:var(--dawn);font-weight:500;white-space:nowrap;}
+table.mt td.l{text-align:left;}
+.tbl-scroll{overflow-x:auto;border-radius:10px;}
+.e-tag{display:inline-block;padding:0 9px;border-radius:10px;font-size:11.5px;color:#fff;margin:0 2px;}
+.ncalc{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;margin:12px 0 4px;}
+.ncalc label{font-size:12.5px;font-weight:500;display:block;margin-bottom:4px;}
+.ncalc select{padding:9px 12px;border:1px solid var(--line);border-radius:9px;font:inherit;font-size:14px;background:#fff;color:var(--ink);}
+.ncalc .out{background:var(--warm2);border:1px solid var(--line);border-radius:10px;padding:9px 18px;font-size:14px;}
+.ncalc .out b{font-size:19px;color:var(--rose-d);}
+#nbeads{margin-top:12px;}
+.honest{background:linear-gradient(135deg,var(--dawn2),var(--morandi));border-radius:16px;padding:22px 26px;margin-top:16px;}
+.honest p{font-size:13.5px;font-weight:300;line-height:2.05;}
+.honest b{font-weight:700;}
+
+/* ═══════════ 訂製問卷（重設計：分步驟精靈，取代單頁長表單） ═══════════ */
+.order-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:28px;box-shadow:0 18px 44px rgba(16,35,58,.07);max-width:640px;margin:0 auto;}
+label{display:block;font-size:13.5px;font-weight:500;margin:14px 0 4px;}
+label .req{color:var(--rose);font-size:11px;margin-left:6px;}
+input[type=text],input[type=date],input[type=time],select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font:inherit;font-size:14px;background:#fff;color:var(--ink);}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--dawn2);border-color:var(--dawn2);}
+textarea{min-height:72px;resize:vertical;}
+.row2{display:flex;gap:10px;}.row2>*{flex:1;}
+.opts{display:flex;flex-direction:column;gap:8px;margin-top:6px;}
+.opt{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;font-size:13px;transition:.15s;}
+.opt:hover{border-color:var(--dawn2);}
+.opt input{margin-top:5px;accent-color:var(--rose);}
+.opt b{font-weight:700;font-size:13.5px;}
+.opt .d{color:var(--ink2);font-weight:300;display:block;}
+.opt:has(input:checked){border-color:var(--rose);background:#EAF7F1;}
+fieldset{border:0;padding:0;margin:0;}
+.est-note{font-size:12px;color:var(--ink2);margin-top:4px;font-weight:300;}
+.msg{padding:13px 15px;border-radius:10px;font-size:13.5px;margin:12px 0;}
+.msg.ok{background:#EFF5F1;border:1px solid var(--ok);color:#3E5E4B;}
+.msg.warn{background:#F7F9FA;border:1px solid var(--rose);color:var(--ink);}
+pre.ordertext{white-space:pre-wrap;background:var(--warm2);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:12px;font-family:inherit;max-height:260px;overflow:auto;}
+.btn2{display:block;width:100%;padding:12px 0;border:1.5px solid var(--ink);border-radius:12px;background:#fff;color:var(--ink);font:inherit;font-size:14px;letter-spacing:.15em;cursor:pointer;margin-bottom:8px;text-align:center;text-decoration:none;transition:.2s;}
+.btn2:hover{background:var(--ink);color:#fff;}
+.hide{display:none!important;}
+.hp-field{position:absolute;left:-6000px;top:-6000px;height:1px;width:1px;overflow:hidden;}
+
+/* 步驟精靈 */
+.wizard-dots{display:flex;gap:7px;justify-content:center;margin-bottom:20px;}
+.wdot{width:8px;height:8px;border-radius:50%;background:var(--line);transition:.2s;}
+.wdot.on{background:var(--rose);width:22px;border-radius:5px;}
+.wdot.done{background:var(--gold);}
+.step-kicker{font-size:11.5px;letter-spacing:.22em;color:var(--rose-d);font-weight:700;margin-bottom:14px;}
+.mode-cards{display:grid;grid-template-columns:1fr;gap:12px;margin-top:8px;}
+@media(min-width:560px){.mode-cards{grid-template-columns:1fr 1fr;}}
+.mode-card{border:1.5px solid var(--line);border-radius:14px;background:#fff;padding:20px 18px;text-align:left;cursor:pointer;font:inherit;transition:.18s;}
+.mode-card b{display:block;font-size:16px;letter-spacing:.06em;margin-bottom:5px;}
+.mode-card span{display:block;font-size:12.5px;color:var(--ink2);font-weight:300;}
+.mode-card:hover{border-color:var(--dawn2);}
+.mode-card.on{border-color:var(--rose);background:#EAF7F1;box-shadow:0 0 0 3px rgba(52,169,123,.16);}
+.mode-card.on b{color:var(--rose-d);}
+.pbar{position:sticky;bottom:12px;z-index:30;margin-top:18px;background:linear-gradient(135deg,var(--dawn2),var(--morandi));border-radius:14px;padding:13px 20px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 10px 26px rgba(16,35,58,.18);}
+.pbar b{font-size:12.5px;letter-spacing:.16em;}
+.pbar b small{display:block;font-size:10px;color:var(--ink2);font-weight:300;letter-spacing:.05em;}
+.pbar .amt{font-size:23px;font-weight:700;text-align:right;}
+.pbar .amt small{display:block;font-size:10.5px;color:var(--ink2);font-weight:300;text-align:right;}
+.wiz-nav{display:flex;gap:10px;margin-top:16px;}
+.wiz-nav .btn,.wiz-nav .btn2{flex:1;margin:0;}
+#prevBtn{max-width:118px;flex:none;}
+
+/* ═══════════ 進度查詢 ═══════════ */
+.track-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:28px;max-width:640px;margin:0 auto;}
+.track-form{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
+.track-form>div{flex:1;min-width:170px;}
+.track-form .btn{padding:11px 26px;}
+.timeline{display:flex;justify-content:space-between;margin:26px 4px 8px;position:relative;}
+.timeline::before{content:"";position:absolute;top:10px;left:16px;right:16px;height:2px;background:var(--line);}
+.tstep{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:7px;flex:1;}
+.tstep i{width:21px;height:21px;border-radius:50%;background:#fff;border:2px solid var(--line);transition:.3s;}
+.tstep span{font-size:10.5px;color:var(--ink2);letter-spacing:.04em;white-space:nowrap;}
+.tstep.done i{background:var(--rose);border-color:var(--rose);}
+.tstep.cur i{background:#fff;border-color:var(--rose-d);box-shadow:0 0 0 5px rgba(52,169,123,.25);animation:pulse 1.8s infinite;}
+.tstep.cur span{color:var(--rose-d);font-weight:700;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(52,169,123,.22)}50%{box-shadow:0 0 0 8px rgba(52,169,123,.10)}}
+.design-box{background:var(--warm2);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:16px;}
+.design-box h4{font-size:14px;letter-spacing:.1em;margin-bottom:8px;}
+.design-box pre{white-space:pre-wrap;font-family:inherit;font-size:12.5px;color:var(--ink);max-height:300px;overflow:auto;font-weight:300;}
+.act-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.act-row .btn,.act-row .btn2{flex:1;min-width:140px;padding:11px 8px;font-size:13.5px;letter-spacing:.1em;margin:0;}
+.evt-list{margin-top:14px;display:flex;flex-direction:column;gap:8px;}
+.evt{font-size:12.5px;background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-weight:300;}
+.evt b{font-weight:700;color:var(--rose-d);}
+.evt time{color:var(--ink2);font-size:11px;display:block;}
+
+/* ═══════════ FAQ ═══════════ */
+.faq{max-width:760px;margin:0 auto;}
+.faq details{background:#fff;border:1px solid var(--line);border-radius:13px;margin-bottom:10px;overflow:hidden;}
+.faq summary{cursor:pointer;padding:15px 18px;font-size:14.5px;font-weight:500;letter-spacing:.05em;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.faq summary::-webkit-details-marker{display:none;}
+.faq summary::after{content:"＋";color:var(--gold);font-size:16px;flex:none;transition:.25s;}
+.faq details[open] summary::after{transform:rotate(45deg);}
+.faq .fa{padding:0 18px 15px;font-size:13.5px;color:var(--ink2);font-weight:300;line-height:2;}
+.faq .fa b{color:var(--ink);font-weight:500;}
+
+/* ═══════════ Footer ═══════════ */
+footer{margin-top:70px;border-top:1px solid var(--line);background:linear-gradient(180deg,var(--warm),var(--warm2));padding:44px 0 30px;}
+.foot-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:28px;align-items:start;}
+.foot-brand{display:flex;align-items:center;gap:9px;font-size:16px;font-weight:700;letter-spacing:.1em;}
+.foot-brand .seal-mini{width:24px;height:24px;flex:none;}
+.foot-brand small{display:block;font-size:10px;color:var(--rose);letter-spacing:.36em;font-weight:300;margin-top:4px;}
+.foot-disc{font-size:11.5px;color:var(--ink2);font-weight:300;line-height:1.95;margin-top:14px;max-width:36em;}
+.foot-links{display:flex;flex-direction:column;gap:6px;font-size:13px;}
+.foot-links a{text-decoration:none;color:var(--ink2);transition:.2s;}
+.foot-links a:hover{color:var(--rose-d);}
+.foot-copy{margin-top:26px;padding-top:14px;border-top:1px dashed var(--line);font-size:11px;color:var(--ink2);font-weight:300;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+@media(max-width:700px){.foot-grid{grid-template-columns:1fr;}}
+
+/* ═══════════ AI 客服 ═══════════ */
+.chat-fab{position:fixed;right:20px;bottom:20px;z-index:80;width:58px;height:58px;border-radius:50%;border:0;background:var(--ink);color:#fff;font-size:21px;font-family:var(--serif);cursor:pointer;box-shadow:0 12px 28px rgba(16,35,58,.32);transition:.25s;letter-spacing:0;}
+.chat-fab:hover{transform:translateY(-3px);background:var(--rose-d);}
+.chat-panel{position:fixed;right:16px;bottom:88px;z-index:80;width:min(374px,calc(100vw - 32px));height:min(540px,calc(100vh - 130px));background:var(--warm);border:1px solid var(--line);border-radius:18px;box-shadow:0 26px 60px rgba(43,54,66,.3);display:none;flex-direction:column;overflow:hidden;}
+.chat-panel.on{display:flex;}
+.chat-head{background:linear-gradient(135deg,var(--dawn2),var(--morandi));padding:13px 16px;display:flex;justify-content:space-between;align-items:center;}
+.chat-head b{font-size:14px;letter-spacing:.14em;}
+.chat-head b small{display:block;font-size:10px;color:var(--ink2);font-weight:300;letter-spacing:.06em;}
+.chat-head button{border:0;background:none;font-size:17px;cursor:pointer;color:var(--ink);padding:4px;}
+.chat-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
+.cmsg{max-width:86%;padding:9px 13px;border-radius:14px;font-size:13px;line-height:1.85;white-space:pre-wrap;font-weight:300;}
+.cmsg.bot{background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px;align-self:flex-start;}
+.cmsg.user{background:var(--rose);color:#fff;border-bottom-right-radius:4px;align-self:flex-end;font-weight:400;}
+.cmsg.bot b{font-weight:700;color:var(--rose-d);}
+.cmsg.typing i{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--ink2);margin:0 1.5px;animation:tp 1.2s infinite;}
+.cmsg.typing i:nth-child(2){animation-delay:.18s}.cmsg.typing i:nth-child(3){animation-delay:.36s}
+@keyframes tp{0%,60%,100%{opacity:.25;transform:none}30%{opacity:1;transform:translateY(-3px)}}
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:0 14px 8px;}
+.chips button{border:1px solid var(--line);background:#fff;border-radius:16px;padding:5px 12px;font-size:12px;cursor:pointer;color:var(--ink);transition:.15s;}
+.chips button:hover{border-color:var(--rose);background:#EAF7F1;}
+.chat-in{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line);background:var(--warm2);}
+.chat-in input{flex:1;padding:10px 13px;border:1px solid var(--line);border-radius:22px;font:inherit;font-size:13.5px;background:#fff;}
+.chat-in button{border:0;background:var(--ink);color:#fff;border-radius:22px;padding:0 18px;font:inherit;font-size:13.5px;letter-spacing:.12em;cursor:pointer;}
+.chat-note{font-size:10px;color:var(--ink2);text-align:center;padding:0 12px 8px;font-weight:300;background:var(--warm2);}
+</style>
+</head>
+<body>
+<div class="scrollbar" id="scrollBar"></div>
+
+<!-- ═══ 導覽 ═══ -->
+<nav class="nav" aria-label="主導覽">
+  <div class="nav-in">
+    <a class="nav-brand" href="#top">
+      <svg class="seal-mini" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="7" r="5" fill="#C9B37E"/><circle cx="32.4" cy="16" r="5" fill="#7FA98F"/><circle cx="27.6" cy="30.5" r="5" fill="#5C7A99"/><circle cx="12.4" cy="30.5" r="5" fill="#C98A92"/><circle cx="7.6" cy="16" r="5" fill="#C2A063"/></svg>
+      <span>拍拍深五行水晶設計研究所<small>QUINTESSURA STUDIO</small></span>
+    </a>
+    <button class="nav-burger" id="burger" aria-label="選單"><span></span><span></span><span></span></button>
+    <div class="nav-links" id="navLinks">
+      <a href="#news">最新消息</a>
+      <a href="#about">本店介紹</a>
+      <a href="#works">作品集</a>
+      <a href="#method">運算原理</a>
+      <a href="#track">訂單進度</a>
+      <a href="#faq">常見問答</a>
+      <a href="#order" class="cta">開始訂製</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══ HERO（置中手記封面） ═══ -->
+<header class="hero" id="top">
+  <span class="hero-deco l" aria-hidden="true">命 理 工 藝</span>
+  <span class="hero-deco r" aria-hidden="true">一 人 一 命</span>
+  <div class="hero-in2 wrap">
+    <div class="hero-kicker"><span class="vline"></span><span>拍拍深五行水晶設計研究所</span><span class="vline"></span></div>
+    <h1 class="hero-title">一人一命，一串<em>手作</em>五行。</h1>
+    <p class="hero-sub">Q U I N T E S S U R A · 訂 製 五 行 水 晶 手 串</p>
+    <div class="ring-box" aria-hidden="true">
+      <svg viewBox="0 0 420 420" id="heroRing"></svg>
+      <div class="ring-center"><span class="v">金木水火土</span></div>
+    </div>
+    <p class="hero-lead">以傳統五行命理為底，結合心理學自我覺察與視覺美學。從你的生辰推演五行需求，於九十五種晶石白名單中逐顆選珠、逐顆排位——公式公開，命理師人工複核。</p>
+    <div class="hero-cta">
+      <a class="btn" href="#order">開 始 訂 製</a>
+      <a class="btn ghost" href="#track">查 詢 訂 單</a>
+    </div>
+    <div class="hero-badges">
+      <div><i></i>公式全公開</div>
+      <div><i></i>命理師人工複核</div>
+      <div><i></i>不收出生地</div>
+      <div><i></i>95 種晶石白名單</div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ 01 最新消息 ═══ -->
+<section class="blk" id="news">
+  <div class="wrap rv">
+    <div class="sec-head2"><span class="chapter-mark">壹</span><div><h2>最新消息</h2><span class="en">N E W S</span></div></div>
+    <hr class="gold-rule">
+    <div class="news-list" id="newsList"></div>
+  </div>
+</section>
+
+<!-- ═══ 02 本店介紹 ═══ -->
+<section class="blk tint-dawn" id="about">
+  <div class="wrap rv">
+    <div class="sec-head2"><span class="chapter-mark">貳</span><div><h2>本店介紹</h2><span class="en">A B O U T</span></div></div>
+    <hr class="gold-rule">
+    <div class="about-grid">
+      <div class="about-story">
+        <p>拍拍深五行水晶設計研究所，是一間把「命理」當成設計語言的手作工作室。我們不賣現成串珠——每一條手串，都從一張問卷、一組生辰開始，經過五派命理交叉推演、心理學視角整理，再由命理師逐顆選石、逐顆排位，手工完成。</p>
+        <p>你會拿到的不只是手串：還有一份專屬報告，把「為什麼是這幾顆珠、為什麼排在這裡」講清楚；以及一份逐項列價的費用結算表。設計確認前，初步規劃一定先給你過目；你點頭，我們才動手。</p>
+        <p class="soft">工作室位於桃園龍潭，面交範圍龍潭—中壢，全台可店到店寄送。</p>
+        <div class="contact-row">
+          <a class="chip" href="https://line.me/R/ti/p/~17singasong" target="_blank" rel="noopener">LINE <b>17singasong</b></a>
+          <span class="chip">Instagram <b>IGSINGASONG</b></span>
+          <span class="chip">蝦皮 <b>拍拍深五行水晶設計研究所</b></span>
+          <span class="chip">LINKGOODS <b>ANWER3712</b></span>
+        </div>
+      </div>
+      <div>
+        <div class="steps">
+          <div class="step"><h3>填問卷（約 3 分鐘）</h3><p>生日、手圍、你的期待。生日只用於配珠運算——我們不收出生地。</p></div>
+          <div class="step"><h3>運算＋人工複核</h3><p>五派命理交叉裁決、白名單選石、逐顆排位。初步規劃先與你確認，同意才製作。</p></div>
+          <div class="step"><h3>報告＋製作出貨</h3><p>正式客製報告與費用結算表；匯款確認後手工製作，7–10 個工作天交付。</p></div>
+        </div>
+        <div class="vows">
+          <div class="vow"><b>絕不收出生地</b><p>真太陽時一律以東經 120° 計，隱私內建於公式。</p></div>
+          <div class="vow"><b>白名單選石</b><p>只用 95 種晶石白名單，清單外一律不用，杜絕來路不明。</p></div>
+          <div class="vow"><b>人工複核</b><p>AI 輔助運算，命理師逐單複核裁決，不交給機器拍板。</p></div>
+          <div class="vow"><b>文案合規</b><p>不談療效、不談運勢承諾——只把傳統意象翻成你能用的自我提醒。</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 03 作品集（新：卡片牆＋iCloud 外連，取代原成品欣賞區） ═══ -->
+<section class="blk" id="works">
+  <div class="wrap rv">
+    <div class="sec-head2"><span class="chapter-mark">參</span><div><h2>作品集</h2><span class="en">W O R K S</span></div></div>
+    <hr class="gold-rule">
+    <p class="sec-lead">每一條都是不重複的排列。以下為實際交付作品，完整相簿在下方連結。</p>
+    <div class="port-wrap">
+      <span class="port-orb o1" aria-hidden="true"></span>
+      <span class="port-orb o2" aria-hidden="true"></span>
+      <span class="port-orb o3" aria-hidden="true"></span>
+      <button class="port-nav prev" id="galPrev" type="button" aria-label="上一張">‹</button>
+      <button class="port-nav next" id="galNext" type="button" aria-label="下一張">›</button>
+      <div class="port-grid" id="gal">
+      <figure data-real="1"><img src="photos/works/w01.jpg" alt="拍拍深訂製水晶手串作品・佩戴實照・手心一景" loading="lazy"><figcaption>佩戴實照・手心一景</figcaption></figure>
+      <figure data-real="1"><img src="photos/works/w02.jpg" alt="拍拍深訂製水晶手串作品・排珠設計・成品俯視" loading="lazy"><figcaption>排珠設計・成品俯視</figcaption></figure>
+      <figure data-real="1"><img src="photos/works/w03.jpg" alt="拍拍深訂製水晶手串作品・排珠設計・冷色配置" loading="lazy"><figcaption>排珠設計・冷色配置</figcaption></figure>
+      <figure data-real="1"><img src="photos/works/w04.jpg" alt="拍拍深訂製水晶手串作品・成品定裝・柔霧色調" loading="lazy"><figcaption>成品定裝・柔霧色調</figcaption></figure>
+      <figure data-real="1"><img src="photos/works/w05.jpg" alt="拍拍深訂製水晶手串作品・佩戴實照・輕盈感" loading="lazy"><figcaption>佩戴實照・輕盈感</figcaption></figure>
+      <figure data-real="1"><img src="photos/works/w06.jpg" alt="拍拍深訂製水晶手串作品・成品定裝・亮面點綴" loading="lazy"><figcaption>成品定裝・亮面點綴</figcaption></figure>
+      <figure data-real="1"><img src="photos/works/w07.jpg" alt="拍拍深訂製水晶手串作品・佩戴實照・暖白色調" loading="lazy"><figcaption>佩戴實照・暖白色調</figcaption></figure>
+      <figure data-real="1"><img src="photos/works/w08.jpg" alt="拍拍深訂製水晶手串作品・成品定裝・深色系" loading="lazy"><figcaption>成品定裝・深色系</figcaption></figure>
+      <figure data-real="1"><img src="photos/works/w09.jpg" alt="拍拍深訂製水晶手串作品・成品定裝・對比配色" loading="lazy"><figcaption>成品定裝・對比配色</figcaption></figure>
+      <figure data-real="1"><img src="photos/works/w10.jpg" alt="拍拍深訂製水晶手串作品・佩戴實照・內斂色系" loading="lazy"><figcaption>佩戴實照・內斂色系</figcaption></figure>
+      <figure data-real="1"><img src="photos/works/w11.jpg" alt="拍拍深訂製水晶手串作品・手心實照・灰白漸層" loading="lazy"><figcaption>手心實照・灰白漸層</figcaption></figure>
+      <figure data-real="1"><img src="photos/works/w12.jpg" alt="拍拍深訂製水晶手串作品・成品定裝・通透主珠" loading="lazy"><figcaption>成品定裝・通透主珠</figcaption></figure>
+      <figure data-real="1"><img src="photos/works/w13.jpg" alt="拍拍深訂製水晶手串作品・細節特寫・珠面紋理" loading="lazy"><figcaption>細節特寫・珠面紋理</figcaption></figure>
+      <figure data-real="1"><img src="photos/works/w14.jpg" alt="拍拍深訂製水晶手串作品・成品定裝・柔光色系" loading="lazy"><figcaption>成品定裝・柔光色系</figcaption></figure>
+      <figure data-real="1"><img src="photos/works/w15.jpg" alt="拍拍深訂製水晶手串作品・佩戴實照・淺藍色系" loading="lazy"><figcaption>佩戴實照・淺藍色系</figcaption></figure>
+      <figure data-real="1"><img src="photos/works/w16.jpg" alt="拍拍深訂製水晶手串作品・佩戴實照・素雅日常" loading="lazy"><figcaption>佩戴實照・素雅日常</figcaption></figure>
+      <figure data-real="1"><img src="photos/works/w17.jpg" alt="拍拍深訂製水晶手串作品・成品定裝・跳色設計" loading="lazy"><figcaption>成品定裝・跳色設計</figcaption></figure>
+      <figure data-real="1"><img src="photos/works/w18.jpg" alt="拍拍深訂製水晶手串作品・對串・雙條同組設計" loading="lazy"><figcaption>對串・雙條同組設計</figcaption></figure>
+      </div>
+      <div class="port-dots" id="galDots" aria-hidden="true"></div>
+    </div>
+    <a class="btn2 works-more hide" id="moreWorksBtn" href="#" target="_blank" rel="noopener">更多作品 → 完整相簿</a>
+    <p class="gal-note">目前也持續更新於 Instagram（IGSINGASONG）與蝦皮賣場。</p>
+  </div>
+  <div class="lightbox" id="lightbox" role="dialog" aria-label="放大圖"><img src="" alt="作品放大圖" id="lbImg"></div>
+</section>
+
+<!-- ═══ 04 運算方式（數值由來） ═══ -->
+<section class="blk tint-morandi" id="method">
+  <div class="wrap rv">
+    <div class="sec-head2"><span class="chapter-mark">肆</span><div><h2>運算方式・數值由來</h2><span class="en">M E T H O D</span></div></div>
+    <hr class="gold-rule">
+    <p class="sec-lead">多數店家把配珠講成玄學黑箱；我們反過來——把整套公式攤開給你看。每一顆珠的位置，都能回答「為什麼」。</p>
+
+    <div class="m-card full">
+      <h3><i style="background:var(--gold)"></i>整體流程：四道關卡</h3>
+      <div class="flow">
+        <div class="fstep"><b>L1 真值清洗</b><span>真太陽時（東經120°）<br>缺時辰→三柱模式</span></div>
+        <div class="fstep"><b>L2 五派仲裁</b><span>五個命理門派<br>逐一給出喜忌主張</span></div>
+        <div class="fstep"><b>L3 雙人共振</b><span>（情侶限定）<br>兩盤融合＋橋接元素</span></div>
+        <div class="fstep"><b>L4 實體轉化</b><span>五行比例→實際顆數<br>→逐顆排位</span></div>
+      </div>
+      <p style="margin-top:8px">每一關的輸出都是下一關的唯一輸入，嚴禁越級——這保證同一份生辰資料，跑幾次都是同一套邏輯。</p>
+    </div>
+
+    <div class="m-grid">
+      <div class="m-card">
+        <h3><i style="background:var(--e-water)"></i>需求向量 F 的六個分量</h3>
+        <p>你的五行需求不是拍腦袋，是六個訊號的加權和：</p>
+        <div class="formula">F[五行] = 0.30·扶抑 + 0.28·缺口 + 0.12·調候 + 0.12·流年 + 0.10·盲派 + 0.08·意圖</div>
+        <div class="wbars">
+          <div class="wbar"><span>扶抑（日主強弱）</span><span class="tr"><span class="fl" style="width:100%"></span></span><span class="pc">30%</span></div>
+          <div class="wbar"><span>缺口（原盤缺什麼）</span><span class="tr"><span class="fl" style="width:93%"></span></span><span class="pc">28%</span></div>
+          <div class="wbar"><span>調候（寒暖燥濕）</span><span class="tr"><span class="fl" style="width:40%"></span></span><span class="pc">12%</span></div>
+          <div class="wbar"><span>流年（動態補正）</span><span class="tr"><span class="fl" style="width:40%"></span></span><span class="pc">12%</span></div>
+          <div class="wbar"><span>盲派（實戰象法）</span><span class="tr"><span class="fl" style="width:33%"></span></span><span class="pc">10%</span></div>
+          <div class="wbar"><span>意圖（你的痛點與期待）</span><span class="tr"><span class="fl" style="width:27%"></span></span><span class="pc">8%</span></div>
+        </div>
+        <p><b>你的想法有話語權，但有上限</b>：問卷裡的痛點與核心功能合計影響 ≤15%，命盤本身永遠是主體。若日主強且生於極寒（亥子丑月）或極熱（巳午未月），調候權重升至 30%、扶抑與缺口各降至 20%——這叫「調候動態切換」。</p>
+      </div>
+
+      <div class="m-card">
+        <h3><i style="background:var(--e-fire)"></i>五派交叉，不押單一門派</h3>
+        <p>單一門派會有盲點，我們讓五派各自表態、再做裁決；兩派互斥時，比較確定度分數（差距 &gt;20% 採高分者）。</p>
+        <div class="schools">
+          <div class="school"><b>傳統格局</b><span>格局成敗<br>定喜忌</span></div>
+          <div class="school"><b>五行旺衰</b><span>日主強弱<br>→扶抑</span></div>
+          <div class="school"><b>調候用神</b><span>寒暖燥濕<br>→調候</span></div>
+          <div class="school"><b>盲派</b><span>實戰象法<br>用神取捨</span></div>
+          <div class="school"><b>新派</b><span>現代統計<br>動態流年</span></div>
+        </div>
+        <p style="margin-top:10px"><b>誠實原則</b>：沒有出生時間就走「三柱模式」（時柱權重歸零、分母 100→80），整體置信度乘上 0.70，並在報告裡明白標注——我們不假裝算得比實際準。</p>
+      </div>
+
+      <div class="m-card">
+        <h3><i style="background:var(--e-wood)"></i>從比例到顆數：三道數學鎖</h3>
+        <p><b>① 封頂與保底</b>：任一五行占比最多 0.38、最少 0.03；超出封頂的部分沿「相生」方向遞迴轉移（最多 4 次），忌神保留真實殘值、禁止歸零。</p>
+        <p><b>② Hamilton 最大餘數法</b>：比例 × 總顆數後禁止四捨五入，用最大餘數逐顆分配，總誤差 ≤0.05——議會分配席次用的同一套數學。</p>
+        <p><b>③ 物理排列鐵律</b>：主珠（占比最高的五行）強制置中；金與木、水與火不得相鄰，必須插入隔珠緩衝。</p>
+        <div class="formula">總顆數 N = floor( 手圍mm ÷ 珠徑mm ) + 2</div>
+        <div class="ncalc">
+          <div><label for="ncW">手圍</label><select id="ncW"></select></div>
+          <div><label for="ncB">珠徑</label><select id="ncB"></select></div>
+          <div class="out">約 <b id="ncN">22</b> 顆</div>
+        </div>
+        <svg id="nbeads" viewBox="0 0 640 66" width="100%" aria-hidden="true"></svg>
+        <p class="est-note">示意：實際五行配色依你的命盤運算結果。</p>
+      </div>
+
+      <div class="m-card">
+        <h3><i style="background:var(--e-earth)"></i>情侶對串：雙人合盤怎麼算</h3>
+        <p>兩個人不是各算各的再拼起來，而是先各自出單人向量，再做融合：</p>
+        <div class="formula">RV = 0.4 × A盤 + 0.4 × B盤 + 0.2 × 橋接元素</div>
+        <p><b>橋接元素判定</b>（依序）：兩人日主水火互沖→橋接取<b>木</b>（水生木、木生火，把沖轉成流通）；金木互剋→取<b>土</b>；其餘取雙方共同喜神中融合值最高者。</p>
+        <p><b>關係階段修正</b>：融合後依你們所在的階段乘上係數，再重新正規化——</p>
+        <div class="tbl-scroll"><table class="mt">
+          <tr><th>階段</th><th class="l">修正係數（未列＝1.00）</th></tr>
+          <tr><td>曖昧・熱戀</td><td class="l">火 ×1.10</td></tr>
+          <tr><td>穩定交往・同居</td><td class="l">木 ×1.05、土 ×1.05</td></tr>
+          <tr><td>新婚 0–2 年</td><td class="l">土 ×1.10</td></tr>
+          <tr><td>婚姻（無子女）</td><td class="l">土 ×1.05、水 ×1.05</td></tr>
+          <tr><td>育兒期</td><td class="l">土 ×1.10、金 ×1.05</td></tr>
+          <tr><td>空巢期</td><td class="l">火 ×1.05、木 ×1.05</td></tr>
+          <tr><td>退休</td><td class="l">全 1.00（不修正）</td></tr>
+          <tr><td>遠距・分居</td><td class="l">水 ×1.10、木 ×1.05</td></tr>
+        </table></div>
+        <p style="margin-top:8px">另以七個關係心理維度（信任、溝通、親密、安穩、成長、承諾、自由）掃描缺口，低於門檻的維度轉為對應五行的補償——玄學訊號一律降維成心理語言。</p>
+      </div>
+
+      <div class="m-card full">
+        <h3><i style="background:var(--e-metal)"></i>白名單與定價：兩張攤開的表</h3>
+        <p><b>95 種晶石白名單</b>——排珠與替代運算絕不使用清單外的晶石。主五行分類如下（每顆晶石只認主五行，副五行不參與運算）：</p>
+        <p style="margin:6px 0">
+          <span class="e-tag" style="background:var(--e-metal)">金 · 白／灰／金屬色 9 種</span>
+          <span class="e-tag" style="background:var(--e-wood)">木 · 綠色系 18 種</span>
+          <span class="e-tag" style="background:var(--e-water)">水 · 黑／深藍 26 種</span>
+          <span class="e-tag" style="background:var(--e-fire)">火 · 紅／粉／紫 27 種</span>
+          <span class="e-tag" style="background:var(--e-earth)">土 · 黃／棕 9 種</span>
+          <span style="font-size:11.5px;color:var(--ink2)">（另有跨列特殊石種，總計 95）</span>
+        </p>
+        <p style="margin-top:10px"><b>底價矩陣</b>——報價唯一取價來源，手圍介於兩級之間向上取級距；超出表格範圍一律「人工報價」，禁止外推：</p>
+        <div class="tbl-scroll" id="priceTable"></div>
+        <p class="est-note" style="margin-top:6px">加購：深度命理推論報告 +300／串；物流：店到店 +60、店長自送（龍潭—中壢）免運。少數晶石若有更高規格版本，會在設計完成後於「訂單確認頁」另外提出讓你選擇，正式金額以報價單為準。</p>
+      </div>
+    </div>
+
+    <div class="honest">
+      <p><b>為什麼敢公開？</b>因為訂製的價值不在公式保密，而在「逐單人工複核」與「手工排珠」。也提醒你：本服務是傳統文化意象與心理學自我覺察工具的結合，<b>不是醫療、心理治療或命運預測</b>；我們的文案不使用療效與運勢承諾的字眼，效果因人感受而異。生日資料僅用於配珠運算，不作其他用途，也絕不要求提供出生地。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 05 訂製問卷（重設計：分步驟精靈） ═══ -->
+<section class="blk" id="order">
+  <div class="wrap rv">
+    <div class="sec-head2"><span class="chapter-mark">伍</span><div><h2>訂製問卷</h2><span class="en">O R D E R</span></div></div>
+    <hr class="gold-rule">
+    <p class="sec-lead">一步一步來就好，填完約 3 分鐘。送出後 1 個工作天內與你聯繫確認設計；初步規劃你同意了，我們才動手做。</p>
+
+    <div class="order-card">
+      <div class="wizard-dots" id="wizDots"></div>
+
+      <form id="f" autocomplete="off" novalidate>
+        <div class="hp-field" aria-hidden="true"><label>此欄請留空<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+
+        <!-- STEP 0：選類型 -->
+        <div class="step-panel" data-step="0">
+          <p class="step-kicker">STEP 1 · 選擇類型</p>
+          <div class="mode-cards" id="modeSeg">
+            <button type="button" class="mode-card on" data-mode="single"><b>個人手串</b><span>一人一串，依你的命盤設計。</span></button>
+            <button type="button" class="mode-card" data-mode="couple"><b>情侶對串</b><span>兩人各一串，雙人合盤設計。</span></button>
+          </div>
+        </div>
+
+        <!-- STEP 1：你的資料 -->
+        <div class="step-panel hide" data-step="1">
+          <p class="step-kicker">STEP 2 · <span id="legendA">你的資料</span></p>
+          <label>姓名（暱稱可）<span class="req">必填</span></label>
+          <input type="text" name="a_name" required maxlength="30">
+          <label>性別</label>
+          <select name="a_gender"><option>女</option><option>男</option><option>其他／不填</option></select>
+          <div class="row2">
+            <div><label>國曆生日<span class="req">必填</span></label><input type="date" name="a_birth" required></div>
+            <div><label>出生時間（不知可空）</label><input type="time" name="a_btime"></div>
+          </div>
+          <div class="row2">
+            <div><label>手圍 cm<span class="req">必填</span></label><select name="a_wrist" required><option value="">選擇</option></select></div>
+            <div><label>珠徑 mm<span class="req">必填</span></label><select name="a_bead" required><option value="">選擇</option></select></div>
+          </div>
+          <label>核心功能（擇一）<span class="req">必填</span></label>
+          <div class="opts" id="coreA"></div>
+          <label>目前的痛點／煩惱（自由填，0–3 項）</label>
+          <textarea name="a_pain" maxlength="300" placeholder="例：工作壓力大、睡不好、想有勇氣開口……"></textarea>
+          <label>視覺體感（擇一）</label>
+          <div class="opts" id="visA"></div>
+          <label>加購</label>
+          <div class="opts">
+            <label class="opt"><input type="checkbox" name="a_deep"><span><b>深度命理推論報告</b>（+300／串）<span class="d">含圖表與因果推演</span></span></label>
+          </div>
+          <div id="qtyWrap">
+            <label>訂製數量</label>
+            <select name="qty"><option value="1">1 條</option><option value="2">2 條</option></select>
+            <p class="est-note">最終方案階梯（單條／加錦囊組／完整三條）會在報價確認頁為你呈現，這裡先抓基礎金額。</p>
+          </div>
+        </div>
+
+        <!-- STEP 2：伴侶資料（情侶限定） -->
+        <div class="step-panel hide" data-step="2">
+          <p class="step-kicker">STEP 3 · 伴侶的資料</p>
+          <label>姓名（暱稱可）<span class="req">必填</span></label>
+          <input type="text" name="b_name" maxlength="30">
+          <label>性別</label>
+          <select name="b_gender"><option>男</option><option>女</option><option>其他／不填</option></select>
+          <div class="row2">
+            <div><label>國曆生日<span class="req">必填</span></label><input type="date" name="b_birth"></div>
+            <div><label>出生時間（不知可空）</label><input type="time" name="b_btime"></div>
+          </div>
+          <div class="row2">
+            <div><label>手圍 cm<span class="req">必填</span></label><select name="b_wrist" required><option value="">選擇</option></select></div>
+            <div><label>珠徑 mm<span class="req">必填</span></label><select name="b_bead" required><option value="">選擇</option></select></div>
+          </div>
+          <label>核心功能（擇一）</label>
+          <div class="opts" id="coreB"></div>
+          <label>A 希望 B 調整的部分（自由填，0–3 項）</label>
+          <textarea name="b_pain" maxlength="300" placeholder="例：想要更沉穩、想要對方多一點行動力……"></textarea>
+          <label>視覺體感（擇一）</label>
+          <div class="opts" id="visB"></div>
+          <label>兩人目前的關係階段</label>
+          <select name="stage"></select>
+          <p class="est-note">僅供設計師配對參考，不影響前台試算金額。</p>
+          <label>伴侶那串的加購</label>
+          <div class="opts">
+            <label class="opt"><input type="checkbox" name="b_deep"><span><b>深度命理推論報告</b>（+300／串）</span></label>
+          </div>
+        </div>
+
+        <!-- STEP 3：物流／聯絡／送出 -->
+        <div class="step-panel hide" data-step="3">
+          <p class="step-kicker">STEP <span id="lastStepNo">3</span> · 最後幾步</p>
+          <label>物流</label>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="ship" value="store" checked><span><b>店到店</b>（+60）</span></label>
+            <label class="opt"><input type="radio" name="ship" value="self"><span><b>店長自送／面交</b>（免運，龍潭—中壢）</span></label>
+          </div>
+          <label>聯絡方式（LINE ID 或電話）<span class="req">必填</span></label>
+          <input type="text" name="contact" required maxlength="60" placeholder="方便我們與你確認設計；也用於訂單進度查詢驗證">
+          <label>Email 信箱<span class="req">必填</span></label>
+          <input type="email" name="email" required maxlength="120" placeholder="用於接收命盤解析、報價單與出貨通知信">
+        </div>
+
+        <div class="pbar">
+          <b>費用試算<small>正式金額以報價單為準</small></b>
+          <span class="amt"><span id="pAmt">—</span><small id="pDetail">選手圍與珠徑後顯示</small></span>
+        </div>
+
+        <div class="wiz-nav">
+          <button class="btn2" type="button" id="prevBtn" style="visibility:hidden">← 上一步</button>
+          <button class="btn" type="button" id="nextBtn">下一步 →</button>
+          <button class="btn" type="submit" id="submitBtn" style="display:none">送 出 問 卷</button>
+        </div>
+        <p class="est-note" style="text-align:center;margin-top:8px">送出即表示同意：生日資料僅用於配珠運算。</p>
+      </form>
+
+      <div id="done" class="hide">
+        <div class="msg ok" id="doneMsg"></div>
+        <div id="orderNoBox" class="hide" style="text-align:center;margin:14px 0">
+          <p style="font-size:13px;color:var(--ink2)">你的訂單編號（請截圖保存，可隨時查進度）</p>
+          <p style="font-size:26px;font-weight:700;letter-spacing:.1em;color:var(--rose-d)" id="orderNoTxt"></p>
+        </div>
+        <div id="fallback" class="hide">
+          <p class="est-note">目前線上通道忙碌，請按下方按鈕複製訂單內容，貼到官方 LINE（<b>17singasong</b>）給我們即可，效力相同。</p>
+          <pre class="ordertext" id="orderText"></pre>
+          <button class="btn2" id="copyBtn" type="button">複製訂單內容</button>
+          <a class="btn2" href="https://line.me/R/ti/p/~17singasong" target="_blank" rel="noopener">開啟 LINE</a>
+        </div>
+        <button class="btn2" id="againBtn" type="button" style="margin-top:8px">再填一份</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 06 訂單進度查詢 ═══ -->
+<section class="blk tint-dawn" id="track">
+  <div class="wrap rv">
+    <div class="sec-head2"><span class="chapter-mark">陸</span><div><h2>訂單進度查詢</h2><span class="en">T R A C K</span></div></div>
+    <hr class="gold-rule">
+    <p class="sec-lead">輸入訂單編號＋下單時聯絡方式的<b>末四碼</b>。排珠提案出來時，你可以在這裡直接「同意」或「要求調整」。</p>
+    <div class="track-card">
+      <div class="track-form">
+        <div><label>訂單編號</label><input type="text" id="tNo" placeholder="例：S20260712-0001" maxlength="20"></div>
+        <div><label>聯絡方式末四碼</label><input type="text" id="tVf" placeholder="LINE ID 或電話的最後 4 碼" maxlength="8"></div>
+        <button class="btn" id="tGo" type="button">查 詢</button>
+      </div>
+      <p class="est-note" id="tLast"></p>
+      <div id="tOut"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 07 FAQ ═══ -->
+<section class="blk" id="faq">
+  <div class="wrap rv">
+    <div class="sec-head2"><span class="chapter-mark">柒</span><div><h2>常見問答</h2><span class="en">F A Q</span></div></div>
+    <hr class="gold-rule">
+    <div class="faq" id="faqList"></div>
+  </div>
+</section>
+
+<!-- ═══ Footer ═══ -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">
+          <svg class="seal-mini" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="7" r="5" fill="#C9B37E"/><circle cx="32.4" cy="16" r="5" fill="#7FA98F"/><circle cx="27.6" cy="30.5" r="5" fill="#5C7A99"/><circle cx="12.4" cy="30.5" r="5" fill="#C98A92"/><circle cx="7.6" cy="16" r="5" fill="#C2A063"/></svg>
+          <span>拍拍深五行水晶設計研究所<small>Q U I N T E S S U R A</small></span>
+        </div>
+        <p class="foot-disc">本服務為傳統文化意象與心理學自我覺察工具之結合，非醫療、心理治療或命運預測，效果因人感受而異。網站文案不使用療效、運勢承諾等字眼；報告與報價僅列晶石名稱、五行屬性與顆數。生日資料僅用於配珠運算，絕不要求提供出生地。</p>
+      </div>
+      <div class="foot-links">
+        <a href="https://line.me/R/ti/p/~17singasong" target="_blank" rel="noopener">LINE：17singasong</a>
+        <a href="#works">Instagram：IGSINGASONG</a>
+        <a href="#works">蝦皮：拍拍深五行水晶設計研究所</a>
+        <a href="#works">LINKGOODS：ANWER3712</a>
+        <a href="#method">運算原理與隱私設計</a>
+        <a href="admin.html" rel="nofollow">店務後台</a>
+      </div>
+    </div>
+    <div class="foot-copy">
+      <span>© 2026 拍拍深五行水晶設計研究所 · 手作訂製</span>
+      <span>安全設計：全站無第三方載入 · 表單防濫發 · 資料最小化</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══ AI 客服 ═══ -->
+<button class="chat-fab" id="chatFab" aria-label="開啟客服">串</button>
+<div class="chat-panel" id="chatPanel" role="dialog" aria-label="線上客服">
+  <div class="chat-head">
+    <b>小串・訂製助理<small>AI 輔助回覆 · 真人請走 LINE 17singasong</small></b>
+    <button id="chatClose" aria-label="關閉">✕</button>
+  </div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="chips" id="chatChips"></div>
+  <div class="chat-in">
+    <input type="text" id="chatInput" placeholder="想問什麼？例：18cm 配 10mm 多少錢" maxlength="300">
+    <button id="chatSend">送出</button>
+  </div>
+  <p class="chat-note">AI 回覆僅供訂購參考，不涉醫療與命運預測；正式金額以報價單為準。</p>
+</div>
+
+<noscript><div style="position:fixed;inset:auto 0 0 0;background:#10233A;color:#fff;padding:12px;text-align:center;font-size:13px;z-index:99">此頁需要啟用 JavaScript；若無法啟用，請直接加 LINE：17singasong 訂購。</div></noscript>
+
+<script src="config.js"></script>
+<script>
+/* ═══════════ 工具 ═══════════ */
+const $ = s => document.querySelector(s);
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function api(path, payload){
+  if(!CONFIG.N8N_BASE) throw new Error('offline');
+  const ctl = new AbortController(); const t = setTimeout(()=>ctl.abort(), CONFIG.timeoutMs);
+  try{
+    const r = await fetch(CONFIG.N8N_BASE + path, {method:'POST',headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token: CONFIG.SITE_TOKEN, ...payload }), signal: ctl.signal});
+    if(!r.ok) throw new Error('http '+r.status);
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+
+/* ═══════════ 捲動進度條 ═══════════ */
+window.addEventListener('scroll',()=>{
+  const h = document.documentElement;
+  const p = (h.scrollTop) / Math.max(1,(h.scrollHeight - h.clientHeight)) * 100;
+  $('#scrollBar').style.width = p + '%';
+},{passive:true});
+
+/* ═══════════ 導覽 ═══════════ */
+$('#burger').addEventListener('click',()=>{ $('#burger').classList.toggle('open'); $('#navLinks').classList.toggle('open'); });
+document.querySelectorAll('#navLinks a').forEach(a=>a.addEventListener('click',()=>{ $('#burger').classList.remove('open'); $('#navLinks').classList.remove('open'); }));
+
+/* ═══════════ 進場動畫 ═══════════ */
+const io = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} }),{threshold:.08});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+
+/* ═══════════ Hero 手串環 ═══════════ */
+(function ring(){
+  const svg = $('#heroRing'); const cx=210, cy=210, R=150, n=20;
+  const seq = ["金","木","火","土","水","木","火","水","土","金","木","水","火","土","木","金","水","火","木","土"]; // 示意排列（金木、水火不相鄰）
+  let g = `<g class="spin">`;
+  for(let i=0;i<n;i++){
+    const a = (i/n)*Math.PI*2 - Math.PI/2;
+    const x = cx + R*Math.cos(a), y = cy + R*Math.sin(a);
+    const el = seq[i%seq.length]; const c = ELEM.colors[el];
+    const r = i===0 ? 26 : 19;
+    g += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="${c}" opacity="${i===0?1:.92}"/>`;
+    g += `<circle cx="${(x-r*.3).toFixed(1)}" cy="${(y-r*.3).toFixed(1)}" r="${(r*.32).toFixed(1)}" fill="#fff" opacity=".38"/>`;
+  }
+  g += `</g><circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#C2A063" stroke-width="1" stroke-dasharray="3 7" opacity=".5"/>`;
+  svg.innerHTML = g;
+})();
+
+/* ═══════════ 最新消息 ═══════════ */
+$('#newsList').innerHTML = CONFIG.NEWS.map(n=>`<div class="news-item"><time>${esc(n.d)}</time><span class="tag">${esc(n.tag)}</span><p>${esc(n.t)}</p></div>`).join('');
+
+/* ═══════════ 作品集 lightbox＋外連鈕 ═══════════ */
+$('#gal').addEventListener('click',e=>{ const img=e.target.closest('img'); if(!img)return; $('#lbImg').src=img.src; $('#lightbox').classList.add('on'); });
+$('#lightbox').addEventListener('click',()=>$('#lightbox').classList.remove('on'));
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ $('#lightbox').classList.remove('on'); chatPanel.classList.remove('on'); } });
+if(CONFIG.ICLOUD_ALBUM_URL){ const mb=$('#moreWorksBtn'); mb.href = CONFIG.ICLOUD_ALBUM_URL; mb.classList.remove('hide'); }
+/* 作品集輪播：自動輪播＋左右鈕＋圓點（滑鼠移入／觸控時暫停） */
+(function carousel(){
+  const rail=$('#gal'), dots=$('#galDots'), cards=[...rail.children];
+  if(!cards.length) return;
+  dots.innerHTML = cards.map((_,i)=>`<i${i?'':' class="on"'}></i>`).join('');
+  const step = () => cards[0].getBoundingClientRect().width + 14;
+  const idx  = () => Math.round(rail.scrollLeft/step());
+  const go = i => rail.scrollTo({left: Math.max(0,Math.min(cards.length-1,i))*step(), behavior:'smooth'});
+  $('#galPrev').addEventListener('click',()=>go(idx()-1));
+  $('#galNext').addEventListener('click',()=>go(idx()+1));
+  rail.addEventListener('scroll',()=>{ const c=idx(); [...dots.children].forEach((d,i)=>d.classList.toggle('on',i===c)); },{passive:true});
+  let hold=false;
+  ['mouseenter','touchstart','focusin'].forEach(e=>rail.addEventListener(e,()=>hold=true,{passive:true}));
+  ['mouseleave','touchend'].forEach(e=>rail.addEventListener(e,()=>hold=false,{passive:true}));
+  setInterval(()=>{ if(hold||$('#lightbox').classList.contains('on')||document.hidden) return;
+    const c=idx(); go(c>=cards.length-1?0:c+1); }, 4200);
+})();
+
+/* ═══════════ 底價矩陣渲染＋珠數計算器 ═══════════ */
+(function method(){
+  const P = CONFIG.PRICE, ws = Object.keys(P.rows);
+  let h = '<table class="mt"><tr><th>手圍＼珠徑</th>' + P.beads.map(b=>`<th>${b}mm</th>`).join('') + '</tr>';
+  ws.forEach(w=>{ h += `<tr><th>${w}cm</th>` + P.rows[w].map(v=>`<td>${v}</td>`).join('') + '</tr>'; });
+  $('#priceTable').innerHTML = h + '</table>';
+  const selW=$('#ncW'), selB=$('#ncB');
+  selW.innerHTML = ws.map(w=>`<option ${w==='18'?'selected':''}>${w}</option>`).join('');
+  selB.innerHTML = P.beads.map(b=>`<option ${b===10?'selected':''}>${b}</option>`).join('');
+  function draw(){
+    const N = Math.floor(parseFloat(selW.value)*10/parseFloat(selB.value)) + 2;
+    $('#ncN').textContent = N;
+    const svg = $('#nbeads'); const w = 640, r = Math.min(13, (w-20)/(N*2.35));
+    let s = ''; const seq = ELEM.order;
+    for(let i=0;i<N;i++){
+      const x = 14 + r + i*( (w-28-2*r) / Math.max(1,N-1) );
+      const c = ELEM.colors[seq[i%5]];
+      s += `<circle cx="${x.toFixed(1)}" cy="33" r="${r.toFixed(1)}" fill="${c}"/><circle cx="${(x-r*.3).toFixed(1)}" cy="${(33-r*.3).toFixed(1)}" r="${(r*.3).toFixed(1)}" fill="#fff" opacity=".4"/>`;
+    }
+    svg.innerHTML = s;
+  }
+  selW.addEventListener('change',draw); selB.addEventListener('change',draw); draw();
+})();
+
+/* ═══════════ 問卷（分步驟精靈） ═══════════ */
+const F = document.getElementById('f');
+let mode = 'single';
+const formStart = Date.now();
+
+function radios(el,name,arr){ el.innerHTML = arr.map((o,i)=>`<label class="opt"><input type="radio" name="${name}" value="${esc(o[0])}" ${i===0?'checked':''}><span><b>${esc(o[0])}</b><span class="d">${esc(o[1])}</span></span></label>`).join(''); }
+radios($('#coreA'),'a_core',CONFIG.CORE); radios($('#visA'),'a_vis',CONFIG.VIS);
+radios($('#coreB'),'b_core',CONFIG.CORE); radios($('#visB'),'b_vis',CONFIG.VIS);
+
+const wrists = Object.keys(CONFIG.PRICE.rows);
+function fillSel(sel,arr){ sel.innerHTML = '<option value="">選擇</option>' + arr.map(v=>`<option>${v}</option>`).join(''); }
+['a','b'].forEach(p=>{ fillSel(F[p+'_wrist'],wrists); fillSel(F[p+'_bead'],CONFIG.PRICE.beads); });
+F.stage.innerHTML = CONFIG.COUPLE_STAGES.map(v=>`<option>${esc(v)}</option>`).join('');
+F.addEventListener('change',est); F.addEventListener('input',est);
+
+/* —— 步驟導覽 —— */
+function visibleSteps(){ return mode==='couple' ? [0,1,2,3] : [0,1,3]; }
+let stepPos = 0;
+function renderDots(){
+  const vs = visibleSteps();
+  $('#wizDots').innerHTML = vs.map((_,i)=>`<span class="wdot ${i===stepPos?'on':(i<stepPos?'done':'')}"></span>`).join('');
+}
+function showStep(){
+  const vs = visibleSteps(); const stepNo = vs[stepPos];
+  document.querySelectorAll('.step-panel').forEach(p=>p.classList.add('hide'));
+  document.querySelector(`.step-panel[data-step="${stepNo}"]`).classList.remove('hide');
+  $('#prevBtn').style.visibility = stepPos===0 ? 'hidden' : 'visible';
+  const isLast = stepPos === vs.length-1;
+  $('#nextBtn').classList.toggle('hide', isLast);
+  $('#submitBtn').style.display = isLast ? 'block' : 'none';
+  $('#lastStepNo').textContent = vs.length;
+  renderDots();
+}
+function stepValid(stepNo){
+  const panel = document.querySelector(`.step-panel[data-step="${stepNo}"]`);
+  const reqs = panel.querySelectorAll('[required]');
+  for(const el of reqs){ if(!el.checkValidity()){ el.reportValidity(); return false; } }
+  return true;
+}
+$('#nextBtn').addEventListener('click',()=>{
+  const vs = visibleSteps(); const stepNo = vs[stepPos];
+  if(!stepValid(stepNo)) return;
+  stepPos = Math.min(stepPos+1, vs.length-1);
+  showStep();
+  window.scrollTo({top:$('#order').getBoundingClientRect().top+scrollY-70,behavior:'smooth'});
+});
+$('#prevBtn').addEventListener('click',()=>{
+  stepPos = Math.max(stepPos-1,0); showStep();
+  window.scrollTo({top:$('#order').getBoundingClientRect().top+scrollY-70,behavior:'smooth'});
+});
+
+$('#modeSeg').addEventListener('click',e=>{
+  const b = e.target.closest('.mode-card'); if(!b) return;
+  mode = b.dataset.mode;
+  document.querySelectorAll('.mode-card').forEach(x=>x.classList.toggle('on',x===b));
+  $('#qtyWrap').classList.toggle('hide', mode==='couple');
+  $('#legendA').textContent = mode==='couple' ? '你的資料（下單人）' : '你的資料';
+  ['b_name','b_birth'].forEach(n=>F[n].required = (mode==='couple'));
+  stepPos = 0; showStep(); est();
+});
+
+function base(w,b){ const r=CONFIG.PRICE.rows[w]; const i=CONFIG.PRICE.beads.indexOf(+b); return (r&&i>-1)?r[i]:null; }
+function est(){
+  const P=CONFIG.PRICE; let t=0, ok=true, parts=[];
+  const add=(w,b,dp,tag)=>{ const v=base(w,b); if(v==null){ok=false;return;} const s=v+(dp?P.deep:0); parts.push(`${tag} ${s}`); t+=s; };
+  if(mode==='single'){
+    const q=+F.qty.value||1; const v=base(F.a_wrist.value,F.a_bead.value);
+    if(v==null) ok=false; else { const per=v+(F.a_deep.checked?P.deep:0); t=per*q; parts.push(`${per}×${q}條`); }
+  } else {
+    add(F.a_wrist.value,F.a_bead.value,F.a_deep.checked,'你');
+    add(F.b_wrist.value,F.b_bead.value,F.b_deep.checked,'伴侶');
+  }
+  t += (F.ship.value==='store'?P.shipStore:0);
+  $('#pAmt').textContent = ok? ('NT$ '+t.toLocaleString()) : '—';
+  $('#pDetail').textContent = ok? (parts.join('＋')+(F.ship.value==='store'?'＋運60':'（免運）')) : '選手圍與珠徑後顯示';
+}
+
+function collect(){
+  const g=n=>{ const el=F[n]; if(!el) return ''; if(el.type==='checkbox') return el.checked; return (el.value||'').trim(); };
+  const rv=n=>{ const el=F.querySelector(`[name="${n}"]:checked`); return el?el.value:''; };
+  const d=new Date(), ymd=d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+  // 鍵名已對齊 WF1『欄位對應』節點契約（P2 定案）：a_*/qty/ship/contact/email 皆為 WF1 直接可讀欄位，
+  // 含 qty(1/2)→tracks(A/B) 對映；SALES_前台進件 forward 到 WF1 時原樣轉發即可，無需重新命名。
+  const o={ type:mode, ts:d.toISOString(), temp_id:'T'+ymd+'-'+Math.random().toString(36).slice(2,5).toUpperCase(),
+    A:{ name:g('a_name'),gender:g('a_gender'),birth:g('a_birth'),btime:g('a_btime')||'無時辰',wrist:g('a_wrist'),bead:g('a_bead'),core:rv('a_core'),pain:g('a_pain'),vis:rv('a_vis'),deep:g('a_deep') },
+    ship: F.ship.value==='store'?'店到店':'店長自送', contact:g('contact'), email:g('email'), est: $('#pAmt').textContent };
+  if(mode==='single') o.qty=+F.qty.value||1;
+  else o.B={ name:g('b_name'),gender:g('b_gender'),birth:g('b_birth'),btime:g('b_btime')||'無時辰',wrist:g('b_wrist'),bead:g('b_bead'),core:rv('b_core'),pain:g('b_pain'),vis:rv('b_vis'),deep:g('b_deep'), stage:g('stage') };
+  return o;
+}
+function orderText(o){
+  const L=[]; L.push(`【訂製問卷】${o.type==='couple'?'情侶對串':'個人手串'}　暫編 ${o.temp_id}`);
+  const per=(t,x)=>{ L.push(`━ ${t} ━`); L.push(`姓名：${x.name}｜性別：${x.gender}`); L.push(`國曆生日＋時間：${x.birth} ${x.btime}`); L.push(`手圍：${x.wrist}cm｜珠徑：${x.bead||'未選'}mm`); L.push(`核心功能：${x.core}`); if(x.pain) L.push(`痛點／希望調整：${x.pain}`); L.push(`視覺體感：${x.vis}`); L.push(`加購：${x.deep?'✔深度報告':'無'}`); };
+  per(o.type==='couple'?'客戶A（下單人）':'客戶',o.A);
+  if(o.B){ per('客戶B（伴侶）',o.B); L.push(`關係階段：${o.B.stage}`); }
+  if(o.qty) L.push(`訂製數量：${o.qty} 條`);
+  L.push(`物流：${o.ship}｜聯絡：${o.contact}｜Email：${o.email||'未填'}`); L.push(`前台試算：${o.est}`);
+  return L.join('\n');
+}
+
+F.addEventListener('submit', async e=>{
+  e.preventDefault();
+  if(F.website.value){ return; }                            // 蜜罐：機器人填了就靜默丟棄
+  if(Date.now()-formStart < 3000){ return; }                // 3 秒內送出＝機器人
+  if(!F.reportValidity()) return;
+  const btn=$('#submitBtn'); btn.disabled=true; btn.textContent='送出中…';
+  const o=collect(); const txt=orderText(o);
+  const path = mode==='couple' ? CONFIG.PATHS.INTAKE_COUPLE : CONFIG.PATHS.INTAKE_SINGLE;
+  let res=null;
+  try{ res = await api(path, { order:o }); }catch(_){ res=null; }
+  F.classList.add('hide'); $('#done').classList.remove('hide');
+  if(res && res.ok && res.order_no){
+    $('#doneMsg').textContent='問卷已送出！我們會在 1 個工作天內與你聯繫確認設計。';
+    $('#orderNoTxt').textContent=res.order_no; $('#orderNoBox').classList.remove('hide');
+    try{ localStorage.setItem('pps_last_order', JSON.stringify({no:res.order_no, vf:(o.contact||'').slice(-4)})); }catch(_){}
+  } else {
+    $('#doneMsg').textContent='已為你整理好訂單內容。';
+    $('#fallback').classList.remove('hide'); $('#orderText').textContent=txt;
+  }
+  window.scrollTo({top:$('#done').getBoundingClientRect().top+scrollY-90,behavior:'smooth'});
+});
+$('#copyBtn').addEventListener('click',async e=>{
+  try{ await navigator.clipboard.writeText($('#orderText').textContent); e.target.textContent='已複製 ✔'; }
+  catch(_){ const r=document.createRange(); r.selectNode($('#orderText')); getSelection().removeAllRanges(); getSelection().addRange(r); document.execCommand('copy'); e.target.textContent='已複製 ✔'; }
+});
+$('#againBtn').addEventListener('click',()=>{ $('#done').classList.add('hide'); F.classList.remove('hide'); F.reset(); mode='single'; document.querySelectorAll('.mode-card').forEach((x,i)=>x.classList.toggle('on',i===0)); stepPos=0; showStep(); est(); $('#submitBtn').disabled=false; $('#submitBtn').textContent='送 出 問 卷'; });
+showStep(); est();
+
+/* ═══════════ 訂單進度查詢 ═══════════ */
+(function track(){
+  try{ const last = JSON.parse(localStorage.getItem('pps_last_order')||'null');
+    if(last && last.no){ $('#tLast').innerHTML = `上次訂單：<a href="#" id="tFill" style="color:var(--rose-d)">${esc(last.no)}</a>（點一下自動帶入）`;
+      $('#tFill').addEventListener('click',e=>{ e.preventDefault(); $('#tNo').value=last.no; $('#tVf').value=last.vf||''; query(); }); }
+  }catch(_){}
+  const out = $('#tOut');
+  function offline(){ out.innerHTML = `<div class="msg warn">目前查詢通道忙碌。請加 LINE <b>17singasong</b> 報上訂單編號，真人為你查詢。</div>`; }
+  async function query(){
+    const no=$('#tNo').value.trim(), vf=$('#tVf').value.trim();
+    if(!no||!vf){ out.innerHTML='<div class="msg warn">請填訂單編號＋聯絡方式末四碼。</div>'; return; }
+    out.innerHTML='<div class="msg ok">查詢中…</div>';
+    let r=null; try{ r = await api(CONFIG.PATHS.STATUS,{ order_no:no, verify:vf, op:'get' }); }catch(_){ return offline(); }
+    if(!r || !r.ok){ out.innerHTML=`<div class="msg warn">${esc(r&&r.msg||'查不到這筆訂單，請確認編號與末四碼。')}</div>`; return; }
+    render(r);
+  }
+  function render(r){
+    const idx = Math.max(0, CONFIG.STAGES.indexOf(r.stage));
+    let h = '<div class="timeline">' + CONFIG.STAGES.map((s,i)=>`<div class="tstep ${i<idx?'done':''} ${i===idx?'cur':''}"><i></i><span>${s}</span></div>`).join('') + '</div>';
+    h += `<p class="est-note" style="text-align:center">單號 ${esc(r.order_no)}｜${esc(r.type||'')}｜最後更新 ${esc((r.updated_at||'').slice(0,16).replace('T',' '))}</p>`;
+    if(r.quote_total) h += `<p style="text-align:center;font-size:14px;margin-top:6px">報價金額：<b style="color:var(--rose-d)">NT$ ${Number(r.quote_total).toLocaleString()}</b></p>`;
+    if(r.design){
+      h += `<div class="design-box"><h4>🪷 排珠提案（待你確認）</h4><pre>${esc(r.design)}</pre>`;
+      if(r.design_state==='approved'){ h += `<p class="msg ok" style="margin-top:10px">你已同意此提案，我們照此製作。</p>`; }
+      else if(r.design_state==='revise'){ h += `<p class="msg warn" style="margin-top:10px">已收到你的調整需求，設計師調整後會再請你確認。</p>`; }
+      else { h += `<div class="act-row">
+        <button class="btn" id="actOk" type="button">✓ 同意此排珠</button>
+        <button class="btn2" id="actRe" type="button">想調整…</button>
+      </div><div id="reBox" class="hide" style="margin-top:10px"><textarea id="reTxt" maxlength="300" placeholder="想調整哪裡？例：想要更深的藍、主珠想換……"></textarea><button class="btn2" id="reSend" type="button" style="margin-top:8px">送出調整需求</button></div>`; }
+      h += '</div>';
+    }
+    h += `<div class="design-box"><h4>💬 給店家留言</h4><textarea id="cmTxt" maxlength="300" placeholder="其他想說的話（意見、備註、想加的細節）"></textarea><button class="btn2" id="cmSend" type="button" style="margin-top:8px">送出留言</button><div class="evt-list" id="evtList">${
+      (r.events||[]).map(ev=>`<div class="evt"><b>${esc(ev.kind)}</b> ${esc(ev.note||'')}<time>${esc((ev.at||'').slice(0,16).replace('T',' '))}</time></div>`).join('')
+    }</div></div>`;
+    $('#tOut').innerHTML = h;
+    const no=$('#tNo').value.trim(), vf=$('#tVf').value.trim();
+    const act = async (action,note,btn)=>{ if(btn){btn.disabled=true;btn.textContent='送出中…';}
+      try{ const rr = await api(CONFIG.PATHS.STATUS,{ order_no:no, verify:vf, op:'act', action, note:note||'' }); if(rr&&rr.ok){ query(); } else offline(); }catch(_){ offline(); } };
+    const q = s=>document.getElementById(s);
+    if(q('actOk')) q('actOk').addEventListener('click',e=>{ if(confirm('確認同意此排珠提案？同意後即進入製作準備。')) act('approve','',e.target); });
+    if(q('actRe')) q('actRe').addEventListener('click',()=>q('reBox').classList.remove('hide'));
+    if(q('reSend')) q('reSend').addEventListener('click',e=>{ const t=q('reTxt').value.trim(); if(!t){alert('請填想調整的內容');return;} act('revise',t,e.target); });
+    if(q('cmSend')) q('cmSend').addEventListener('click',e=>{ const t=q('cmTxt').value.trim(); if(!t){alert('請填留言內容');return;} act('comment',t,e.target); });
+  }
+  $('#tGo').addEventListener('click',query);
+  $('#tVf').addEventListener('keydown',e=>{ if(e.key==='Enter') query(); });
+})();
+
+/* ═══════════ FAQ（同時餵給 AI 客服當知識庫） ═══════════ */
+const FAQ = [
+  ["價格怎麼算？","底價依「手圍 × 珠徑」查底價矩陣（運算方式區有完整表），加購深度命理推論報告 +300／串；店到店運費 60、店長自送（龍潭—中壢）免運。少數晶石若有更高規格版本，設計完成後我們會在「訂單確認頁」另外提出，你可以自由選擇要不要加購。問卷下方會即時試算，正式金額以報價單為準。"],
+  ["下單後多久收到？","流程：送出問卷 → 1 個工作天內聯繫 → 初步規劃你確認 → 報價 → 匯款確認後手工製作，約 7–10 個工作天交付。每一步都可在「訂單進度查詢」看到。"],
+  ["怎麼付款？","報價單會附收款帳戶（聯邦／郵局／台新，戶名張英風）。先匯款後製作，匯款後回傳帳號末五碼即可。"],
+  ["珠徑怎麼選？","常見 8–10mm：手圍較小或喜歡輕盈感選 6–8mm；喜歡存在感選 10–12mm。顆數公式＝手圍(mm)÷珠徑(mm) 取整數再 +2，原理區有互動試算。"],
+  ["需要提供哪些資料？","姓名（暱稱可）、性別、國曆生日（出生時間不知道可留空）、手圍、你的期待與痛點。我們絕不收出生地——真太陽時一律以東經 120° 計算。"],
+  ["沒有出生時間怎麼辦？","走「三柱模式」：時柱權重歸零、分母 100→80，整體置信度乘 0.70，報告會誠實標注。不會偷補子時。"],
+  ["排珠可以改嗎？","可以。初步規劃出來會先請你確認：在進度查詢頁按「同意」或「想調整」留下需求，設計師調整後再請你確認一次，同意才動手做。"],
+  ["怎麼查訂單進度？","送出問卷會拿到訂單編號（S 開頭）。到「訂單進度查詢」輸入編號＋當時聯絡方式的末四碼即可；共七個階段一目了然。"],
+  ["會用到哪些水晶？","只用 95 種晶石白名單內的石種（清單外一律不用），每顆只認主五行。實際選石依你的命盤運算結果，報告會逐顆說明「為什麼放它」。"],
+  ["情侶對串跟兩條個人串差在哪？","情侶對串是「雙人合盤」：先各算兩人的單人向量，再以 0.4＋0.4＋0.2（橋接元素）融合，並依關係階段乘修正係數——兩條串是一組設計，不是兩條獨立的串。"],
+  ["退換貨怎麼處理？","手工訂製品依個案處理：製作動工前都可取消；其他狀況請加 LINE 17singasong 與店長討論，我們一定好好處理。"],
+  ["這是醫療或改運服務嗎？","不是。本服務為傳統文化意象與心理學自我覺察工具之結合，非醫療、心理治療或命運預測，效果因人感受而異；文案也不使用療效或運勢承諾字眼。"]
+];
+$('#faqList').innerHTML = FAQ.map(f=>`<details><summary>${esc(f[0])}</summary><div class="fa">${esc(f[1])}</div></details>`).join('');
+
+/* ═══════════ AI 客服（本地知識庫 + n8n AI 代理，雙保險） ═══════════ */
+const chatPanel = $('#chatPanel'), chatBody = $('#chatBody');
+const chatHist = [];
+$('#chatFab').addEventListener('click',()=>{ chatPanel.classList.toggle('on'); if(chatBody.children.length===0) botSay('嗨，我是小串 🪷\n可以問我：怎麼算價格、多久收到、怎麼選珠徑、怎麼查訂單……\n需要真人的話，LINE 搜尋 17singasong。'); });
+$('#chatClose').addEventListener('click',()=>chatPanel.classList.remove('on'));
+const CHIPS = ["價格怎麼算？","18cm 配 10mm 多少錢","多久收到？","怎麼查進度？","沒有出生時間可以嗎？","找真人"];
+$('#chatChips').innerHTML = CHIPS.map(c=>`<button type="button">${esc(c)}</button>`).join('');
+$('#chatChips').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) send(b.textContent); });
+
+function addMsg(cls, text){
+  const d = document.createElement('div'); d.className='cmsg '+cls; d.textContent = text;
+  chatBody.appendChild(d); chatBody.scrollTop = chatBody.scrollHeight; return d;
+}
+function botSay(t){ addMsg('bot',t); chatHist.push({role:'assistant',content:t}); }
+
+/* —— 本地規則腦（永遠可用、零成本） —— */
+function localBrain(q){
+  const has = (...ws)=>ws.some(w=>q.includes(w));
+  const mW = q.match(/(1[4-9](?:\.5)?|20)\s*(?:cm|公分|手圍)?/), mB = q.match(/(?:[^\d]|^)([4-9]|1[0-2])\s*mm/);
+  if(mW && mB){
+    const w = mW[1], b = +mB[1]; const v = base(w,b);
+    if(v!=null) return `手圍 ${w}cm × 珠徑 ${b}mm 的底價是 NT$ ${v.toLocaleString()}／串。\n加購：深度報告 +300；店到店運費 60、面交免運。\n（正式金額以報價單為準，問卷下方也有即時試算）`;
+    return '這個尺寸超出底價矩陣範圍，需要人工報價——加 LINE 17singasong，店長直接算給你。';
+  }
+  if(has('價','錢','費用','多少')) return FAQ[0][1];
+  if(has('多久','幾天','交期','什麼時候','何時')) return FAQ[1][1];
+  if(has('付款','匯款','轉帳','帳戶','帳號')) return FAQ[2][1];
+  if(has('珠徑','幾mm','顆數','大小')) return FAQ[3][1];
+  if(has('資料','需要提供','要填')) return FAQ[4][1];
+  if(has('時辰','出生時間','不知道幾點')) return FAQ[5][1];
+  if(has('出生地','隱私','個資')) return '我們絕不收出生地——真太陽時一律以東經 120° 計算，這是寫進公式的隱私設計。生日資料僅用於配珠運算。';
+  if(has('改','調整','修改','換')) return FAQ[6][1];
+  if(has('進度','查詢','查單','到哪')) return FAQ[7][1] + '\n（往上捲到「訂單進度查詢」區就能查）';
+  if(has('水晶','晶石','石頭','材質')) return FAQ[8][1];
+  if(has('情侶','對串','合盤','兩人')) return FAQ[9][1];
+  if(has('退','換貨','取消')) return FAQ[10][1];
+  if(has('醫療','改運','有效','有用')) return FAQ[11][1];
+  if(has('怎麼算','原理','公式','數值','由來')) return '整套公式都攤在「運算原理」區：需求向量六分量（扶抑30%／缺口28%／調候12%／流年12%／盲派10%／意圖8%）、五派交叉裁決、Cap/Floor、Hamilton 分配、禁鄰規則。歡迎往上捲慢慢看。';
+  if(has('真人','店長','客服','聯絡','line','LINE')) return '真人服務走官方 LINE：17singasong（回覆最快）。也可以 IG 私訊 IGSINGASONG。';
+  if(has('地址','面交','自送','店到店','運')) return '物流兩種：店到店 +60；店長自送／面交免運（範圍龍潭—中壢，約定時間地點）。';
+  if(has('訂','買','下單','開始')) return '直接往上捲到「訂製問卷」區，一步一步填，約 3 分鐘填完；送出會拿到訂單編號，之後都能線上查進度。';
+  return null;
+}
+
+async function send(text){
+  text = (text||$('#chatInput').value).trim(); if(!text) return;
+  $('#chatInput').value='';
+  addMsg('user',text); chatHist.push({role:'user',content:text});
+  const typing = addMsg('bot typing',''); typing.innerHTML='<i></i><i></i><i></i>';
+  const local = localBrain(text);
+  let reply = null;
+  if(CONFIG.N8N_BASE){
+    try{
+      const r = await api(CONFIG.PATHS.CHAT,{ message:text, history: chatHist.slice(-8,-1) });
+      if(r && r.ok && r.reply) reply = r.reply;
+    }catch(_){ reply = null; }
+  }
+  typing.remove();
+  botSay(reply || local || '這題我想請店長親自回答你 🙏\n加 LINE：17singasong（點右下角「找真人」也可以）。\n也可以換個問法，例如「價格怎麼算」「多久收到」。');
+}
+$('#chatSend').addEventListener('click',()=>send());
+$('#chatInput').addEventListener('keydown',e=>{ if(e.key==='Enter') send(); });
+</script>
+</body>
+</html>

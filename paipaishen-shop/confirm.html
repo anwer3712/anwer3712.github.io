@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src https://n8n.anwer3712.com; base-uri 'none'; form-action 'self'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='6' r='4' fill='%23C9B37E'/%3E%3Ccircle cx='25.5' cy='12.9' r='4' fill='%237FA98F'/%3E%3Ccircle cx='21.9' cy='24.1' r='4' fill='%235C7A99'/%3E%3Ccircle cx='10.1' cy='24.1' r='4' fill='%23C98A92'/%3E%3Ccircle cx='6.5' cy='12.9' r='4' fill='%23C2A063'/%3E%3C/svg%3E">
+<title>訂單確認｜拍拍深五行水晶設計研究所</title>
+<style>
+:root{
+  --warm:#FFFFFF;--warm2:#F7F9FA;--dawn:#F7F9FA;--dawn2:#C9D6DF;--morandi:#E3EAF0;
+  --rose:#34A97B;--rose-d:#0E8F5E;--ink:#10233A;--ink2:#5A6B7C;--gold:#0E8F5E;--line:#E3EAF0;--ok:#7FA98F;
+  --serif:"Noto Serif TC","Songti TC","Microsoft JhengHei","PingFang TC",serif;
+  --sans:system-ui,-apple-system,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);color:var(--ink);background:var(--warm);line-height:1.85;padding-bottom:86px;}
+h1,h2{font-family:var(--serif);}
+.wrap{max-width:680px;margin:0 auto;padding:0 20px;}
+a{color:inherit;}
+button{font-family:inherit;}
+
+.nav{background:rgba(255,255,255,.94);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50;}
+.nav-in{max-width:680px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;}
+.nav-brand{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;letter-spacing:.12em;text-decoration:none;}
+.nav-brand .seal-mini{width:22px;height:22px;flex:none;}
+.nav-brand small{display:block;color:var(--rose);font-weight:300;font-size:8.5px;letter-spacing:.24em;}
+.back-link{font-size:12.5px;color:var(--ink2);text-decoration:none;}
+.back-link:hover{color:var(--rose-d);}
+
+.cf-hero{background:linear-gradient(165deg,var(--dawn) 0%,var(--warm) 80%);padding:34px 0 26px;text-align:center;}
+.cf-hero .kicker{font-size:11px;letter-spacing:.4em;color:var(--rose);margin-bottom:10px;}
+.cf-hero h1{font-size:clamp(22px,5vw,28px);font-weight:700;letter-spacing:.08em;}
+.cf-hero p.lead{font-size:13.5px;color:var(--ink2);font-weight:300;margin-top:10px;max-width:30em;margin-left:auto;margin-right:auto;}
+.order-tag{margin-top:14px;font-size:12.5px;color:var(--ink2);}
+.order-tag b{color:var(--rose-d);letter-spacing:.06em;}
+
+.cf-main{padding:22px 20px 20px;}
+.msg{padding:12px 14px;border-radius:10px;font-size:13px;margin-bottom:16px;}
+.msg.ok{background:#EFF5F1;border:1px solid var(--ok);color:#3E5E4B;}
+.msg.warn{background:#F7F9FA;border:1px solid var(--rose);color:var(--ink);}
+.hide{display:none!important;}
+
+.cf-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px;}
+.sec-head2.sm{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.chapter-mark{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--rose-d);flex:none;background:var(--warm);}
+.sec-head2.sm h2{font-size:17px;font-weight:700;letter-spacing:.08em;}
+.sec-lead{font-size:13px;color:var(--ink2);font-weight:300;margin-bottom:14px;}
+
+.plan-card{display:flex;gap:12px;border:1.5px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px;cursor:pointer;background:#fff;transition:.15s;}
+.plan-card:hover{border-color:var(--dawn2);}
+.plan-card:has(input:checked){border-color:var(--rose);background:#EAF7F1;}
+.plan-card input{margin-top:4px;accent-color:var(--rose);flex:none;}
+.plan-body{flex:1;}
+.plan-title{font-size:15px;font-weight:700;letter-spacing:.03em;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.rec-tag{font-size:10px;background:var(--gold);color:#fff;padding:2px 9px;border-radius:10px;letter-spacing:.1em;font-weight:500;}
+.plan-body p{font-size:12.5px;color:var(--ink2);font-weight:300;margin:6px 0;}
+.plan-price{font-size:18px;font-weight:700;color:var(--rose-d);}
+
+.upg-group{display:flex;gap:14px;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;background:var(--warm2);flex-wrap:wrap;}
+.upg-photos{display:flex;gap:8px;flex:none;}
+.ph-box{width:72px;height:72px;border:1.5px dashed var(--rose);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--rose);text-align:center;background:#fff;letter-spacing:.05em;line-height:1.4;padding:4px;}
+.upg-info{flex:1;min-width:150px;}
+.upg-info b{font-size:13px;display:block;margin-bottom:4px;letter-spacing:.02em;}
+.upg-info p{font-size:12px;color:var(--ink2);font-weight:300;}
+.upgrade-choice{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
+.opt{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;font-size:13px;transition:.15s;}
+.opt:has(input:checked){border-color:var(--rose);background:#EAF7F1;}
+.opt input{margin-top:4px;accent-color:var(--rose);}
+.opt b{font-weight:700;font-size:13.5px;display:block;}
+.opt .d{color:var(--ink2);font-weight:300;display:block;font-size:12px;margin-top:2px;}
+
+label{display:block;font-size:13px;font-weight:500;margin-bottom:6px;}
+textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font:inherit;font-size:13.5px;min-height:64px;resize:vertical;background:#fff;color:var(--ink);}
+textarea:focus{outline:2px solid var(--dawn2);border-color:var(--dawn2);}
+
+.cf-bar{position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(255,255,255,.97);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:11px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 -8px 22px rgba(16,35,58,.12);}
+.cf-bar-amt{flex:1;min-width:0;}
+.cf-bar-amt small{display:block;font-size:10px;color:var(--ink2);letter-spacing:.06em;}
+.cf-bar-amt b{font-size:17px;color:var(--rose-d);white-space:nowrap;}
+.btn,.btn2{border:0;border-radius:11px;font:inherit;font-size:13px;letter-spacing:.08em;cursor:pointer;padding:11px 16px;text-align:center;text-decoration:none;white-space:nowrap;}
+.btn{background:var(--rose-d);color:#fff;font-weight:700;}
+.btn:hover{background:#0A6E48;}
+.btn:disabled{opacity:.6;cursor:default;}
+.btn2{background:#fff;border:1.5px solid var(--ink);color:var(--ink);}
+.btn2:hover{background:var(--ink);color:#fff;}
+
+footer{padding:26px 20px 96px;text-align:center;}
+.foot-brand{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700;letter-spacing:.1em;}
+.foot-brand .seal-mini{width:20px;height:20px;}
+.foot-disc{font-size:11px;color:var(--ink2);font-weight:300;line-height:1.9;margin-top:12px;max-width:34em;margin-left:auto;margin-right:auto;}
+
+@media(min-width:560px){
+  .cf-bar{left:50%;transform:translateX(-50%);max-width:680px;border-radius:16px 16px 0 0;}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-in">
+    <a class="nav-brand" href="index.html">
+      <svg class="seal-mini" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="7" r="5" fill="#C9B37E"/><circle cx="32.4" cy="16" r="5" fill="#7FA98F"/><circle cx="27.6" cy="30.5" r="5" fill="#5C7A99"/><circle cx="12.4" cy="30.5" r="5" fill="#C98A92"/><circle cx="7.6" cy="16" r="5" fill="#C2A063"/></svg>
+      <span>拍拍深五行水晶設計研究所<small>QUINTESSURA STUDIO</small></span>
+    </a>
+    <a class="back-link" href="index.html">← 回首頁</a>
+  </div>
+</nav>
+
+<header class="cf-hero">
+  <div class="wrap">
+    <div class="kicker">訂 單 確 認</div>
+    <h1>你的訂製，快定案了</h1>
+    <p class="lead">設計已經完成。看看下面的方案與建議，選你喜歡的就好——確認後我們就安排製作。</p>
+    <p class="order-tag">訂單編號：<b id="orderNoShow">讀取中…</b></p>
+  </div>
+</header>
+
+<main class="wrap cf-main">
+  <div id="loadingBox" class="msg ok">讀取訂單資料中…</div>
+  <div id="demoBadge" class="msg warn hide">目前顯示示範資料（正式訂單資料 API 尚未接通），僅供介面預覽用；實際頁面會依你的訂單即時呈現。</div>
+
+  <section class="cf-card" id="planSection" style="display:none">
+    <div class="sec-head2 sm"><span class="chapter-mark">一</span><div><h2>選擇你的方案</h2></div></div>
+    <p class="sec-lead">兩個方案都是依你的命盤設計，差別在涵蓋範圍；標「推薦」的是店長依你的問卷內容建議的方向，最後仍由你決定。</p>
+    <div class="plan-list" id="planList"></div>
+  </section>
+
+  <section class="cf-card" id="upgradeSection" style="display:none">
+    <div class="sec-head2 sm"><span class="chapter-mark">二</span><div><h2>晶石升級建議</h2></div></div>
+    <p class="sec-lead">店長依你的命盤挑了幾種可以升級的晶石，附上前後對照與理由；要不要加購都可以。</p>
+    <div class="upgrade-groups" id="upgradeGroups"></div>
+    <div class="upgrade-choice">
+      <label class="opt"><input type="radio" name="upg" value="yes"><span><b>要升級</b><span class="d" id="upgAmtTxt">＋NT$300（整單一次）</span></span></label>
+      <label class="opt"><input type="radio" name="upg" value="no" checked><span><b>不需要，維持原方案</b><span class="d">原方案的晶石也都在白名單內，不影響設計完整性</span></span></label>
+    </div>
+  </section>
+
+  <section class="cf-card" id="noteSection" style="display:none">
+    <div class="sec-head2 sm"><span class="chapter-mark">三</span><div><h2>想補充的話</h2></div></div>
+    <label>備註（自由填，非必填）</label>
+    <textarea id="cfNote" maxlength="300" placeholder="有想跟店長討論的地方，也可以先寫在這裡"></textarea>
+  </section>
+
+  <div id="doneBox" class="msg ok hide"></div>
+</main>
+
+<footer>
+  <div class="foot-brand">
+    <svg class="seal-mini" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="7" r="5" fill="#C9B37E"/><circle cx="32.4" cy="16" r="5" fill="#7FA98F"/><circle cx="27.6" cy="30.5" r="5" fill="#5C7A99"/><circle cx="12.4" cy="30.5" r="5" fill="#C98A92"/><circle cx="7.6" cy="16" r="5" fill="#C2A063"/></svg>
+    拍拍深五行水晶設計研究所
+  </div>
+  <p class="foot-disc">本服務為傳統文化意象與心理學自我覺察工具之結合，非醫療、心理治療或命運預測，效果因人感受而異。</p>
+</footer>
+
+<div class="cf-bar" id="cfBar">
+  <div class="cf-bar-amt"><small>目前選擇金額</small><b id="cfTotal">—</b></div>
+  <button class="btn2" id="discussBtn" type="button">先討論</button>
+  <button class="btn" id="confirmBtn" type="button" disabled>送出確認</button>
+</div>
+
+<script src="config.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const params = new URLSearchParams(location.search);
+const orderToken = params.get('token') || '';
+
+let ORDER = null, selectedPlan = null, selectedUpgrade = false;
+
+/* 示範資料：正式 API（CONFIG.PATHS.CONFIRM_LOOKUP）接通前，讓這頁隨時能本地預覽 */
+function demoOrder(){
+  const qty = +(params.get('qty') || 1);
+  const w = '18', b = 10;
+  const base = CONFIG.PRICE.rows[w][CONFIG.PRICE.beads.indexOf(b)];
+  const plans = qty >= 2 ? [
+    { id:'2', label:'② 雙條', mult:2, desc:'兩條手串，各自對應命盤設計的核心配置。' },
+    { id:'3', label:'③ 完整三條（含本源重置）', mult:3, recommended:true,
+      desc:'在兩條主方案之外，再加一條本源重置手串——選用最柔和的晶石組合，設計給夜間睡前或靜心時段佩戴。' }
+  ] : [
+    { id:'1', label:'① 主方案', mult:1, desc:'依你的命盤設計的主方案，一條手串涵蓋核心配置。' },
+    { id:'2', label:'② 主方案＋錦囊組', mult:2, recommended:true,
+      desc:'在主方案之外，再設計一條輔助用途的第二條手串，呼應同一份命盤、補強不同面向的顆數配置。' }
+  ];
+  return {
+    ok:true, order_no:'S20260717-0007（示範）', qty, base,
+    plans,
+    upgrade:{ amount: CONFIG.PRICE.upgradeHigh, groups:[
+      { stone:'黃玉髓 → 金髮晶', reason:'金髮晶髮絲紋理較清晰、色澤較飽和，同屬金屬色系。' },
+      { stone:'粉水晶 → 阿賽斯特萊石', reason:'同屬火色系，質地更通透，表面光澤更均勻。' },
+      { stone:'綠東陵 → 葡萄石', reason:'同屬木色系，內含物較少、色澤更均勻一致。' }
+    ]}
+  };
+}
+
+async function loadOrder(){
+  try{
+    if(!CONFIG.N8N_BASE || !orderToken) throw new Error('no-token-or-offline');
+    const ctl = new AbortController(); const t = setTimeout(()=>ctl.abort(), CONFIG.timeoutMs);
+    // TODO: P2 契約定案後接線——此 endpoint（CONFIRM_LOOKUP）目前尚不存在
+    const r = await fetch(CONFIG.N8N_BASE + CONFIG.PATHS.CONFIRM_LOOKUP, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token: CONFIG.SITE_TOKEN, order_token: orderToken }), signal: ctl.signal
+    });
+    clearTimeout(t);
+    if(!r.ok) throw new Error('http '+r.status);
+    const j = await r.json();
+    if(!j || !j.ok) throw new Error('bad payload');
+    ORDER = j;
+  }catch(_){
+    ORDER = demoOrder();
+    $('#demoBadge').classList.remove('hide');
+  }
+  render();
+}
+
+function render(){
+  $('#loadingBox').classList.add('hide');
+  $('#orderNoShow').textContent = ORDER.order_no;
+  $('#planSection').style.display = 'block';
+  $('#noteSection').style.display = 'block';
+
+  $('#planList').innerHTML = ORDER.plans.map(p => `
+    <label class="plan-card">
+      <input type="radio" name="plan" value="${esc(p.id)}" ${p.recommended?'checked':''}>
+      <div class="plan-body">
+        <div class="plan-title">${esc(p.label)}${p.recommended?' <span class="rec-tag">推薦</span>':''}</div>
+        <p>${esc(p.desc)}</p>
+        <div class="plan-price">NT$ ${(ORDER.base*p.mult).toLocaleString()}</div>
+      </div>
+    </label>`).join('');
+  selectedPlan = ORDER.plans.find(p=>p.recommended) || ORDER.plans[0];
+
+  if(ORDER.upgrade && ORDER.upgrade.groups && ORDER.upgrade.groups.length){
+    $('#upgradeSection').style.display = 'block';
+    $('#upgAmtTxt').textContent = '＋NT$'+ORDER.upgrade.amount.toLocaleString()+'（整單一次）';
+    $('#upgradeGroups').innerHTML = ORDER.upgrade.groups.map((g,i)=>`
+      <div class="upg-group">
+        <div class="upg-photos"><div class="ph-box">升級前</div><div class="ph-box">升級後</div></div>
+        <div class="upg-info"><b>第 ${i+1} 組・${esc(g.stone)}</b><p>${esc(g.reason)}</p></div>
+      </div>`).join('');
+  }
+
+  document.querySelectorAll('input[name=plan]').forEach(r=>r.addEventListener('change',()=>{
+    selectedPlan = ORDER.plans.find(p=>p.id===r.value); updateTotal();
+  }));
+  document.querySelectorAll('input[name=upg]').forEach(r=>r.addEventListener('change',()=>{
+    selectedUpgrade = (r.value==='yes'); updateTotal();
+  }));
+  $('#confirmBtn').disabled = false;
+  updateTotal();
+}
+
+function updateTotal(){
+  let t = ORDER.base * (selectedPlan ? selectedPlan.mult : 1);
+  if(selectedUpgrade && ORDER.upgrade) t += ORDER.upgrade.amount;
+  $('#cfTotal').textContent = 'NT$ ' + t.toLocaleString();
+}
+
+$('#confirmBtn').addEventListener('click', async ()=>{
+  const btn = $('#confirmBtn'); btn.disabled = true; btn.textContent = '送出中…';
+  // TODO: P2 契約定案後接線——欄位鍵名（plan/upgrade/note）暫定，實際以 P2 契約為準
+  const payload = { order_token: orderToken, plan: selectedPlan && selectedPlan.id, upgrade: selectedUpgrade, note: $('#cfNote').value.trim(), confirm: true };
+  let ok = false;
+  try{
+    if(CONFIG.N8N_BASE){
+      const r = await fetch(CONFIG.N8N_BASE + CONFIG.PATHS.CONFIRM_RESUME, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ token: CONFIG.SITE_TOKEN, ...payload })
+      });
+      ok = r.ok;
+    }
+  }catch(_){ ok = false; }
+  $('#doneBox').classList.remove('hide');
+  $('#doneBox').textContent = ok
+    ? '已送出你的選擇！我們會依此安排製作，謝謝你。'
+    : `線上通道目前尚未接通——你的選擇是「${esc(selectedPlan&&selectedPlan.label||'')}${selectedUpgrade?'＋升級':''}」。請加 LINE 17singasong 告知店長，效力相同。`;
+  btn.textContent = '已送出';
+  window.scrollTo({top:$('#doneBox').getBoundingClientRect().top+scrollY-90,behavior:'smooth'});
+});
+
+$('#discussBtn').addEventListener('click', async ()=>{
+  const note = $('#cfNote').value.trim() || '想先討論';
+  try{
+    if(CONFIG.N8N_BASE){
+      await fetch(CONFIG.N8N_BASE + CONFIG.PATHS.CONFIRM_RESUME, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ token: CONFIG.SITE_TOKEN, order_token: orderToken, confirm:'feedback', note })
+      });
+    }
+  }catch(_){}
+  $('#doneBox').classList.remove('hide');
+  $('#doneBox').textContent = '已記錄你想先討論——也歡迎直接加 LINE 17singasong，店長會盡快回覆你。';
+  window.scrollTo({top:$('#doneBox').getBoundingClientRect().top+scrollY-90,behavior:'smooth'});
+});
+
+loadOrder();
+</script>
+</body>
+</html>

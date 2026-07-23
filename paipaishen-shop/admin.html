@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src https://n8n.anwer3712.com https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com http://localhost:* http://127.0.0.1:*; base-uri 'none'; form-action 'self'">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='4' width='24' height='24' rx='6' fill='%233E4F5E'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23C99A92'/%3E%3C/svg%3E">
+<title>拍拍深｜販售後台</title>
+<style>
+  :root{--warm:#FBF6F0;--warm2:#F6EEE4;--dawn:#DCE6EF;--dawn2:#C7D8E6;--morandi:#E7D3CE;--rose:#C99A92;--rose-d:#B4837B;--ink:#3E4F5E;--ink2:#6E7E8C;--gold:#C2A063;--line:#D9CDBF;--ok:#7FA98F;
+  --e-metal:#C9B37E;--e-wood:#7FA98F;--e-water:#5C7A99;--e-fire:#C98A92;--e-earth:#C2A063;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:"Noto Serif TC","Microsoft JhengHei","PingFang TC",serif;color:var(--ink);background:var(--warm);line-height:1.75;}
+  .wrap{max-width:1080px;margin:0 auto;padding:18px 18px 90px;}
+  header{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;padding-bottom:10px;border-bottom:2px solid var(--gold);}
+  h1{font-size:20px;letter-spacing:.15em;}
+  h1 small{font-size:11px;color:var(--rose);letter-spacing:.3em;font-weight:300;margin-left:8px;}
+  nav{display:flex;gap:6px;margin:14px 0;flex-wrap:wrap;}
+  nav button{padding:8px 16px;border:1.5px solid var(--rose);border-radius:20px;background:#fff;color:var(--ink);font:inherit;font-size:13.5px;cursor:pointer;}
+  nav button.on{background:var(--rose);color:#fff;font-weight:700;}
+  nav button .bdg{display:inline-block;min-width:17px;padding:0 4px;border-radius:9px;background:var(--rose-d);color:#fff;font-size:10.5px;text-align:center;margin-left:4px;}
+  .tab{display:none;}.tab.on{display:block;}
+  h2{font-size:16px;letter-spacing:.1em;margin:16px 0 8px;padding-left:10px;border-left:4px solid var(--rose);}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:10px 0;}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;}
+  th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top;}
+  th{background:var(--dawn);font-weight:500;text-align:center;white-space:nowrap;}
+  textarea,input[type=text],input[type=password],input[type=number],select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:13px;background:#fff;color:var(--ink);}
+  textarea{min-height:90px;resize:vertical;font-family:Consolas,monospace;}
+  textarea.zh{font-family:inherit;}
+  .btn{padding:8px 16px;border:0;border-radius:8px;background:var(--ink);color:#fff;font:inherit;font-size:13px;letter-spacing:.1em;cursor:pointer;margin:4px 6px 4px 0;}
+  .btn.rose{background:var(--rose);}
+  .btn.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--ink);}
+  .btn.sm{padding:3px 10px;font-size:12px;border-radius:6px;}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .row{display:flex;gap:12px;flex-wrap:wrap;}.row>*{flex:1;min-width:220px;}
+  .muted{color:var(--ink2);font-size:12px;font-weight:300;}
+  .pill{display:inline-block;padding:1px 10px;border-radius:10px;font-size:11px;background:var(--dawn);white-space:nowrap;}
+  .pill.s0{background:var(--dawn);}.pill.s1{background:var(--dawn2);}.pill.s2{background:#EFE3C8;}.pill.s3{background:#F3E3DF;}.pill.s4{background:var(--morandi);}.pill.s5{background:#E3EFE3;}.pill.s6{background:#EEE;}
+  .ok{color:#3E5E4B;} .warn{color:#8A5148;}
+  label{font-size:13px;font-weight:500;display:block;margin:8px 0 3px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr;}}
+  details summary{cursor:pointer;font-size:13px;color:var(--ink2);}
+  .num{text-align:right;font-variant-numeric:tabular-nums;}
+  /* Dashboard */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0;}
+  .kpi{background:linear-gradient(180deg,#fff,var(--warm2));border:1px solid var(--line);border-radius:14px;padding:14px 16px 12px;}
+  .kpi b{font-size:24px;font-weight:700;display:block;font-variant-numeric:tabular-nums;}
+  .kpi span{font-size:12px;color:var(--ink2);letter-spacing:.08em;}
+  .chartbox{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;}
+  .chartbox h3{font-size:13.5px;letter-spacing:.1em;margin-bottom:8px;color:var(--ink2);font-weight:500;}
+  /* PIN 門 */
+  #gate{position:fixed;inset:0;z-index:99;background:linear-gradient(165deg,var(--dawn),var(--warm) 55%,var(--morandi));display:flex;align-items:center;justify-content:center;padding:20px;}
+  .gate-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:34px 32px;max-width:380px;width:100%;box-shadow:0 24px 60px rgba(62,79,94,.18);text-align:center;}
+  .gate-card h1{font-size:18px;letter-spacing:.2em;margin-bottom:4px;}
+  .gate-card .sub{font-size:11px;color:var(--rose);letter-spacing:.3em;margin-bottom:20px;}
+  .gate-card input{text-align:center;font-size:20px;letter-spacing:.4em;padding:12px;}
+  .gate-card .btn{width:100%;margin:14px 0 0;padding:12px;}
+  .gate-msg{font-size:12px;margin-top:10px;min-height:18px;}
+  .evt{font-size:12.5px;background:var(--warm2);border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-weight:300;margin:6px 0;}
+  .evt b{font-weight:700;color:var(--rose-d);}
+  .evt time{color:var(--ink2);font-size:11px;display:block;}
+  .syncdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#bbb;margin-right:5px;}
+  .syncdot.on{background:var(--ok);}
+</style>
+</head>
+<body>
+
+<!-- ══ PIN 門 ══ -->
+<div id="gate">
+  <div class="gate-card">
+    <h1>拍拍深 · 販售後台</h1>
+    <div class="sub">QUINTESSURA CONSOLE</div>
+    <div id="gateBody"></div>
+    <p class="gate-msg" id="gateMsg"></p>
+  </div>
+</div>
+
+<div class="wrap" id="app" style="display:none">
+<header>
+  <h1>拍拍深 · 販售後台<small>QUINTESSURA CONSOLE</small></h1>
+  <span class="muted" id="statLine"></span>
+</header>
+<nav id="nav">
+  <button data-t="dash" class="on">📈 總覽</button>
+  <button data-t="orders">📋 訂單</button>
+  <button data-t="msg">🪷 排珠·訊息<span class="bdg hide" id="msgBdg">0</span></button>
+  <button data-t="quote">🧾 報價</button>
+  <button data-t="ai">🔮 AI 一條龍</button>
+  <button data-t="cfg">⚙️ 設定</button>
+</nav>
+
+<!-- ══ 總覽 ══ -->
+<div class="tab on" id="tab-dash">
+  <div class="kpis" id="kpis"></div>
+  <div class="grid2">
+    <div class="chartbox"><h3>近六個月營收（已匯款以後狀態的報價金額）</h3><svg id="chRev" viewBox="0 0 480 190" width="100%"></svg></div>
+    <div class="chartbox"><h3>訂單狀態分佈</h3><svg id="chStage" viewBox="0 0 480 190" width="100%"></svg></div>
+  </div>
+  <div class="grid2" style="margin-top:12px">
+    <div class="chartbox"><h3>型態占比</h3><svg id="chType" viewBox="0 0 480 150" width="100%"></svg></div>
+    <div class="chartbox"><h3>待辦焦點</h3><div id="todoList" style="font-size:13px"></div></div>
+  </div>
+  <p class="muted" style="margin-top:8px">數字來源＝本機訂單庫（含 n8n 同步）。營收以「已匯款」之後狀態的報價金額累計；未報價訂單以前台試算估列並標示。</p>
+</div>
+
+<!-- ══ 訂單 ══ -->
+<div class="tab" id="tab-orders">
+  <div class="card">
+    <h2 style="margin-top:0">收單</h2>
+    <p class="muted">🔄 一鍵同步線上訂單（n8n）；或貼「前台訂單文字」／webhook JSON 手動建檔。</p>
+    <button class="btn" onclick="syncPull(true)">⇩ 從 n8n 同步線上訂單</button>
+    <span class="muted" id="syncMsg"></span>
+    <textarea id="inbox" class="zh" placeholder="把訂單文字或 JSON 貼在這裡…（LINE 退化模式進來的單）"></textarea>
+    <button class="btn ghost" onclick="ingest()">解析並建檔</button>
+    <span class="muted" id="ingestMsg"></span>
+  </div>
+  <div class="card">
+    <h2 style="margin-top:0">訂單列表</h2>
+    <div style="overflow-x:auto"><table id="orderTable"></table></div>
+    <p class="muted">狀態流：進件 → 已規劃 → 已報價 → 已匯款 → 製作中 → 已出貨 → 售後關懷。點狀態推進（會自動同步到雲端讓客戶看到）；「⏪」退一步。</p>
+  </div>
+</div>
+
+<!-- ══ 排珠·訊息 ══ -->
+<div class="tab" id="tab-msg">
+  <div class="card">
+    <h2 style="margin-top:0">排珠提案 → 推送給客戶確認</h2>
+    <label>選訂單</label>
+    <select id="dOrder" onchange="renderMsgTab()"></select>
+    <div class="muted" id="oInfo" style="margin:6px 0"></div>
+    <label>排珠提案內容（貼 GEM1 初步規劃的「配珠規劃」段落）</label>
+    <textarea id="dText" class="zh" placeholder="例：
+手圍 18cm × 珠徑 10mm → N = 20 顆
+黑曜石（水）×6、綠幽靈（木）×5、粉水晶（火）×4、黃水晶（土）×3、白水晶（金）×2
+主珠：綠幽靈（置中）｜隔珠：土隔金木"></textarea>
+    <button class="btn rose" onclick="pushDesign()">🪷 推送提案（客戶進度頁可按同意／要調整）</button>
+    <span class="muted" id="dMsg"></span>
+  </div>
+  <div class="card">
+    <h2 style="margin-top:0">客戶回覆・留言佇列</h2>
+    <p class="muted">客戶在進度頁按「同意」「想調整」「留言」都會進到這裡（同步後）。</p>
+    <div id="evtQueue"></div>
+  </div>
+  <div class="card">
+    <h2 style="margin-top:0">階段通知文字（複製貼 LINE）</h2>
+    <label>選訂單＋階段</label>
+    <div class="row">
+      <div><select id="nOrder" onchange="genNotify()"></select></div>
+      <div><select id="nStage" onchange="genNotify()"></select></div>
+    </div>
+    <textarea id="nText" class="zh" style="min-height:120px"></textarea>
+    <button class="btn ghost" onclick="copyNotify()">複製通知文字</button>
+    <span class="muted" id="nMsg"></span>
+  </div>
+</div>
+
+<!-- ══ 報價 ══ -->
+<div class="tab" id="tab-quote">
+  <div class="card">
+    <h2 style="margin-top:0">報價計算機（免 AI，直接出單）</h2>
+    <label>選訂單</label>
+    <select id="qOrder"></select>
+    <div id="qBody"></div>
+    <div class="row" style="margin-top:8px">
+      <div><label>折扣（NT$，0=無）</label><input type="number" id="qDisc" value="0" min="0"></div>
+      <div><label>備註（交期等）</label><input type="text" id="qNote" value="匯款確認後 7-10 個工作天交付"></div>
+    </div>
+    <p style="font-size:18px;margin:10px 0">總計：<b id="qTotal">—</b></p>
+    <button class="btn rose" onclick="genQuote()">產生報價單 HTML（列印／存PDF）</button>
+    <button class="btn ghost" onclick="copyQuoteText()">複製純文字報價</button>
+    <span class="muted" id="qMsg"></span>
+  </div>
+</div>
+
+<!-- ══ AI 一條龍 ══ -->
+<div class="tab" id="tab-ai">
+  <div class="card">
+    <h2 style="margin-top:0">① 指令包來源（一次設定）</h2>
+    <p class="muted">載入 <b>個人／情侶五行手串_AI一條龍包.md</b>（v1.1，單檔自含）。存在瀏覽器本機，包更新時重新載入即可。</p>
+    <div class="grid2">
+      <div><label>個人包 <span id="pkS" class="muted"></span></label><input type="file" accept=".md,.txt" onchange="loadPack(this,'single')"></div>
+      <div><label>情侶包 <span id="pkC" class="muted"></span></label><input type="file" accept=".md,.txt" onchange="loadPack(this,'couple')"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2 style="margin-top:0">② 組指令 → 丟給任何 AI</h2>
+    <label>選訂單</label>
+    <select id="aiOrder" onchange="buildPrompt()"></select>
+    <button class="btn" onclick="copyPrompt()">複製完整 AI 指令包</button>
+    <button class="btn ghost" onclick="callAPI()">或直連 API 執行（設定見下）</button>
+    <span class="muted" id="aiMsg"></span>
+    <details><summary>預覽指令內容</summary><textarea id="promptBox" class="zh" style="min-height:160px"></textarea></details>
+    <p class="muted">流程：貼到 Claude／ChatGPT／Gemini 任一 → AI 出 <b>GEM1 初步規劃</b> → 排珠段落貼到「排珠·訊息」推送給客戶確認 → 客戶同意 → AI 出 GEM2 報告＋GEM3 報價。要 HTML 版就跟 AI 說「出 HTML」。</p>
+  </div>
+  <div class="card">
+    <h2 style="margin-top:0">③ 接回成品</h2>
+    <textarea id="aiBack" class="zh" placeholder="貼 AI 輸出（Markdown 或 HTML）…"></textarea>
+    <button class="btn" onclick="saveBack()">存到訂單</button>
+    <button class="btn ghost" onclick="openBack()">當 HTML 開啟／列印</button>
+    <span class="muted" id="backMsg"></span>
+  </div>
+  <div class="card">
+    <h2 style="margin-top:0">直連 API 設定（選用）</h2>
+    <p class="muted">供應商可換＝五年不綁死。金鑰只存本機（隨資料庫加密）。瀏覽器擋 CORS 時改用複製模式（永遠可用）。</p>
+    <div class="row">
+      <div><label>供應商</label>
+        <select id="apiProv">
+          <option value="anthropic">Anthropic (Claude)</option>
+          <option value="openai">OpenAI (ChatGPT)</option>
+          <option value="gemini">Google (Gemini)</option>
+          <option value="custom">自訂（OpenAI 相容端點）</option>
+        </select></div>
+      <div><label>模型名（自由填，隨時代升級）</label><input type="text" id="apiModel" placeholder="例 claude-sonnet-5 / gpt-5.2 / gemini-3-pro"></div>
+    </div>
+    <div class="row">
+      <div><label>API Key</label><input type="password" id="apiKey"></div>
+      <div><label>自訂 Base URL（僅「自訂」用）</label><input type="text" id="apiBase" placeholder="http://localhost:11434/v1"></div>
+    </div>
+    <button class="btn sm" onclick="saveAPI()">儲存 API 設定</button>
+    <span class="muted" id="apiMsg"></span>
+    <details style="margin-top:8px"><summary>API 回傳結果</summary><textarea id="apiOut" class="zh" style="min-height:140px"></textarea></details>
+  </div>
+</div>
+
+<!-- ══ 設定 ══ -->
+<div class="tab" id="tab-cfg">
+  <div class="card">
+    <h2 style="margin-top:0">n8n 連線</h2>
+    <div class="row">
+      <div><label>Webhook 基底 URL</label><input type="text" id="cfgApi" placeholder="https://n8n.anwer3712.com/webhook"></div>
+      <div><label>管理密鑰（ADMIN_TOKEN，見 README）</label><input type="password" id="cfgAdmin" placeholder="貼上後按儲存"></div>
+    </div>
+    <button class="btn sm" onclick="saveCfg()">儲存連線設定</button>
+    <button class="btn sm ghost" onclick="testCfg()">測試連線</button>
+    <span class="muted" id="cfgMsg"></span>
+    <p class="muted">同步邏輯：線上訂單／客戶回覆＝n8n（postgres）為準；報價、AI 產出、備註＝本機為準。兩邊互不覆蓋。</p>
+  </div>
+  <div class="card">
+    <h2 style="margin-top:0">資料備份（反悔機制）</h2>
+    <button class="btn" onclick="exportAll()">匯出全部資料 JSON</button>
+    <label style="display:inline-block;margin-left:6px"><span class="btn ghost" style="display:inline-block">匯入備份</span><input type="file" accept=".json" style="display:none" onchange="importAll(this)"></label>
+    <p class="muted">資料以 AES-GCM 加密存在這台瀏覽器（金鑰由 PIN 導出）。<b>匯出的 JSON 是明文</b>——請妥善保存，建議每週匯出一次丟 <b>backup\</b> 資料夾。換電腦＝匯出→匯入。</p>
+  </div>
+  <div class="card">
+    <h2 style="margin-top:0">安全</h2>
+    <button class="btn ghost" onclick="changePin()">變更 PIN</button>
+    <button class="btn ghost" onclick="lockNow()">立即上鎖</button>
+    <p class="muted">後台頁面本身不含任何客戶資料——資料只存在你這台瀏覽器的加密儲存區。忘記 PIN＝資料無法解開（用備份 JSON 重匯）。</p>
+  </div>
+  <div class="card">
+    <h2 style="margin-top:0">危險區</h2>
+    <button class="btn" style="background:#8A5148" onclick="if(confirm('確定清空全部訂單？請先匯出備份。')&&confirm('真的確定？此動作不可復原（除非有備份）。')){DB.orders=[];save();alert('已清空');}">清空全部訂單</button>
+  </div>
+</div>
+</div>
+
+<script src="config.js"></script>
+<script>
+/* ══ 常數 ══ */
+// PRICE 單一來源＝config.js 的 CONFIG.PRICE（原本這裡另存一份重複數字，改價需三處同步→收斂成兩處）。
+// upgrade/ship 是相容別名，讓下面 base()/lines() 沿用既有鍵名、零改動風險；數值與 config.js 目前逐一相同。
+// 注意：這裡的 PRICE.upgrade 只給「客戶進件加購」舊欄位用（o.A.upgrade 布林值）；
+// 老闆事後推薦的升級金額走新欄位 o.upgrade.amount（150/300，見 orderBadges），兩者不是同一件事。
+const PRICE=Object.assign({},CONFIG.PRICE,{upgrade:CONFIG.PRICE.upgradeHigh,ship:CONFIG.PRICE.shipStore});
+const STATUS=['進件','已規劃','已報價','已匯款','製作中','已出貨','售後關懷'];
+// 排珠/訊息佇列可辨識的事件種類。想討論／售後回饋＝新流程（P2a DB migration 中，實際 kind 字串待其定案）。
+const EVT_KINDS=['同意排珠','要求調整','留言','想討論','售後回饋'];
+const noteTxt=n=>(n&&typeof n==='object')?JSON.stringify(n):n;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ══ 加密資料層（PIN → PBKDF2 → AES-GCM） ══ */
+const LS_ENC='pps_sales_v2_enc', LS_META='pps_sales_v2_meta', LS_V1='pps_sales_v1';
+let DB=null, KEY=null;
+const te=new TextEncoder(), td=new TextDecoder();
+const b64=b=>btoa(String.fromCharCode(...new Uint8Array(b)));
+const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function deriveKey(pin,saltB64){
+  const mat=await crypto.subtle.importKey('raw',te.encode(pin),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt:unb64(saltB64),iterations:150000,hash:'SHA-256'},mat,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+async function saveEnc(){
+  if(!KEY){ localStorage.setItem(LS_ENC+'_plain', JSON.stringify(DB)); return; }
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},KEY,te.encode(JSON.stringify(DB)));
+  localStorage.setItem(LS_ENC, JSON.stringify({iv:b64(iv),ct:b64(ct)}));
+}
+async function loadEnc(){
+  const raw=localStorage.getItem(LS_ENC);
+  if(!raw){ const p=localStorage.getItem(LS_ENC+'_plain'); return p?JSON.parse(p):null; }
+  const {iv,ct}=JSON.parse(raw);
+  const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(iv)},KEY,unb64(ct));
+  return JSON.parse(td.decode(pt));
+}
+function freshDB(){ return {orders:[],packs:{},api:{},cfg:{api:'https://n8n.anwer3712.com/webhook',admin:''},trash:[]}; }
+
+/* ══ PIN 門 ══ */
+const gate=$('#gate'), gateBody=$('#gateBody'), gateMsg=$('#gateMsg');
+function gateSetup(){
+  gateBody.innerHTML=`<p class="muted" style="margin-bottom:10px">首次使用：設定一組後台 PIN（至少 4 碼，用來加密本機資料）</p>
+  <input type="password" id="pin1" placeholder="設定 PIN" inputmode="numeric"><br><br>
+  <input type="password" id="pin2" placeholder="再輸入一次"><button class="btn" onclick="doSetup()">建立後台</button>`;
+}
+function gateLogin(){
+  gateBody.innerHTML=`<input type="password" id="pin1" placeholder="輸入 PIN" inputmode="numeric" onkeydown="if(event.key==='Enter')doLogin()"><button class="btn" onclick="doLogin()">解 鎖</button>`;
+  setTimeout(()=>$('#pin1').focus(),50);
+}
+async function doSetup(){
+  const p1=$('#pin1').value,p2=$('#pin2').value;
+  if(p1.length<4){gateMsg.textContent='PIN 至少 4 碼';return;}
+  if(p1!==p2){gateMsg.textContent='兩次輸入不同';return;}
+  const salt=b64(crypto.getRandomValues(new Uint8Array(16)));
+  const check=b64(await crypto.subtle.digest('SHA-256',te.encode(salt+p1)));
+  localStorage.setItem(LS_META,JSON.stringify({salt,check}));
+  KEY=await deriveKey(p1,salt);
+  DB=freshDB();
+  const v1=localStorage.getItem(LS_V1);          // 舊版明文資料自動搬家
+  if(v1){ try{ const j=JSON.parse(v1); DB.orders=j.orders||[]; DB.packs=j.packs||{}; DB.api=j.api||{}; gateMsg.textContent='已自動匯入舊版資料 '+DB.orders.length+' 筆';}catch(_){}}
+  await saveEnc(); enter();
+}
+async function doLogin(){
+  const meta=JSON.parse(localStorage.getItem(LS_META));
+  const p=$('#pin1').value;
+  const check=b64(await crypto.subtle.digest('SHA-256',te.encode(meta.salt+p)));
+  if(check!==meta.check){ gateMsg.textContent='PIN 錯誤'; $('#pin1').value=''; return; }
+  KEY=await deriveKey(p,meta.salt);
+  try{ DB=await loadEnc()||freshDB(); }catch(_){ gateMsg.textContent='資料解密失敗'; return; }
+  enter();
+}
+function enter(){ gate.style.display='none'; $('#app').style.display='block'; hydrate(); render(); }
+function lockNow(){ location.reload(); }
+async function changePin(){
+  const p=prompt('輸入新 PIN（至少 4 碼）'); if(!p||p.length<4) return alert('未變更');
+  const salt=b64(crypto.getRandomValues(new Uint8Array(16)));
+  const check=b64(await crypto.subtle.digest('SHA-256',te.encode(salt+p)));
+  localStorage.setItem(LS_META,JSON.stringify({salt,check}));
+  KEY=await deriveKey(p,salt); await saveEnc(); alert('PIN 已變更');
+}
+(function boot(){
+  if(!window.crypto||!crypto.subtle){ gateBody.innerHTML='<p class="warn">此瀏覽器不支援加密，將以明文存放。</p><button class="btn" onclick="KEY=null;DB=JSON.parse(localStorage.getItem(LS_ENC+&quot;_plain&quot;)||&quot;null&quot;)||freshDB();enter()">繼續</button>'; return; }
+  localStorage.getItem(LS_META)?gateLogin():gateSetup();
+})();
+
+/* ══ 存檔＋畫面 ══ */
+const save=()=>{ saveEnc(); render(); };
+function hydrate(){ ['apiProv','apiModel','apiKey','apiBase'].forEach(k=>{ if(DB.api[k]!==undefined&&$('#'+k))$('#'+k).value=DB.api[k]; });
+  $('#cfgApi').value=DB.cfg.api||''; $('#cfgAdmin').value=DB.cfg.admin||''; }
+
+/* ══ 分頁 ══ */
+$('#nav').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.id==='tab-'+b.dataset.t));});
+
+/* ══ n8n 同步 ══ */
+async function apiCall(payload){
+  const base=(DB.cfg.api||'').replace(/\/$/,''); if(!base) throw new Error('未設定 API');
+  const ctl=new AbortController(); const t=setTimeout(()=>ctl.abort(),12000);
+  try{ const r=await fetch(base+'/pps-status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({admin:DB.cfg.admin,...payload}),signal:ctl.signal});
+    if(!r.ok) throw new Error('http '+r.status); return await r.json(); }
+  finally{ clearTimeout(t); }
+}
+async function syncPull(loud){
+  try{
+    const r=await apiCall({op:'list'});
+    if(!r||!r.ok) throw new Error(r&&r.msg||'失敗');
+    let added=0,updated=0;
+    (r.orders||[]).forEach(ro=>{
+      let o=DB.orders.find(x=>x.no===ro.order_no);
+      const stIdx=Math.max(0,STATUS.indexOf(ro.stage||'進件'));
+      if(!o){ let parsed=null; try{ parsed=JSON.parse(ro.raw||'null'); if(typeof parsed==='string') parsed=JSON.parse(parsed); }catch(_){}
+        o={ no:ro.order_no, type:(ro.type==='情侶'?'couple':'single'),
+          A:parsed&&parsed.A?parsed.A:{name:ro.a_name||'（線上單）'}, B:parsed&&parsed.B?parsed.B:undefined,
+          qty:parsed&&parsed.qty?parsed.qty:undefined, ship:ro.ship||'', contact:ro.contact||'', est:ro.est||'',
+          status:stIdx, log:[[(ro.created_at||'').slice(0,16),'進件(線上)']], src:'n8n' };
+        DB.orders.unshift(o); added++;
+      } else { if(o.status!==stIdx&&!o.stageDirty){ o.status=stIdx; } updated++; }
+      o.design=ro.design||o.design; o.design_state=ro.design_state||o.design_state;
+      o.events=ro.events||o.events||[];
+      // 新流程欄位，防禦式帶入（P2a 契約未定案，鍵名為暫定；不存在就維持 undefined，畫面自動不顯示）
+      if(ro.tracks!==undefined) o.tracks=ro.tracks;
+      if(ro.upgrade!==undefined) o.upgrade=ro.upgrade;
+      if(ro.preview_status!==undefined) o.preview_status=ro.preview_status;
+      if(ro.feedback!==undefined) o.feedback=ro.feedback;
+      if(ro.aftercare!==undefined) o.aftercare=ro.aftercare;
+      o.cloud=true; o.updated_at=ro.updated_at;
+    });
+    DB.lastSync=new Date().toISOString(); save();
+    if(loud)$('#syncMsg').innerHTML=`<span class="ok">✔ 同步完成：新 ${added} 筆、更新 ${updated} 筆</span>`;
+  }catch(e){ if(loud)$('#syncMsg').innerHTML=`<span class="warn">同步失敗：${esc(e.message)}（檢查設定分頁的 URL 與管理密鑰）</span>`; }
+}
+async function syncPush(o,fields){
+  try{ const r=await apiCall({op:'update',order_no:o.no,...fields}); return r&&r.ok; }catch(_){ return false; }
+}
+
+/* ══ 收單解析（LINE 退化模式用） ══ */
+function newId(){const d=new Date(),ymd=d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+  const n=DB.orders.filter(o=>(o.no||'').startsWith('L'+ymd)).length+1;return 'L'+ymd+'-'+String(n).padStart(3,'0');}
+function parseText(t){
+  const pick=(re)=>{const m=t.match(re);return m?m[1].trim():'';};
+  const seg=(name)=>{const parts=t.split(/\n(?=━)/);return parts.find(x=>x.slice(0,20).includes(name))||'';};
+  const person=(block)=>({name:(block.match(/姓名：([^｜\n]+)/)||[])[1]?.trim()||'',
+    gender:(block.match(/性別：([^\n]+)/)||[])[1]?.trim()||'',
+    birth:(block.match(/生日＋?時間：([\d-\/]+)/)||[])[1]||'',
+    btime:(block.match(/生日＋?時間：[\d-\/]+\s*([^\n]*)/)||[])[1]?.trim()||'無時辰',
+    wrist:(block.match(/手圍：([\d.]+)/)||[])[1]||'', bead:(block.match(/珠徑：([\d.]+)/)||[])[1]||'',
+    core:(block.match(/核心功能：([^\n]+)/)||[])[1]?.trim()||'', pain:(block.match(/痛點：([^\n]+)/)||[])[1]?.trim()||'',
+    vis:(block.match(/視覺體感：([^\n]+)/)||[])[1]?.trim()||'',
+    upgrade:/✔水晶升等/.test(block), deep:/✔深度報告/.test(block)});
+  const couple=/情侶對串/.test(t);
+  const o={type:couple?'couple':'single',A:person(seg(couple?'客戶A':'客戶')||t)};
+  if(couple){o.B=person(seg('客戶B'));o.B.stage=pick(/關係階段：([^\n]+)/);}
+  else o.qty=+(pick(/訂製數量：(\d)/)||1);
+  o.ship=/店到店/.test(pick(/物流：([^｜\n]+)/))?'店到店':'店長自送';
+  o.contact=pick(/聯絡：([^\n]+)/); o.est=pick(/前台試算：([^\n]+)/);
+  return o.A.name?o:null;
+}
+function ingest(){
+  const t=$('#inbox').value.trim();if(!t){$('#ingestMsg').textContent='空的';return;}
+  let o=null;
+  if(t.startsWith('{')){try{const j=JSON.parse(t);o=j.A?j:null;}catch(_){}}
+  if(!o)o=parseText(t);
+  if(!o){$('#ingestMsg').innerHTML='<span class="warn">解析失敗——已存為待整理單，點「編輯」手動補。</span>';
+    o={type:'single',A:{name:'（待整理）'},raw:t};}
+  o.no=newId();o.status=0;o.log=[[new Date().toISOString().slice(0,16),'進件(手動)']];o.raw=o.raw||t;
+  DB.orders.unshift(o);save();$('#inbox').value='';
+  if(o.A.name!=='（待整理）')$('#ingestMsg').innerHTML='<span class="ok">✔ 建檔 '+o.no+'（'+esc(o.A.name)+'）</span>';
+}
+
+/* ══ 列表 ══ */
+function spec(o){const s=x=>x?`${x.wrist||'?'}cm×${x.bead||'?'}mm${x.upgrade?'+升':''}${x.deep?'+深':''}`:'';
+  return o.type==='couple'?s(o.A)+' / '+s(o.B):s(o.A)+((o.qty||1)>1?` ×${o.qty}串`:'');}
+function orderLabel(o){ return `${o.no}｜${o.A.name}${o.B?'×'+o.B.name:''}`; }
+
+/* ══ 新流程欄位（防禦式：P2a DB migration 進行中，欄位不存在就不渲染）══
+   qty/tracks＝訂製條數｜upgrade＝老闆升級推薦{amount,groups:[{stone,reason,before,after}]}（鍵名對齊 confirm.html 的 ORDER.upgrade）
+   ｜preview_status＝報價信預審狀態｜feedback/aftercare＝想討論・售後問卷回流（多半經 events[] 佇列流入，這裡另補欄位式防線）。*/
+function orderBadges(o){
+  if(!o) return '';
+  const b=[];
+  const n=o.tracks||o.qty;
+  if(o.type!=='couple'&&n) b.push(`<span class="pill" title="訂製數量">${esc(n)}條</span>`);
+  if(o.preview_status){ const m={pending:'預審中',approved:'已放行',released:'已放行',rejected:'預審退回'};
+    b.push(`<span class="pill">${esc(m[o.preview_status]||o.preview_status)}</span>`); }
+  if(o.upgrade){ const u=o.upgrade,g=u.groups||[],photoN=g.reduce((c,x)=>c+(x.before?1:0)+(x.after?1:0),0);
+    const tip=g.map(x=>x.stone+'：'+(x.reason||'')).join('\n');
+    b.push(`<span class="pill s2" title="${esc(tip)}">升級推薦${u.amount?' NT$'+esc(u.amount):''}${photoN?'・照片'+photoN+'張':''}</span>`); }
+  if(o.feedback) b.push('<span class="pill s3">💬想討論</span>');
+  if(o.aftercare||o.survey) b.push('<span class="pill s5">📋售後回饋</span>');
+  return b.join(' ');
+}
+function upgradeDetailHTML(o){
+  if(!o||!o.upgrade||!(o.upgrade.groups||[]).length) return '';
+  const u=o.upgrade;
+  const rows=u.groups.map((g,i)=>`<tr><td>${i+1}</td><td>${esc(g.stone||'')}</td><td>${esc(g.reason||'')}</td><td style="white-space:nowrap">${g.before?`<a href="${esc(g.before)}" target="_blank" rel="noopener">前</a>`:'—'} / ${g.after?`<a href="${esc(g.after)}" target="_blank" rel="noopener">後</a>`:'—'}</td></tr>`).join('');
+  return `<div style="margin:8px 0"><b>老闆升級推薦</b>　NT$ ${esc(u.amount||0)}<div style="overflow-x:auto"><table><tr><th>#</th><th>晶石</th><th>理由</th><th>照片</th></tr>${rows}</table></div></div>`;
+}
+function render(){
+  const T=$('#orderTable');
+  T.innerHTML='<tr><th>單號</th><th>型態</th><th>客戶</th><th>規格</th><th>雲端</th><th>狀態</th><th>動作</th></tr>'+
+  DB.orders.map((o,i)=>{const bd=orderBadges(o);return `<tr>
+    <td style="white-space:nowrap">${esc(o.no)}</td>
+    <td>${o.type==='couple'?'情侶':'個人'}</td>
+    <td>${esc(o.A.name)}${o.B?'×'+esc(o.B.name):''}<br><span class="muted">${esc(o.contact||'')}</span></td>
+    <td>${esc(spec(o))}${bd?'<br>'+bd:''}</td>
+    <td>${o.cloud?'<span title="已在 n8n">☁️</span>':''}${(o.events||[]).some(e=>!e.seen&&e.kind!=='系統')?'<span title="有新回覆">💬</span>':''}</td>
+    <td><span class="pill s${Math.min(o.status,6)}" style="cursor:pointer" title="點擊推進" onclick="bump(${i},1)">${STATUS[o.status]}</span> <span style="cursor:pointer" title="退回" onclick="bump(${i},-1)">⏪</span></td>
+    <td style="white-space:nowrap">
+      <button class="btn sm ghost" onclick="editOrder(${i})">編輯</button>
+      <button class="btn sm ghost" onclick="delOrder(${i})">刪</button>
+    </td></tr>`;}).join('');
+  const sel=DB.orders.map((o,i)=>`<option value="${i}">${esc(orderLabel(o))}</option>`).join('')||'<option value="">（無訂單）</option>';
+  ['qOrder','aiOrder','dOrder','nOrder'].forEach(id=>{ const el=$('#'+id); const v=el.value; el.innerHTML=sel; if(v!=='' && v<DB.orders.length) el.value=v; });
+  $('#nStage').innerHTML=STATUS.map((s,i)=>`<option value="${i}">${s}</option>`).join('');
+  const unseen=DB.orders.reduce((n,o)=>n+((o.events||[]).filter(e=>!e.seen&&EVT_KINDS.includes(e.kind)).length),0);
+  $('#msgBdg').textContent=unseen; $('#msgBdg').classList.toggle('hide',unseen===0);
+  $('#statLine').innerHTML=`<span class="syncdot ${DB.lastSync?'on':''}"></span>訂單 ${DB.orders.length} 筆｜未出貨 ${DB.orders.filter(o=>o.status<5).length} 筆｜上次同步 ${DB.lastSync?esc(DB.lastSync.slice(5,16).replace('T',' ')):'—'}`;
+  $('#pkS').textContent=DB.packs.single?'✔ 已載入':'（未載入）';
+  $('#pkC').textContent=DB.packs.couple?'✔ 已載入':'（未載入）';
+  calcQuote();buildPrompt();renderDash();renderMsgTab();genNotify();
+}
+async function bump(i,d){const o=DB.orders[i];o.status=Math.max(0,Math.min(STATUS.length-1,o.status+d));
+  o.log=o.log||[];o.log.push([new Date().toISOString().slice(0,16),STATUS[o.status]]);o.stageDirty=true;save();
+  if(o.cloud){ const okPush=await syncPush(o,{stage:STATUS[o.status]}); if(okPush){o.stageDirty=false;} }}
+function delOrder(i){if(confirm('刪除 '+DB.orders[i].no+'？（會先進垃圾桶，可從備份救回）'))
+  {DB.trash=DB.trash||[];DB.trash.push(DB.orders.splice(i,1)[0]);save();}}
+function editOrder(i){const t=prompt('直接編輯 JSON（進階）',JSON.stringify(DB.orders[i]));
+  if(t){try{DB.orders[i]=JSON.parse(t);save();}catch(_){alert('JSON 格式錯誤，未儲存');}}}
+
+/* ══ 總覽 Dashboard ══ */
+function quoteOf(o){ if(o.quote&&o.quote.tot) return o.quote.tot;
+  const m=String(o.est||'').replace(/,/g,'').match(/(\d{3,6})/); return m?+m[1]:0; }
+function renderDash(){
+  const now=new Date(), ym=d=>d.slice(0,7);
+  const thisM=now.toISOString().slice(0,7);
+  const dateOf=o=>{ const s=(o.log&&o.log[0]&&o.log[0][0])||o.updated_at||now.toISOString(); return s.slice(0,10); };
+  const paidPlus=DB.orders.filter(o=>o.status>=3);
+  const revThisM=paidPlus.filter(o=>ym(dateOf(o))===thisM).reduce((s,o)=>s+quoteOf(o),0);
+  const pend=DB.orders.filter(o=>o.status<3).length;
+  const unseen=DB.orders.reduce((n,o)=>n+((o.events||[]).filter(e=>!e.seen&&EVT_KINDS.includes(e.kind)).length),0);
+  $('#kpis').innerHTML=[
+    ['總訂單',DB.orders.length,'筆'],
+    ['本月新單',DB.orders.filter(o=>ym(dateOf(o))===thisM).length,'筆'],
+    ['本月營收',revThisM.toLocaleString(),'NT$（已匯款+）'],
+    ['待處理',pend,'進件→已報價'],
+    ['待回覆訊息',unseen,'客戶回覆／留言']
+  ].map(k=>`<div class="kpi"><span>${k[0]}</span><b>${k[1]}</b><span>${k[2]}</span></div>`).join('');
+  /* 近6月營收 bar */
+  const months=[...Array(6)].map((_,i)=>{const d=new Date(now.getFullYear(),now.getMonth()-5+i,1);return d.toISOString().slice(0,7);});
+  const rev=months.map(m=>paidPlus.filter(o=>ym(dateOf(o))===m).reduce((s,o)=>s+quoteOf(o),0));
+  const mx=Math.max(...rev,1);
+  $('#chRev').innerHTML=rev.map((v,i)=>{const h=150*v/mx,x=20+i*76;
+    return `<rect x="${x}" y="${160-h}" width="48" height="${h}" rx="6" fill="url(#gRev)"/>`+
+      `<text x="${x+24}" y="${152-h<20?170-h:152-h}" text-anchor="middle" font-size="11" fill="#6E7E8C">${v?v.toLocaleString():''}</text>`+
+      `<text x="${x+24}" y="182" text-anchor="middle" font-size="11" fill="#6E7E8C">${months[i].slice(5)}月</text>`;}).join('')+
+    `<defs><linearGradient id="gRev" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C7D8E6"/><stop offset="1" stop-color="#C99A92"/></linearGradient></defs>`;
+  /* 狀態分佈 */
+  const stCnt=STATUS.map((s,i)=>DB.orders.filter(o=>o.status===i).length);
+  const smx=Math.max(...stCnt,1);
+  $('#chStage').innerHTML=stCnt.map((v,i)=>{const w=300*v/smx,y=8+i*26;
+    return `<text x="70" y="${y+13}" text-anchor="end" font-size="11.5" fill="#3E4F5E">${STATUS[i]}</text>`+
+      `<rect x="78" y="${y}" width="${Math.max(w,2)}" height="17" rx="5" fill="${['#DCE6EF','#C7D8E6','#E7D3CE','#E3CFC9','#C99A92','#A8C3A0','#DDD'][i]}"/>`+
+      `<text x="${84+Math.max(w,2)}" y="${y+13}" font-size="11.5" fill="#6E7E8C">${v||''}</text>`;}).join('');
+  /* 型態 pie */
+  const c=DB.orders.filter(o=>o.type==='couple').length, s1=DB.orders.length-c, tot=Math.max(DB.orders.length,1);
+  const ang=s1/tot*2*Math.PI; const lg=ang>Math.PI?1:0;
+  const px=75+58*Math.sin(ang), py=75-58*Math.cos(ang);
+  $('#chType').innerHTML= (s1===tot||c===tot)
+    ? `<circle cx="75" cy="75" r="58" fill="${c===tot?'#C99A92':'#C7D8E6'}"/>`
+    : `<circle cx="75" cy="75" r="58" fill="#C99A92"/><path d="M75 75 L75 17 A58 58 0 ${lg} 1 ${px.toFixed(1)} ${py.toFixed(1)} Z" fill="#C7D8E6"/>`;
+  $('#chType').innerHTML+=`<circle cx="75" cy="75" r="30" fill="#FBF6F0"/>
+    <rect x="170" y="40" width="14" height="14" rx="4" fill="#C7D8E6"/><text x="192" y="52" font-size="13" fill="#3E4F5E">個人 ${s1} 筆</text>
+    <rect x="170" y="70" width="14" height="14" rx="4" fill="#C99A92"/><text x="192" y="82" font-size="13" fill="#3E4F5E">情侶 ${c} 筆</text>`;
+  /* 待辦 */
+  const todo=[];
+  DB.orders.forEach(o=>{ (o.events||[]).forEach(e=>{ if(!e.seen&&EVT_KINDS.includes(e.kind)) todo.push(`💬 ${o.no} ${o.A.name}：${e.kind}${e.note?'「'+String(noteTxt(e.note)).slice(0,24)+'」':''}`); });
+    if(o.status===0) todo.push(`🆕 ${o.no} ${o.A.name}：新單待規劃`);
+    if(o.status===2) todo.push(`⏳ ${o.no} ${o.A.name}：已報價，等匯款`);
+    if(o.design_state==='approved'&&o.status<3) todo.push(`✅ ${o.no} ${o.A.name}：客戶已同意排珠 → 可出報價`); });
+  $('#todoList').innerHTML=todo.length?todo.slice(0,10).map(t=>`<div class="evt">${esc(t)}</div>`).join(''):'<p class="muted">目前沒有待辦，喝口茶 🍵</p>';
+}
+
+/* ══ 排珠·訊息 ══ */
+function renderMsgTab(){
+  const i=$('#dOrder').value; const o=DB.orders[+i];
+  if($('#oInfo')) $('#oInfo').innerHTML=o?(orderBadges(o)+upgradeDetailHTML(o)):'';
+  if(o&&o.design&&!$('#dText').value) $('#dText').value=o.design;
+  /* 事件佇列 */
+  let h='';
+  DB.orders.forEach((o2,oi)=>{ (o2.events||[]).forEach((e,ei)=>{ if(EVT_KINDS.includes(e.kind)){
+    h+=`<div class="evt" style="${e.seen?'opacity:.55':''}"><b>${esc(e.kind)}</b> ${esc(o2.no)}（${esc(o2.A.name)}）${e.note?'：'+esc(noteTxt(e.note)):''}<time>${esc((e.at||'').slice(0,16).replace('T',' '))}</time>${e.seen?'':`<button class="btn sm ghost" onclick="markSeen(${oi},${ei})" style="margin-top:4px">標示已處理</button>`}</div>`;}});});
+  $('#evtQueue').innerHTML=h||'<p class="muted">尚無客戶回覆。按「訂單」分頁的同步鈕拉最新資料。</p>';
+}
+function markSeen(oi,ei){ DB.orders[oi].events[ei].seen=true; save(); }
+async function pushDesign(){
+  const i=$('#dOrder').value; if(i===''){$('#dMsg').textContent='先選訂單';return;}
+  const o=DB.orders[+i]; const t=$('#dText').value.trim();
+  if(!t){$('#dMsg').textContent='先貼提案內容';return;}
+  o.design=t; o.design_state='pending';
+  if(o.status<1){o.status=1;(o.log=o.log||[]).push([new Date().toISOString().slice(0,16),'已規劃']);}
+  save();
+  const okPush=o.cloud?await syncPush(o,{design:t,design_state:'pending',stage:STATUS[o.status]}):false;
+  $('#dMsg').innerHTML=okPush?'<span class="ok">✔ 已推送，客戶進度頁可見（記得用「階段通知文字」發 LINE 提醒）</span>'
+    :'<span class="warn">已存本機。'+(o.cloud?'雲端推送失敗（檢查設定）':'此單不在 n8n（LINE 手動單），請直接把提案貼給客戶')+'</span>';
+}
+/* 通知文字 */
+const NOTIFY=[
+  o=>`【拍拍深】${o.A.name} 你好，問卷已收到 ✔\n訂單編號：${o.no}\n命理師運算＋人工複核中，初步排珠規劃出來會先請你確認。\n進度隨時可查：${SITE()}#track（單號＋聯絡方式末四碼）`,
+  o=>`【拍拍深】${o.A.name} 你好，你的初步排珠規劃出來了 🪷\n請到進度頁看提案，按「同意」或「想調整」告訴我們：\n${SITE()}#track\n訂單編號：${o.no}（驗證＝聯絡方式末四碼）`,
+  o=>`【拍拍深】${o.A.name} 你好，報價單已為你備妥 🧾\n${o.quote&&o.quote.tot?'總計 NT$ '+o.quote.tot.toLocaleString()+'\n':''}收款帳戶（戶名：張英風）：\n聯邦(803) 088-50-8010935\n郵局(700) 02813400343710\n台新(812) 20321000354942\n請於三日內完成匯款並回傳帳號末五碼，確認後即開始製作。`,
+  o=>`【拍拍深】${o.A.name} 你好，款項已確認 ✔\n開始手工製作，約 7–10 個工作天交付；進度頁可隨時查看。\n訂單編號：${o.no}`,
+  o=>`【拍拍深】${o.A.name} 你好，你的手串正在製作中 🧵\n逐顆選石、逐顆排位，完成會第一時間通知你。`,
+  o=>`【拍拍深】${o.A.name} 你好，手串已出貨 📦\n${o.ship==='店到店'?'店到店寄出，到店會有簡訊通知。':'面交／自送依約定時間地點。'}\n收到後有任何狀況，LINE 直接跟我們說。`,
+  o=>`【拍拍深】${o.A.name} 你好 🌿 手串戴滿 30 天了，一切還順手嗎？\n配戴上有任何想調整的，隨時回來找我們。你的專屬報告與配置紀錄都在，歡迎介紹朋友來訂製。`
+];
+function SITE(){ return (DB.cfg.site||'https://anwer3712.github.io/paipaishen-shop/'); }
+function genNotify(){
+  const i=$('#nOrder').value; if(i===''){$('#nText').value='';return;}
+  const o=DB.orders[+i]; const s=+($('#nStage').value||o.status);
+  $('#nText').value=NOTIFY[Math.min(s,NOTIFY.length-1)](o);
+}
+function copyNotify(){ navigator.clipboard.writeText($('#nText').value).then(()=>$('#nMsg').innerHTML='<span class="ok">✔ 已複製，貼到 LINE</span>'); }
+
+/* ══ 報價 ══ */
+function base(w,b){const r=PRICE.rows[String(parseFloat(w))]||PRICE.rows[w];const i=PRICE.beads.indexOf(+b);return(r&&i>-1)?r[i]:null;}
+function lines(o){
+  const L=[];const per=(x,tag,qty)=>{const v=base(x.wrist,x.bead);
+    L.push({t:`訂製五行水晶手串（手圍${x.wrist}cm／珠徑${x.bead}mm）`,q:qty,u:v,tag,manual:v==null});
+    if(x.upgrade)L.push({t:'水晶品質規格升級',q:qty,u:PRICE.upgrade,tag});
+    if(x.deep)L.push({t:'深度命理推論報告書（含圖表與因果）',q:qty,u:PRICE.deep,tag});};
+  if(o.type==='couple'){per(o.A,o.A.name||'A',1);per(o.B,o.B.name||'B',1);}
+  else per(o.A,o.A.name||'客戶',o.qty||1);
+  L.push({t:o.ship==='店到店'?'物流（店到店）':'物流（店長自送）',q:1,u:o.ship==='店到店'?PRICE.ship:0,tag:'物流'});
+  return L;
+}
+function calcQuote(){
+  const i=$('#qOrder').value;if(i===''){$('#qBody').innerHTML='';$('#qTotal').textContent='—';return;}
+  const o=DB.orders[+i];if(!o)return;
+  const L=lines(o);const disc=+$('#qDisc').value||0;
+  let tot=0,manual=false;
+  const rows=L.map(l=>{if(l.u==null){manual=true;return `<tr><td>${esc(l.t)}</td><td class="num">${l.q}</td><td class="num warn">需人工報價</td><td class="num">—</td></tr>`;}
+    const s=l.q*l.u;tot+=s;return `<tr><td>${esc(l.t)}</td><td class="num">${l.q}</td><td class="num">${l.u}</td><td class="num">${s.toLocaleString()}</td></tr>`;}).join('');
+  tot-=disc;
+  $('#qBody').innerHTML=`<div style="overflow-x:auto"><table><tr><th>項目</th><th>數量</th><th>單價</th><th>小計</th></tr>${rows}${disc?`<tr><td>折扣</td><td></td><td></td><td class="num">−${disc.toLocaleString()}</td></tr>`:''}</table></div>`;
+  $('#qTotal').textContent=manual?'（含人工報價項，未定）':'NT$ '+tot.toLocaleString();
+  return {L,tot,disc,manual,o};
+}
+$('#qOrder').addEventListener('change',calcQuote);
+$('#qDisc').addEventListener('input',calcQuote);
+function quoteCSS(){return `:root{--warm:#FBF6F0;--dawn:#DCE6EF;--dawn2:#C7D8E6;--morandi:#E7D3CE;--rose:#C99A92;--ink:#3E4F5E;--ink2:#6E7E8C;--gold:#C2A063;--line:#D9CDBF;}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:"Noto Serif TC","Microsoft JhengHei",serif;color:var(--ink);background:var(--warm);line-height:1.85;}.page{max-width:520px;margin:0 auto;padding:0 0 40px;}.head{background:linear-gradient(170deg,var(--dawn),var(--warm) 70%);padding:34px 30px 22px;text-align:center;border-bottom:2px solid var(--gold);}.logo{font-size:24px;font-weight:700;letter-spacing:.08em;}.logo small{display:block;font-size:11px;color:var(--rose);letter-spacing:.4em;margin-top:6px;font-weight:300;}.doc{font-size:15px;font-weight:500;letter-spacing:.3em;margin-top:16px;}.meta{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink2);padding:14px 30px 6px;}section{padding:18px 30px 4px;}.grp-title{font-size:14px;font-weight:700;letter-spacing:.08em;margin:18px 0 6px;padding-left:10px;border-left:4px solid var(--rose);}table{width:100%;border-collapse:collapse;font-size:12.5px;}th,td{border:1px solid var(--line);padding:8px 9px;}th{background:var(--dawn);font-weight:500;text-align:center;}td.l{text-align:left;}td.c{text-align:center;}td.r{text-align:right;}tr.sub td{background:#FCF8F2;font-weight:700;}.total{margin-top:14px;background:linear-gradient(135deg,var(--dawn2),var(--morandi));border-radius:12px;padding:16px 20px;display:flex;justify-content:space-between;align-items:baseline;}.total b{font-size:14px;letter-spacing:.25em;}.total span{font-size:28px;font-weight:700;}.box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-top:18px;}.box h4{font-size:13.5px;font-weight:700;margin-bottom:8px;}.box p{font-size:12px;font-weight:300;color:var(--ink2);margin-bottom:6px;line-height:1.9;}.box p b{color:var(--ink);font-weight:500;}.bank{display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;border-bottom:1px dashed var(--line);}.note{font-size:10.5px;color:var(--ink2);font-weight:300;margin:14px 30px 0;line-height:1.8;text-align:center;}@media print{body{background:#fff;}.page{max-width:100%;}}@page{size:A4;margin:0;}`;}
+async function genQuote(){
+  const r=calcQuote();if(!r){$('#qMsg').textContent='先選訂單';return;}
+  const {L,tot,disc,o}=r;const today=new Date().toLocaleDateString('zh-TW');
+  const grp={};L.forEach(l=>{(grp[l.tag]=grp[l.tag]||[]).push(l);});
+  let body='';
+  Object.entries(grp).forEach(([tag,ls])=>{
+    let sub=0;const tr=ls.map(l=>{const s=(l.u??0)*l.q;sub+=s;
+      return `<tr><td class="l">${esc(l.t)}</td><td class="c">${l.q}</td><td class="r">${l.u==null?'待報':l.u}</td><td class="r">${l.u==null?'—':s.toLocaleString()}</td></tr>`;}).join('');
+    body+=`<div class="grp-title">${esc(tag)}${tag==='物流'?'配送':' 手串'}</div><table><tr><th>項目明細</th><th>數量</th><th>單價</th><th>小計</th></tr>${tr}${tag!=='物流'?`<tr class="sub"><td class="l" colspan="3">小計</td><td class="r">${sub.toLocaleString()}</td></tr>`:''}</table>`;});
+  if(disc)body+=`<table style="margin-top:8px"><tr><td class="l">折扣</td><td class="r">−${disc.toLocaleString()}</td></tr></table>`;
+  const html=`<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><title>服務費用結算表｜${esc(o.A.name)}</title><style>${quoteCSS()}</style></head><body><div class="page">
+  <div class="head"><div class="logo">拍拍深五行水晶設計研究所<small>Q U I N T E S S U R A</small></div><div class="doc">服 務 費 用 結 算 表</div></div>
+  <div class="meta"><span>客戶：${esc(o.A.name)}${o.type==='couple'?'（情侶對串）':''}</span><span>單號：${esc(o.no)}　·　日期：${today}</span></div>
+  <section>${body}<div class="total"><b>原 價 總 計</b><span>NT$ ${tot.toLocaleString()}</span></div></section>
+  <section>
+    <div class="box"><h4>支付與交付規範</h4><p><b>1. 先匯款後出貨：</b>請優先完成匯款並提供帳號末五碼。</p><p><b>2. 限時提醒：</b>請於收到報價單三日內完成匯款。</p><p><b>3. 交付：</b>${esc($('#qNote').value)}</p></div>
+    <div class="box"><h4>收款帳戶（戶名：張英風）</h4><div class="bank"><b>聯邦 (803)</b><span>088-50-8010935</span></div><div class="bank"><b>郵局 (700)</b><span>02813400343710</span></div><div class="bank"><b>台新 (812)</b><span>20321000354942</span></div></div>
+  </section>
+  <p class="note">本報價僅列晶石名稱、五行屬性與顆數，不述功效。<br>本服務為傳統文化意象與心理學自我覺察工具之結合，非醫療、心理治療或命運預測。</p>
+  </div><script>window.print()<\/script></body></html>`;
+  const w=window.open('','_blank');w.document.write(html);w.document.close();
+  o.quote={tot,disc,ts:new Date().toISOString()};if(o.status<2){o.status=2;(o.log=o.log||[]).push([new Date().toISOString().slice(0,16),'已報價']);}save();
+  if(o.cloud) syncPush(o,{stage:STATUS[o.status],quote_total:tot});
+  $('#qMsg').innerHTML='<span class="ok">✔ 已開啟列印視窗，狀態→已報價（已同步，客戶進度頁可見金額）</span>';
+}
+function copyQuoteText(){
+  const r=calcQuote();if(!r)return;const {L,tot,disc,o}=r;
+  const t=[`【報價】單號 ${o.no}`,...L.map(l=>`${l.t} ×${l.q}＝${l.u==null?'待報':(l.u*l.q)}`),disc?`折扣 −${disc}`:'',`總計 NT$ ${tot.toLocaleString()}`,'','收款（張英風）：聯邦803 088-50-8010935／郵局700 02813400343710／台新812 20321000354942','請於三日內完成匯款並回傳末五碼，匯款確認後開始製作。'].filter(Boolean).join('\n');
+  navigator.clipboard.writeText(t).then(()=>$('#qMsg').innerHTML='<span class="ok">✔ 已複製</span>');
+}
+
+/* ══ AI 一條龍 ══ */
+function loadPack(inp,kind){
+  const f=inp.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{DB.packs[kind]=rd.result;save();};rd.readAsText(f,'utf-8');
+}
+function intakeBlock(o){
+  const per=(x,t)=>[`━ ${t} ━`,`姓名：${x.name}`,`性別：${x.gender||''}`,`國曆生日＋時間：${x.birth} ${x.btime||'無時辰'}`,`手圍（cm）：${x.wrist}`,`珠徑（mm）：${x.bead}`,`核心功能：${x.core}`,`目前的痛點/煩惱：${x.pain||'無'}`,`視覺體感：${x.vis}`,`加購：${x.upgrade?'✔水晶升等 ':''}${x.deep?'✔深度命理推論報告':''}${!x.upgrade&&!x.deep?'無':''}`].join('\n');
+  let s=`訂單編號：${o.no}\n\n`+per(o.A,o.type==='couple'?'客戶A（下單人）':'客戶');
+  if(o.B)s+='\n\n'+per(o.B,'客戶B（伴侶）')+`\n關係階段：${o.B.stage||''}`;
+  if(o.qty)s+=`\n訂製數量：${o.qty} 串`;
+  s+=`\n物流：${o.ship}`;return s;
+}
+function buildPrompt(){
+  const i=$('#aiOrder').value;if(i==='')return;
+  const o=DB.orders[+i];if(!o)return;
+  const pack=DB.packs[o.type==='couple'?'couple':'single'];
+  $('#promptBox').value=pack?(pack+'\n\n---\n\n## 進件資料（本單）\n\n```\n'+intakeBlock(o)+'\n```\n\n請依本包流程開始 GEM1 運算，完成後暫停等我確認。'):'（先在上方載入 '+(o.type==='couple'?'情侶':'個人')+'包 .md）';
+}
+function copyPrompt(){buildPrompt();const t=$('#promptBox').value;
+  if(t.startsWith('（')){$('#aiMsg').innerHTML='<span class="warn">'+esc(t)+'</span>';return;}
+  navigator.clipboard.writeText(t).then(()=>{$('#aiMsg').innerHTML='<span class="ok">✔ 已複製，貼到任何 AI 即可跑 GEM1→確認→GEM2/GEM3</span>';
+  const o=DB.orders[+$('#aiOrder').value];if(o&&o.status<1){o.status=1;(o.log=o.log||[]).push([new Date().toISOString().slice(0,16),'已規劃(送AI)']);save();if(o.cloud)syncPush(o,{stage:STATUS[1]});}});}
+function saveBack(){
+  const i=$('#aiOrder').value,t=$('#aiBack').value.trim();
+  if(i===''||!t){$('#backMsg').textContent='選訂單＋貼內容';return;}
+  const o=DB.orders[+i];(o.outputs=o.outputs||[]).push({ts:new Date().toISOString(),text:t});save();
+  $('#backMsg').innerHTML='<span class="ok">✔ 已存（'+o.outputs.length+' 份）</span>';
+}
+function openBack(){
+  const t=$('#aiBack').value.trim();if(!t){$('#backMsg').textContent='先貼內容';return;}
+  const w=window.open('','_blank');
+  w.document.write(/<html|<!DOCTYPE/i.test(t)?t:'<pre style="white-space:pre-wrap;font-family:Microsoft JhengHei;max-width:720px;margin:24px auto;">'+esc(t)+'</pre>');
+  w.document.close();
+}
+function saveAPI(){['apiProv','apiModel','apiKey','apiBase'].forEach(k=>DB.api[k]=$('#'+k).value);save();$('#apiMsg').innerHTML='<span class="ok">✔ 已存（隨資料庫加密）</span>';}
+async function callAPI(){
+  buildPrompt();const prompt=$('#promptBox').value;
+  if(prompt.startsWith('（')){$('#aiMsg').innerHTML='<span class="warn">先載入指令包</span>';return;}
+  const a=DB.api;if(!a.apiKey&&a.apiProv!=='custom'){$('#aiMsg').innerHTML='<span class="warn">先在下方存 API 設定</span>';return;}
+  $('#aiMsg').textContent='呼叫中…';
+  try{
+    let url,headers={'Content-Type':'application/json'},body;
+    const model=a.apiModel||'';
+    if(a.apiProv==='anthropic'){url='https://api.anthropic.com/v1/messages';
+      headers['x-api-key']=a.apiKey;headers['anthropic-version']='2023-06-01';headers['anthropic-dangerous-direct-browser-access']='true';
+      body={model,max_tokens:8000,messages:[{role:'user',content:prompt}]};}
+    else if(a.apiProv==='gemini'){url=`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${a.apiKey}`;
+      body={contents:[{parts:[{text:prompt}]}]};}
+    else{url=(a.apiProv==='custom'&&a.apiBase?a.apiBase.replace(/\/$/,''):'https://api.openai.com/v1')+'/chat/completions';
+      if(a.apiKey)headers['Authorization']='Bearer '+a.apiKey;
+      body={model,messages:[{role:'user',content:prompt}]};}
+    const r=await fetch(url,{method:'POST',headers,body:JSON.stringify(body)});
+    const j=await r.json();
+    const out=j.content?.[0]?.text||j.choices?.[0]?.message?.content||j.candidates?.[0]?.content?.parts?.[0]?.text||JSON.stringify(j,null,2);
+    $('#apiOut').value=out;$('#aiBack').value=out;
+    $('#aiMsg').innerHTML='<span class="ok">✔ 完成，結果已帶入「接回成品」</span>';
+  }catch(e){$('#aiMsg').innerHTML='<span class="warn">失敗：'+esc(e.message)+'（瀏覽器 CORS 限制時請改用複製模式）</span>';}
+}
+
+/* ══ 設定 ══ */
+function saveCfg(){ DB.cfg.api=$('#cfgApi').value.trim(); DB.cfg.admin=$('#cfgAdmin').value.trim(); save();
+  $('#cfgMsg').innerHTML='<span class="ok">✔ 已存</span>'; }
+async function testCfg(){ saveCfg(); $('#cfgMsg').textContent='測試中…';
+  try{ const r=await apiCall({op:'ping'}); $('#cfgMsg').innerHTML=(r&&r.ok)?'<span class="ok">✔ 連線正常（'+esc(r.msg||'pong')+'）</span>':'<span class="warn">連上了但密鑰不對：'+esc(r&&r.msg||'')+'</span>'; }
+  catch(e){ $('#cfgMsg').innerHTML='<span class="warn">連不上：'+esc(e.message)+'</span>'; } }
+
+/* ══ 備份 ══ */
+function exportAll(){
+  const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='拍拍深販售備份_'+new Date().toISOString().slice(0,10)+'.json';a.click();
+}
+function importAll(inp){const f=inp.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{try{const j=JSON.parse(rd.result);if(!confirm('覆蓋現有資料？（現有 '+DB.orders.length+' 筆訂單）'))return;DB=Object.assign(freshDB(),j);save();hydrate();alert('已匯入');}catch(_){alert('檔案格式錯誤');}};
+  rd.readAsText(f,'utf-8');}
+</script>
+</body>
+</html>
