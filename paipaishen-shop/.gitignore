@@ -1,5 +1,0 @@
-# n8n workflow 檔含內部 token，不上公開 repo
-n8n_*.json
-管理密鑰_勿上傳.md
-backup/
-*.bak
