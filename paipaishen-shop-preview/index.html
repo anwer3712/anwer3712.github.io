@@ -281,9 +281,10 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
 
 /* 情侶圖解 */
 .duo{grid-template-columns:1fr 1fr;align-items:center;gap:30px}
+.duo>*{min-width:0}
 .illus{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:22px;box-shadow:var(--shadow-sm)}
 .illus svg{width:100%;height:auto}
-.pairtypes{grid-template-columns:repeat(3,1fr)}
+.pairtypes{grid-template-columns:repeat(2,1fr)}
 .gottman-tbl{width:100%;border-collapse:collapse;font-size:14px;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
 .gottman-tbl th,.gottman-tbl td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left}
 .gottman-tbl th{background:#F3EEE2;font-family:var(--serif)}
@@ -585,37 +586,46 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
       <!-- 情侶資訊區 -->
       <div id="duoInfo" style="display:none">
         <div class="grid duo" style="margin-bottom:40px">
-          <div class="illus reveal" id="rvIllus" aria-label="RV 融合 40/40/20 圖解"></div>
+          <div class="illus reveal" id="rvIllus" aria-label="雙人配比五步流程圖解"></div>
           <div class="reveal">
-            <h3 style="font-size:22px;margin-bottom:10px">為「這段關係」設計，不是兩條個人款相加</h3>
-            <p style="color:var(--muted)">把兩人的需求向量融合：<b style="color:var(--ink)">40% 你 ＋ 40% 對方 ＋ 20% 橋接元素</b>。再找出 Gottman 七維裡的缺口，轉成配珠比例。就算配比一樣，兩人的解說也分開寫。</p>
+            <h3 style="font-size:22px;margin-bottom:10px">兩個人的盤，不是各算各的</h3>
+            <p style="color:var(--muted)">先各自算出需求向量，再合成一份雙人向量：<b style="color:var(--ink)">RV = 0.4×你 ＋ 0.4×對方 ＋ 0.2×橋接元素</b>。</p>
+            <p style="color:var(--muted);margin-top:10px">但這只是第一步。合成完還要乘上關係階段的修正係數——熱戀期加重火、育兒期加重土、分居加重水——再重新正規化，才得到真正拿去挑石頭的那份配比。</p>
+            <p style="color:var(--muted);margin-top:10px">最後只從你們的<b style="color:var(--ink)">共同喜神</b>取石，不是各挑各的。所以就算配比相同，兩條串也可能長得不一樣：主珠取各自最高的那個五行，<b style="color:var(--ink)">各自置中</b>。</p>
           </div>
         </div>
 
         <div class="grid duo" style="margin-bottom:40px">
           <div class="reveal">
-            <h3 style="font-size:22px;margin-bottom:10px">相沖？那是摩擦力，不是不合</h3>
-            <p style="color:var(--muted)">系統放一個橋接元素當「關係翻譯官」。像木——水生木、木生火，把對撞轉成流動。提醒你們摩擦時先開口，而不是硬碰。</p>
+            <h3 style="font-size:22px;margin-bottom:10px">翻譯：把一句他聽不懂的話，換成他的語言再說一次</h3>
+            <p style="color:var(--muted)">水和火不會直接相處，硬放在一起是對沖。所以我們不去「調和」它們，而是插一個<b style="color:var(--ink)">木</b>：水生木、木生火——同一股力氣，換一條路走，對撞就成了流動。金和木相剋，插的是<b style="color:var(--ink)">土</b>：金生於土、土載木。</p>
+            <p style="color:var(--muted);margin-top:10px">要講清楚的是：<b style="color:var(--ink)">橋接是一個元素權重，不是一顆固定的珠子。</b>它占雙人向量的 20%，跟共同喜神一起被算進配比。如果那個元素正好落在你們的缺口上，它會化在整條串裡；如果你們不缺它，就不會為了「有個橋」而硬塞一顆。</p>
+            <table class="gottman-tbl" style="margin-top:14px">
+              <tr><th>兩人日主的關係</th><th>橋接元素</th><th>為什麼</th></tr>
+              <tr><td>水 ↔ 火（互沖）</td><td>木</td><td>水生木、木生火，沖轉成流通</td></tr>
+              <tr><td>金 ↔ 木（互剋）</td><td>土</td><td>金生於土、土載木，剋轉成承載</td></tr>
+              <tr><td>其餘情況</td><td>共同喜神中最強的那一個</td><td>沒有沖剋要解，就順勢加強你們本來就共有的</td></tr>
+            </table>
+            <p style="color:var(--muted);font-size:13px;margin-top:8px">另外，金與木、水與火在同一條串上不相鄰，中間一定隔一顆。這是排珠鐵律，不是美學選擇。</p>
           </div>
-          <div class="illus reveal" id="bridgeIllus" aria-label="橋接元素示意"></div>
+          <div class="illus reveal" id="translateIllus" aria-label="不直接相處，換一條路走：水生木、木生火繞道示意"></div>
         </div>
 
-        <div class="head reveal"><h2 style="font-size:26px">兩條，會像一對嗎</h2></div>
+        <div class="head reveal"><h2 style="font-size:26px">兩條，會像一對嗎</h2><p style="color:var(--muted);font-size:14px">這兩種都是算出來的結果，不是可以挑的方案。</p></div>
         <div class="grid pairtypes" style="margin-bottom:40px">
-          <div class="track-card reveal"><h3>橋接型</h3><p>A 串末端、B 串前端各一顆橋接珠，牽手時剛好相鄰。</p></div>
-          <div class="track-card reveal"><h3>共享核心型</h3><p>兩串中央用同一顆主珠，代表你們的共同喜神。</p></div>
-          <div class="track-card reveal"><h3>鏡像對稱型</h3><p>色彩互補鏡像，你中有我、我中有你。</p></div>
+          <div class="track-card reveal"><h3>同石不同位</h3><p>兩人的共同喜神重疊度高時，會出現同一種石頭，但各自的主珠不同、排列位置也不同。看起來是一組，不是一對複製品。</p></div>
+          <div class="track-card reveal"><h3>各有各的主</h3><p>共同喜神只重疊一部分時，兩條串的主珠會落在不同五行上。石頭清單有交集，中心不同——這很常見，不是算錯。</p></div>
         </div>
 
         <div class="grid duo" style="margin-bottom:40px;align-items:start">
-          <div class="illus reveal" id="radarIllus" aria-label="Gottman 七維雷達圖"></div>
+          <div class="illus reveal" id="radarIllus" aria-label="Gottman 七維雷達圖，七軸各標對應五行"></div>
           <div class="reveal">
             <h3 style="font-size:20px;margin-bottom:12px">Gottman 七維：把關係拆成看得懂的七塊</h3>
             <table class="gottman-tbl">
-              <tr><th>維度</th><th>對應五行</th><th>練習</th></tr>
+              <tr><th>維度</th><th>對應五行</th><th>白話說</th></tr>
               <tr><td><span class="dot5" style="background:var(--shui)"></span>信任</td><td>水</td><td>降低猜忌與防禦</td></tr>
               <tr><td><span class="dot5" style="background:var(--mu)"></span>溝通</td><td>木</td><td>不批判的傾聽</td></tr>
-              <tr><td><span class="dot5" style="background:var(--huo)"></span>熱情</td><td>火</td><td>創造正向互動</td></tr>
+              <tr><td><span class="dot5" style="background:var(--huo)"></span>親密</td><td>火</td><td>拉近日常的親密互動</td></tr>
               <tr><td><span class="dot5" style="background:var(--tu)"></span>安全感</td><td>土</td><td>穩定的情緒支持</td></tr>
               <tr><td><span class="dot5" style="background:var(--mu)"></span>成長</td><td>木</td><td>支持彼此的理想</td></tr>
               <tr><td><span class="dot5" style="background:var(--jin)"></span>承諾</td><td>金</td><td>守護當初的初衷</td></tr>
@@ -1102,38 +1112,71 @@ function base(w,b){ const r=CONFIG.PRICE.rows[w]; const i=CONFIG.PRICE.beads.ind
     <text x="150" y="41" text-anchor="middle" font-size="9" fill="${ink}">15.2 cm</text>
     <text x="150" y="128" text-anchor="middle" font-size="12" fill="#6A7280">最細處平繞、不留鬆份，級距向上取</text>
   </svg>`;
-  // RV 40/40/20
-  if($('#rvIllus')) $('#rvIllus').innerHTML = `<h3 style="font-size:18px;margin-bottom:12px;text-align:center">需求向量融合</h3>
-  <svg viewBox="0 0 360 120" role="img" aria-label="融合比例：你 40%、伴侶 40%、橋接元素 20%">
-    <rect x="10" y="30" width="136" height="40" rx="6" fill="var(--mu)"/><text x="78" y="55" text-anchor="middle" fill="#fff" font-size="14" font-family="serif">你 40%</text>
-    <rect x="150" y="30" width="136" height="40" rx="6" fill="var(--shui)"/><text x="218" y="55" text-anchor="middle" fill="#fff" font-size="14" font-family="serif">伴侶 40%</text>
-    <rect x="290" y="30" width="60" height="40" rx="6" fill="#C9A24B"/><text x="320" y="55" text-anchor="middle" fill="#fff" font-size="12" font-family="serif">橋接20%</text>
-    <text x="180" y="100" text-anchor="middle" font-size="12" fill="#6A7280">為「這段關係的共同空間」而設計</text>
+  // 雙人配比：五步流程
+  if($('#rvIllus')) $('#rvIllus').innerHTML = `<h3 style="font-size:18px;margin-bottom:12px;text-align:center">雙人配比：五步流程</h3>
+  <svg viewBox="0 0 390 200" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto" role="img" aria-label="五步流程：一、各自需求向量。二、合成 0.4 你、0.4 對方、0.2 橋接元素。三、乘上關係階段修正係數。四、重新正規化。五、從共同喜神取石">
+    <defs><marker id="rvArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0l6 3-6 3z" fill="${acc}"/></marker></defs>
+    <path d="M123 45h14" stroke="${acc}" stroke-width="2.5" marker-end="url(#rvArrow)"/>
+    <path d="M253 45h14" stroke="${acc}" stroke-width="2.5" marker-end="url(#rvArrow)"/>
+    <path d="M325 78v29" stroke="${acc}" stroke-width="2.5" marker-end="url(#rvArrow)"/>
+    <path d="M267 140h-14" stroke="${acc}" stroke-width="2.5" marker-end="url(#rvArrow)"/>
+    <g><rect x="10" y="15" width="110" height="60" rx="8" fill="${soft}" stroke="${acc}"/>
+      <circle cx="24" cy="29" r="10" fill="${acc}"/><text x="24" y="33" text-anchor="middle" font-size="11" fill="#fff">1</text>
+      <text x="65" y="46" text-anchor="middle" font-size="11.5" fill="${ink}">各自</text>
+      <text x="65" y="61" text-anchor="middle" font-size="11.5" fill="${ink}">需求向量</text></g>
+    <g><rect x="140" y="15" width="110" height="60" rx="8" fill="${soft}" stroke="${acc}"/>
+      <circle cx="154" cy="29" r="10" fill="${acc}"/><text x="154" y="33" text-anchor="middle" font-size="11" fill="#fff">2</text>
+      <text x="195" y="46" text-anchor="middle" font-size="11.5" fill="${ink}">合成</text>
+      <text x="195" y="61" text-anchor="middle" font-size="10.5" fill="${ink}">.4 / .4 / .2</text>
+      <rect x="150" y="80" width="38" height="8" fill="var(--mu)"/><rect x="188" y="80" width="38" height="8" fill="var(--shui)"/><rect x="226" y="80" width="19" height="8" fill="${acc}"/></g>
+    <g><rect x="270" y="15" width="110" height="60" rx="8" fill="${soft}" stroke="${acc}"/>
+      <circle cx="284" cy="29" r="10" fill="${acc}"/><text x="284" y="33" text-anchor="middle" font-size="11" fill="#fff">3</text>
+      <text x="325" y="46" text-anchor="middle" font-size="11.5" fill="${ink}">關係階段</text>
+      <text x="325" y="61" text-anchor="middle" font-size="11.5" fill="${ink}">修正係數</text></g>
+    <g><rect x="270" y="110" width="110" height="60" rx="8" fill="${soft}" stroke="${acc}"/>
+      <circle cx="284" cy="124" r="10" fill="${acc}"/><text x="284" y="128" text-anchor="middle" font-size="11" fill="#fff">4</text>
+      <text x="325" y="141" text-anchor="middle" font-size="11.5" fill="${ink}">重新</text>
+      <text x="325" y="156" text-anchor="middle" font-size="11.5" fill="${ink}">正規化</text></g>
+    <g><rect x="140" y="110" width="110" height="60" rx="8" fill="${soft}" stroke="${acc}"/>
+      <circle cx="154" cy="124" r="10" fill="${acc}"/><text x="154" y="128" text-anchor="middle" font-size="11" fill="#fff">5</text>
+      <text x="195" y="141" text-anchor="middle" font-size="11.5" fill="${ink}">共同喜神</text>
+      <text x="195" y="156" text-anchor="middle" font-size="11.5" fill="${ink}">取石</text></g>
+    <text x="195" y="190" text-anchor="middle" font-size="11.5" fill="#6A7280">配比不是算完就結束，是一條走完才算數的管線</text>
   </svg>`;
-  // 橋接示意
-  if($('#bridgeIllus')) $('#bridgeIllus').innerHTML = `<h3 style="font-size:18px;margin-bottom:12px;text-align:center">橋接：關係翻譯官</h3>
-  <svg viewBox="0 0 340 130" role="img" aria-label="水生木、木生火，橋接元素把對撞轉成流動">
-    <circle cx="60" cy="65" r="30" fill="var(--shui)"/><text x="60" y="70" text-anchor="middle" fill="#fff" font-size="16" font-family="serif">水</text>
-    <circle cx="170" cy="65" r="26" fill="var(--mu)"/><text x="170" y="71" text-anchor="middle" fill="#fff" font-size="15" font-family="serif">木</text>
-    <circle cx="280" cy="65" r="30" fill="var(--huo)"/><text x="280" y="70" text-anchor="middle" fill="#fff" font-size="16" font-family="serif">火</text>
-    <path d="M92 65 h48" stroke="${acc}" stroke-width="2.5" marker-end="url(#ar)"/>
-    <path d="M198 65 h48" stroke="${acc}" stroke-width="2.5" marker-end="url(#ar)"/>
-    <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0l6 3-6 3z" fill="${acc}"/></marker></defs>
-    <text x="170" y="118" text-anchor="middle" font-size="11.5" fill="#6A7280">把對撞，轉成相生的流動</text>
+  // 翻譯（原橋接）示意：水火不直接相處，繞木而行
+  if($('#translateIllus')) $('#translateIllus').innerHTML = `<h3 style="font-size:18px;margin-bottom:12px;text-align:center">不直接相處，換一條路走</h3>
+  <svg viewBox="0 0 340 180" role="img" aria-label="水與火不直接相處，中間劃掉的是直接連線；下方繞道經過木，水生木、木生火">
+    <defs><marker id="trArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0l6 3-6 3z" fill="${acc}"/></marker></defs>
+    <path d="M83 50 H257" stroke="${line}" stroke-width="3" stroke-dasharray="7 5"/>
+    <path d="M163 43 L177 57" stroke="var(--rose-d)" stroke-width="3" stroke-linecap="round"/>
+    <path d="M163 57 L177 43" stroke="var(--rose-d)" stroke-width="3" stroke-linecap="round"/>
+    <path d="M76 73 Q120 108 148 120" fill="none" stroke="${acc}" stroke-width="2.5" marker-end="url(#trArrow)"/>
+    <path d="M192 120 Q220 108 264 73" fill="none" stroke="${acc}" stroke-width="2.5" marker-end="url(#trArrow)"/>
+    <circle cx="55" cy="50" r="28" fill="var(--shui)"/><text x="55" y="55" text-anchor="middle" fill="#fff" font-size="15" font-family="serif">水</text>
+    <circle cx="285" cy="50" r="28" fill="var(--huo)"/><text x="285" y="55" text-anchor="middle" fill="#fff" font-size="15" font-family="serif">火</text>
+    <circle cx="170" cy="132" r="24" fill="var(--mu)"/><text x="170" y="137" text-anchor="middle" fill="#fff" font-size="14" font-family="serif">木</text>
+    <text x="170" y="18" text-anchor="middle" font-size="11" fill="#6A7280">水火對沖：直接放在一起不行</text>
+    <text x="170" y="170" text-anchor="middle" font-size="11.5" fill="#6A7280">水生木、木生火——同一股力氣，換路走</text>
   </svg>`;
-  // Gottman 七維雷達
+  // Gottman 七維雷達（七軸各標對應五行）
   if($('#radarIllus')){
-    const cx=140,cy=140,R=100,dims=['信任','溝通','熱情','安全','成長','承諾','自由'];
+    const cx=160,cy=150,R=100;
+    const dims=[{t:'信任(水)',k:'shui'},{t:'溝通(木)',k:'mu'},{t:'親密(火)',k:'huo'},{t:'安全感(土)',k:'tu'},{t:'成長(木)',k:'mu'},{t:'承諾(金)',k:'jin'},{t:'自由(水)',k:'shui'}];
     const vals=[.82,.55,.9,.7,.65,.85,.6]; let axes='',poly='';
     dims.forEach((d,i)=>{ const a=(i/7)*Math.PI*2-Math.PI/2;
       const x=cx+R*Math.cos(a), y=cy+R*Math.sin(a);
       axes+=`<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="${line}" stroke-width="1"/>`;
-      axes+=`<text x="${(cx+(R+18)*Math.cos(a)).toFixed(1)}" y="${(cy+(R+18)*Math.sin(a)).toFixed(1)}" text-anchor="middle" font-size="11" fill="#6A7280" dominant-baseline="middle">${d}</text>`;
+      const dx=cx+(R+10)*Math.cos(a), dy=cy+(R+10)*Math.sin(a);
+      axes+=`<circle cx="${dx.toFixed(1)}" cy="${dy.toFixed(1)}" r="4" fill="var(--${d.k})"/>`;
+      axes+=`<text x="${(cx+(R+26)*Math.cos(a)).toFixed(1)}" y="${(cy+(R+26)*Math.sin(a)).toFixed(1)}" text-anchor="middle" font-size="11" fill="#6A7280" dominant-baseline="middle">${d.t}</text>`;
       const px=cx+R*vals[i]*Math.cos(a), py=cy+R*vals[i]*Math.sin(a); poly+=`${px.toFixed(1)},${py.toFixed(1)} `;
     });
-    $('#radarIllus').innerHTML = `<svg viewBox="0 0 280 280" role="img" aria-label="Gottman 七維雷達圖示意">
+    const ticks=`<text x="${cx+6}" y="${(cy-R*.3+3).toFixed(1)}" font-size="8" fill="#6A7280">30</text>
+      <text x="${cx+6}" y="${(cy-R*.6+3).toFixed(1)}" font-size="8" fill="#6A7280">60</text>
+      <text x="${cx+6}" y="${(cy-R+3).toFixed(1)}" font-size="8" fill="#6A7280">100</text>`;
+    $('#radarIllus').innerHTML = `<svg viewBox="0 0 320 300" role="img" aria-label="Gottman 七維雷達圖，七軸依序為信任(水)、溝通(木)、親密(火)、安全感(土)、成長(木)、承諾(金)、自由(水)，各軸前有對應五行色點">
       <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${line}"/><circle cx="${cx}" cy="${cy}" r="${R*.6}" fill="none" stroke="${line}"/><circle cx="${cx}" cy="${cy}" r="${R*.3}" fill="none" stroke="${line}"/>
-      ${axes}<polygon points="${poly}" fill="rgba(201,162,75,.28)" stroke="${acc}" stroke-width="2"/></svg>`;
+      ${ticks}${axes}<polygon points="${poly}" fill="rgba(201,162,75,.28)" stroke="${acc}" stroke-width="2"/></svg>`;
   }
   // 光射線（關於）
   if($('#raysIllus')) $('#raysIllus').innerHTML = `<svg viewBox="0 0 560 200" role="img" aria-label="光芒自深淵中升起">
@@ -1518,12 +1561,11 @@ const FAQ = [
   {g:'售後',q:'可以退換貨嗎？',a:'客製化商品依消保法第 19 條，排除七天無條件退貨——所以下單前一定有規劃表給你確認，先擋掉視覺落差。尺寸有誤走售後微調、不退款。材質有疑慮，假一賠三；單價 2,000 以上附第三方鑑定書影本。'},
   {g:'售後',q:'設計可以修改嗎？',a:'分兩種。P1 五行配比不能改，那是命盤決定的目標。P2、P3 可以微調：同屬性白名單內換晶石、同五行換色系、換排列方式。流程是——你提異議、我們調替代路徑、重新演算、再請你確認。'},
   {g:'售後',q:'怎麼付款？',a:'報價確認後，收款資訊會放在你的專屬報價單上。可以銀行匯款、電子支付掃碼，或面交現金。先付款、後製作，匯款完回傳帳號末五碼就能對帳。信用卡之後開放。'},
-  {g:'情侶',q:'情侶對串跟買兩條個人款差在哪？',a:'個人款為你一個人的需求算。情侶款為「這段關係的共同空間」算：把兩人的需求向量融合——40% 你、40% 對方、20% 橋接元素，再找出 Gottman 七維裡的缺口，轉成配珠比例。同樣配比，兩人的解說還是分開寫。'},
+  {g:'情侶',q:'情侶對串跟買兩條個人款差在哪？',a:'兩條個人款是各算各的，各自補各自的缺。情侶對串是先合成再拆開：兩人的需求向量合成一份雙人向量（0.4×你 ＋ 0.4×對方 ＋ 0.2×橋接元素），再乘上關係階段的修正係數、重新正規化，最後只從你們的共同喜神取石。所以對串處理的是「你們之間」的缺口，不是「你」和「他」各自的缺口相加。主珠仍取各自最高的五行，各自置中——是一組，不是一對複製品。'},
   {g:'情侶',q:'我們兩個八字相沖，怎麼辦？',a:'相沖是互動摩擦大一點，不是不合。舉例水火沖：熱情高、但安全感低。系統會放一個橋接元素當「關係翻譯官」，像木——水生木、木生火，把對撞轉成流動，提醒你們摩擦時先開口溝通，而不是硬碰。'},
   {g:'情侶',q:'關係階段會影響設計嗎？',a:'會。生命週期修正係數會動態調配比。曖昧熱戀偏火（熱情）；穩定同居偏木土（溝通加穩定）；新婚偏土（安全感共識）；育兒期偏土金（責任與承諾）。階段資料只給設計師參考，不進報告。'},
   {g:'情侶',q:'情侶款價格怎麼算？',a:'（底價 A ＋底價 B）＋水晶升等（每串 +300）＋深度關係報告（+300）＋運費。硬體計價跟個人一樣；多付的是雙人融合運算，加上那份關係報告的價值。'},
   {g:'情侶',q:'可以偷偷幫另一半訂個驚喜嗎？',a:'可以，一個人代填就好。必備：對方的國曆生日（缺時辰走三柱、誠實標註）、手圍（拿對方的手錶或飾品估也行），還有你對這段關係的痛點與願望——那會映射成 8% 的意圖權重。'},
-  {g:'情侶',q:'兩條戴起來會像一對嗎？',a:'有三種配對法。橋接型：A 串末端和 B 串前端各放一顆橋接珠，牽手時剛好相鄰。共享核心型：兩串中央用同一顆主珠，代表共同喜神。鏡像對稱型：色彩互補鏡像，你中有我。就算配比相同，兩人的解說完全分開——同是木，你練不批判的傾聽、對方練勇敢表達。'},
   {g:'情侶',q:'Gottman 七維是什麼？',a:'把關係拆成七個面向對照五行：信任（水／降低猜忌）、溝通（木／不批判傾聽）、熱情（火／創造正向互動）、安全感（土／穩定支持）、成長（木／支持彼此理想）、承諾（金／守護初衷）、自由（水／親密中保留獨立）。哪一維偏低，就往對應五行補；衝突指標太低，會插一顆修復珠當緊急提醒。'},
   {g:'情侶',q:'情侶的十二節報告有什麼？',a:'專屬關係命名、命格與選石總結、五派主張表、七欄彙總、橋接解析、Gottman 七維診斷、階段行為建議的未來藍圖。它想解的是一個問題：為什麼我們說話總是不對頻。把「我」的視角，翻譯成「我們」的共同語言。'}
 ];
