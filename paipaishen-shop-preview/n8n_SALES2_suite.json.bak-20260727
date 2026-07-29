@@ -1,0 +1,6172 @@
+[
+  {
+    "id": "pps2Products01",
+    "name": "pps2-products",
+    "active": true,
+    "nodes": [
+      {
+        "id": "wh036",
+        "name": "Webhook 商品",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          0,
+          0
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "pps2-products",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "webhookId": "pps2-products"
+      },
+      {
+        "id": "cd037",
+        "name": "解析與分流",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          260,
+          0
+        ],
+        "parameters": {
+          "jsCode": "const b = $json.body || $json;\nif (JSON.stringify(b).length > 8000) throw new Error('payload too big');\nconst op = String(b.op || '');\nconst OPS = ['list','list_admin','save','delete','stock'];\nconst idx = OPS.indexOf(op);\nif (idx < 0) throw new Error('bad op');\nconst s = (v, n) => String(v ?? '').slice(0, n);\nreturn [{ json: {\n  _branch: idx, op,\n  token: s(b.token, 80), role_token: s(b.role_token, 400), actor: s(b.actor, 30), role: s(b.role, 10),\n  product: b.product || {}, id: b.id, delta: b.delta\n} }];"
+        }
+      },
+      {
+        "id": "sw038",
+        "name": "分流",
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.2,
+        "position": [
+          520,
+          0
+        ],
+        "parameters": {
+          "mode": "expression",
+          "numberOutputs": 5,
+          "output": "={{ $json._branch }}"
+        }
+      },
+      {
+        "id": "cd039",
+        "name": "驗SITE_TOKEN",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          780,
+          0
+        ],
+        "parameters": {
+          "jsCode": "const j = $json;\nif (j.token !== \"pps_07ae287ed522c33e0422fdd4837d97bf\") throw new Error('bad token');\nreturn [{ json: {} }];"
+        }
+      },
+      {
+        "id": "pg040",
+        "name": "查上架商品",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1040,
+          0
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT id,name,layout,aesthetic,size_cm,bead_mm,price,stock,photos,description,status,low_stock_mode,low_stock_value,crystals\nFROM pps2_products WHERE status='上架' ORDER BY created_at DESC",
+          "options": {}
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd041",
+        "name": "包裝商品清單",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1300,
+          0
+        ],
+        "parameters": {
+          "jsCode": "const rows = $input.all().map(x => x.json);\nconst products = rows.map(r => ({\n  id: r.id, name: r.name, category: r.layout, layout: r.layout, aesthetic: r.aesthetic,\n  price: r.price, stock: r.stock, photos: r.photos || [], desc: r.description || '',\n  active: r.status === '上架', crystals: r.crystals || [], low_stock_mode: r.low_stock_mode || 'inherit', low_stock_value: r.low_stock_value\n}));\nreturn [{ json: { ok: true, products } }];"
+        }
+      },
+      {
+        "id": "rs042",
+        "name": "回應清單",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          0,
+          170
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ $json }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg043",
+        "name": "驗Token",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          260,
+          170
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH p AS (SELECT $1::jsonb AS j),\ns AS (SELECT value#>>'{}' AS secret FROM pps2_settings WHERE key='auth_secret'),\nparts AS (SELECT string_to_array(coalesce((SELECT j->>'role_token' FROM p),''), '|') AS a),\nvalid_shape AS (SELECT a FROM parts WHERE array_length(a,1)=4 AND a[3] ~ '^[0-9]+$')\nSELECT EXISTS (\n  SELECT 1 FROM valid_shape v, s\n  WHERE v.a[1] = (SELECT j->>'actor' FROM p)\n    AND v.a[2] = (SELECT j->>'role' FROM p)\n    AND v.a[3]::bigint > extract(epoch FROM now())::bigint\n    AND v.a[4] = encode(hmac(v.a[1]||'|'||v.a[2]||'|'||v.a[3], s.secret, 'sha256'), 'hex')\n) AS valid, (SELECT j->>'role' FROM p) AS verified_role",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('解析與分流').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd044",
+        "name": "角色閘",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          520,
+          170
+        ],
+        "parameters": {
+          "jsCode": "const v = $json;\nconst req = $('解析與分流').item.json;\nconst ALLOWED = [\"owner\",\"倉管\"];\nconst ok = v.valid === true && ALLOWED.includes(v.verified_role);\nreturn [{ json: { ok, op: req.op, actor: req.actor, role: req.role, product: req.product, id: req.id, delta: req.delta } }];"
+        }
+      },
+      {
+        "id": "if045",
+        "name": "授權通過?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          780,
+          170
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "version": 2
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "leftValue": "={{ $json.ok }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "rs046",
+        "name": "回應無權限",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1040,
+          170
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: false, error: 'forbidden' } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "sw047",
+        "name": "分流admin",
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.2,
+        "position": [
+          1300,
+          170
+        ],
+        "parameters": {
+          "mode": "expression",
+          "numberOutputs": 4,
+          "output": "={{ ({list_admin:0,save:1,delete:2,stock:3})[$json.op] }}"
+        }
+      },
+      {
+        "id": "pg048",
+        "name": "查全部商品",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          340
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT id,name,layout,aesthetic,size_cm,bead_mm,price,stock,photos,description,status,low_stock_mode,low_stock_value,crystals,created_at\nFROM pps2_products ORDER BY created_at DESC",
+          "options": {}
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd049",
+        "name": "包裝全部商品",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          260,
+          340
+        ],
+        "parameters": {
+          "jsCode": "return [{ json: { ok: true, products: $input.all().map(x => x.json) } }];"
+        }
+      },
+      {
+        "id": "rs050",
+        "name": "回應全部商品",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          520,
+          340
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ $json }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "cd051",
+        "name": "準備商品欄位",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          780,
+          340
+        ],
+        "parameters": {
+          "jsCode": "const g = $('角色閘').item.json;\nconst p = g.product || {};\nconst s = (v, n) => String(v ?? '').slice(0, n);\nconst status = (p.active === false || p.status === '下架') ? '下架' : '上架';\nconst low_stock_mode = ['inherit','custom','off'].includes(p.low_stock_mode) ? p.low_stock_mode : 'inherit';\nreturn [{ json: {\n  id: p.id || null, name: s(p.name, 60), layout: s(p.layout, 30), aesthetic: s(p.aesthetic, 20),\n  size_cm: Number(p.size_cm) || null, bead_mm: parseInt(p.bead_mm, 10) || null,\n  price: Math.max(0, parseInt(p.price, 10) || 0), stock: Math.max(0, parseInt(p.stock, 10) || 0),\n  photos: Array.isArray(p.photos) ? p.photos.slice(0, 10) : [], description: s(p.description, 2000),\n  status, low_stock_mode, low_stock_value: (p.low_stock_value != null ? (parseInt(p.low_stock_value,10) || 0) : null),\n  crystals: Array.isArray(p.crystals) ? p.crystals.slice(0, 20).map(x => s(x, 20)) : [],\n  actor: g.actor, role: g.role\n} }];"
+        }
+      },
+      {
+        "id": "if052",
+        "name": "有ID?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1040,
+          340
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "version": 2
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "leftValue": "={{ !!$json.id }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "pg053",
+        "name": "更新商品",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1300,
+          340
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "UPDATE pps2_products SET\n  name=$1::jsonb->>'name', layout=$1::jsonb->>'layout', aesthetic=$1::jsonb->>'aesthetic',\n  size_cm=($1::jsonb->>'size_cm')::numeric, bead_mm=($1::jsonb->>'bead_mm')::int,\n  price=($1::jsonb->>'price')::int, stock=($1::jsonb->>'stock')::int,\n  photos=($1::jsonb->'photos'), description=$1::jsonb->>'description', status=$1::jsonb->>'status',\n  low_stock_mode=COALESCE(NULLIF($1::jsonb->>'low_stock_mode',''),'inherit'), low_stock_value=($1::jsonb->>'low_stock_value')::int,\n  crystals=COALESCE($1::jsonb->'crystals','[]'::jsonb),\n  updated_at=now()\nWHERE id=($1::jsonb->>'id')::bigint RETURNING id",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "pg054",
+        "name": "新增商品",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          510
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_products(name,layout,aesthetic,size_cm,bead_mm,price,stock,photos,description,status,low_stock_mode,low_stock_value,crystals)\nSELECT $1::jsonb->>'name', $1::jsonb->>'layout', $1::jsonb->>'aesthetic', ($1::jsonb->>'size_cm')::numeric,\n       ($1::jsonb->>'bead_mm')::int, ($1::jsonb->>'price')::int, ($1::jsonb->>'stock')::int,\n       ($1::jsonb->'photos'), $1::jsonb->>'description', $1::jsonb->>'status',\n       COALESCE(NULLIF($1::jsonb->>'low_stock_mode',''),'inherit'), ($1::jsonb->>'low_stock_value')::int, COALESCE($1::jsonb->'crystals','[]'::jsonb)\nRETURNING id",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "pg055",
+        "name": "審計save",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          260,
+          510
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_audit_log(actor, role, action, target, detail)\nSELECT $1::jsonb->>'actor', $1::jsonb->>'role', $1::jsonb->>'action', $1::jsonb->>'target', ($1::jsonb->'detail')",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify({ actor: $('準備商品欄位').item.json.actor, role: $('準備商品欄位').item.json.role, action: 'save', target: String($json.id||''), detail: $('準備商品欄位').item.json }) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "rs056",
+        "name": "回應save",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          520,
+          510
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: true } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg057",
+        "name": "刪除商品",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          780,
+          510
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "DELETE FROM pps2_products WHERE id=($1::jsonb->>'id')::bigint RETURNING id",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify({ id: $('角色閘').item.json.id }) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "pg058",
+        "name": "審計delete",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1040,
+          510
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_audit_log(actor, role, action, target, detail)\nSELECT $1::jsonb->>'actor', $1::jsonb->>'role', $1::jsonb->>'action', $1::jsonb->>'target', ($1::jsonb->'detail')",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify({ actor: $('角色閘').item.json.actor, role: $('角色閘').item.json.role, action: 'delete', target: String($('角色閘').item.json.id||''), detail: {} }) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "rs059",
+        "name": "回應delete",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1300,
+          510
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: true } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg060",
+        "name": "庫存快調",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          680
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "UPDATE pps2_products SET stock = stock + ($1::jsonb->>'delta')::int, updated_at=now()\nWHERE id = ($1::jsonb->>'id')::bigint AND stock + ($1::jsonb->>'delta')::int >= 0\nRETURNING id, stock",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify({ id: $('角色閘').item.json.id, delta: $('角色閘').item.json.delta }) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "cd061",
+        "name": "包裝庫存結果",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          260,
+          680
+        ],
+        "parameters": {
+          "jsCode": "const r = $json;\nif (!r.id) return [{ json: { ok: false, error: 'out_of_stock' } }];\nreturn [{ json: { ok: true, id: r.id, stock: r.stock } }];"
+        }
+      },
+      {
+        "id": "pg062",
+        "name": "審計stock",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          520,
+          680
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_audit_log(actor, role, action, target, detail)\nSELECT $1::jsonb->>'actor', $1::jsonb->>'role', $1::jsonb->>'action', $1::jsonb->>'target', ($1::jsonb->'detail')",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify({ actor: $('角色閘').item.json.actor, role: $('角色閘').item.json.role, action: 'stock', target: String($('角色閘').item.json.id||''), detail: { delta: $('角色閘').item.json.delta, result: $json } }) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "rs063",
+        "name": "回應stock",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          780,
+          680
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ $('包裝庫存結果').item.json }}",
+          "options": {}
+        }
+      }
+    ],
+    "connections": {
+      "Webhook 商品": {
+        "main": [
+          [
+            {
+              "node": "解析與分流",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "解析與分流": {
+        "main": [
+          [
+            {
+              "node": "分流",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "分流": {
+        "main": [
+          [
+            {
+              "node": "驗SITE_TOKEN",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "驗Token",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "驗Token",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "驗Token",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "驗Token",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "驗SITE_TOKEN": {
+        "main": [
+          [
+            {
+              "node": "查上架商品",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "查上架商品": {
+        "main": [
+          [
+            {
+              "node": "包裝商品清單",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "包裝商品清單": {
+        "main": [
+          [
+            {
+              "node": "回應清單",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "驗Token": {
+        "main": [
+          [
+            {
+              "node": "角色閘",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "角色閘": {
+        "main": [
+          [
+            {
+              "node": "授權通過?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "授權通過?": {
+        "main": [
+          [
+            {
+              "node": "分流admin",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "回應無權限",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "分流admin": {
+        "main": [
+          [
+            {
+              "node": "查全部商品",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "準備商品欄位",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "刪除商品",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "庫存快調",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "查全部商品": {
+        "main": [
+          [
+            {
+              "node": "包裝全部商品",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "包裝全部商品": {
+        "main": [
+          [
+            {
+              "node": "回應全部商品",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "準備商品欄位": {
+        "main": [
+          [
+            {
+              "node": "有ID?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "有ID?": {
+        "main": [
+          [
+            {
+              "node": "更新商品",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "新增商品",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "更新商品": {
+        "main": [
+          [
+            {
+              "node": "審計save",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "新增商品": {
+        "main": [
+          [
+            {
+              "node": "審計save",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "審計save": {
+        "main": [
+          [
+            {
+              "node": "回應save",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "刪除商品": {
+        "main": [
+          [
+            {
+              "node": "審計delete",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "審計delete": {
+        "main": [
+          [
+            {
+              "node": "回應delete",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "庫存快調": {
+        "main": [
+          [
+            {
+              "node": "包裝庫存結果",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "包裝庫存結果": {
+        "main": [
+          [
+            {
+              "node": "審計stock",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "審計stock": {
+        "main": [
+          [
+            {
+              "node": "回應stock",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1"
+    }
+  },
+  {
+    "id": "pps2ShopOrder01",
+    "name": "pps2-shop-order",
+    "active": true,
+    "nodes": [
+      {
+        "id": "wh064",
+        "name": "Webhook 建單",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          0,
+          0
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "pps2-shop-order",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "webhookId": "pps2-shop-order"
+      },
+      {
+        "id": "cd065",
+        "name": "驗證與正規化",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          260,
+          0
+        ],
+        "parameters": {
+          "jsCode": "const b = $json.body || $json;\nconst SITE = \"pps_07ae287ed522c33e0422fdd4837d97bf\";\nif (b.token !== SITE) throw new Error('bad token');\nconst o = b.order || {};\nif (JSON.stringify(o).length > 8000) throw new Error('payload too big');\nconst s = (v, n) => String(v ?? '').slice(0, n);\nconst items = Array.isArray(o.items) ? o.items : [];\nif (items.length < 1 || items.length > 30) throw new Error('bad items');\nconst cleanItems = items.map(it => {\n  const id = parseInt(it.id, 10), qty = parseInt(it.qty, 10);\n  if (!(id > 0) || !(qty > 0 && qty <= 50)) throw new Error('bad item line');\n  return { id, qty };\n});\nconst shipping = Math.max(0, Math.min(2000, parseInt(o.shipping, 10) || 0));\nconst coupon_code = s(o.coupon_code, 30).trim().toUpperCase();\nreturn [{ json: {\n  items: cleanItems,\n  shipping, coupon_code,\n  ship_method: s(o.ship_method, 20), ship_label: s(o.ship_label, 30),\n  pay_method: s(o.pay_method, 20), pay_label: s(o.pay_label, 30),\n  customer_name: s(o.name, 40).trim(), contact: s(o.contact, 60).trim(), note: s(o.note, 500),\n  raw: o\n} }];"
+        }
+      },
+      {
+        "id": "cd066",
+        "name": "展開品項",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          520,
+          0
+        ],
+        "parameters": {
+          "jsCode": "const items = $('驗證與正規化').item.json.items;\nreturn items.map(it => ({ json: { id: it.id, qty: it.qty } }));"
+        }
+      },
+      {
+        "id": "pg067",
+        "name": "逐項扣庫存",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          780,
+          0
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH p AS (SELECT $1::jsonb AS j),\ntarget AS (SELECT (p.j->>'id')::bigint AS id, (p.j->>'qty')::int AS qty FROM p),\ncur AS (SELECT * FROM pps2_products WHERE id = (SELECT id FROM target)),\nupd AS (\n  UPDATE pps2_products pr SET stock = pr.stock - t.qty\n  FROM target t WHERE pr.id = t.id AND pr.stock >= t.qty\n  RETURNING pr.id\n)\nSELECT t.id AS product_id, t.qty AS qty, cur.price, cur.name, (upd.id IS NOT NULL) AS ok\nFROM target t LEFT JOIN cur ON cur.id = t.id LEFT JOIN upd ON upd.id = t.id",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "cd068",
+        "name": "彙整結果",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1040,
+          0
+        ],
+        "parameters": {
+          "jsCode": "const lines = $input.all().map(x => x.json);\nconst all_ok = lines.length > 0 && lines.every(l => l.ok === true);\nconst out_of_stock_ids = lines.filter(l => !l.ok).map(l => l.product_id);\nconst rollback = lines.filter(l => l.ok).map(l => ({ id: l.product_id, qty: l.qty }));\nconst items_priced = lines.map(l => ({ product_id: l.product_id, name: l.name, price: l.price, qty: l.qty }));\nconst order = $('驗證與正規化').item.json;\nconst subtotal = lines.reduce((sum, l) => sum + (l.price || 0) * l.qty, 0);\n\n// 運費：後端依 shipping_rules + ship_method 算，前端值僅供比對標註\n// (ponytail: shipping_rules 缺鍵/漏 seed 時退回前端值，避免全站誤判免運)\nconst rules = ($('查運費與優惠券').item.json.shipping_rules) || {};\nconst rule = rules[order.ship_method];\nconst shipping_backend = (rule && typeof rule.fee === 'number') ? rule.fee : order.shipping;\nconst shipping_mismatch = shipping_backend !== order.shipping;\n\n// 優惠券：查回結果驗效期/次數/門檻，無效碼一律擋單不靜默忽略\nconst coupon = $('查運費與優惠券').item.json.coupon;\nlet coupon_error = null, coupon_discount = 0;\nif (order.coupon_code) {\n  if (!coupon || coupon.status !== '啟用') coupon_error = 'coupon_invalid';\n  else if (coupon.expires_at && new Date(coupon.expires_at).getTime() < Date.now()) coupon_error = 'coupon_expired';\n  else if (coupon.max_uses != null && coupon.used_count >= coupon.max_uses) coupon_error = 'coupon_invalid';\n  else if (subtotal < (coupon.min_amount || 0)) coupon_error = 'coupon_min_amount';\n  else {\n    coupon_discount = coupon.discount_percent ? Math.round(subtotal * coupon.discount_percent / 100) : (coupon.discount_amount || 0);\n    coupon_discount = Math.max(0, Math.min(coupon_discount, subtotal));\n  }\n}\n\nconst proceed = all_ok && !coupon_error;\nconst amount_total = subtotal - coupon_discount + shipping_backend;\nreturn [{ json: {\n  all_ok, proceed, out_of_stock_ids, coupon_error, rollback, items_priced, amount_total,\n  customer_name: order.customer_name, contact: order.contact,\n  ship_method: order.ship_method, payment_method: order.pay_method, coupon_code: order.coupon_code,\n  raw: Object.assign({}, order.raw, {\n    ship_label: order.ship_label, pay_label: order.pay_label, note: order.note,\n    coupon_code: order.coupon_code || null, coupon_discount,\n    shipping_frontend: order.shipping, shipping_backend, shipping_mismatch\n  })\n} }];"
+        }
+      },
+      {
+        "id": "if069",
+        "name": "可建單?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1300,
+          0
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "version": 2
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "leftValue": "={{ $json.proceed }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "pg070",
+        "name": "建立訂單",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          170
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_shop_orders(order_no,items,amount_total,customer_name,contact,ship_method,payment_method,status,raw)\nSELECT 'P'||to_char(now() at time zone 'Asia/Taipei','YYYYMMDD')||'-'||lpad((count(*)+1)::text,3,'0'),\n       ($1::jsonb->'items_priced'), ($1::jsonb->>'amount_total')::int, $1::jsonb->>'customer_name', $1::jsonb->>'contact',\n       $1::jsonb->>'ship_method', $1::jsonb->>'payment_method', '新單', ($1::jsonb->'raw')\nFROM pps2_shop_orders WHERE order_no LIKE 'P'||to_char(now() at time zone 'Asia/Taipei','YYYYMMDD')||'-%'\nRETURNING order_no",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "pg071",
+        "name": "會員更新",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          260,
+          170
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_members(contact,name,total_spent,order_count)\nSELECT $1::jsonb->>'contact', $1::jsonb->>'customer_name', ($1::jsonb->>'amount_total')::int, 1\nWHERE coalesce($1::jsonb->>'contact','') <> ''\nON CONFLICT (contact) DO UPDATE SET\n  total_spent = pps2_members.total_spent + EXCLUDED.total_spent,\n  order_count = pps2_members.order_count + 1,\n  name = COALESCE(NULLIF(pps2_members.name,''), EXCLUDED.name),\n  updated_at = now()",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('彙整結果').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "id": "ht072",
+        "name": "推TG通知",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          520,
+          170
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.telegram.org/bot8979621738:AAFKozzU9n9s4ql8xagfWO2blhQxiOMnDHg/sendMessage",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify({ chat_id: 8410048576, parse_mode:'HTML', disable_web_page_preview:true, text: '🛍️ 新現貨訂單 <b>'+$('彙整結果').item.json.customer_name+'</b>\\n單號 '+$('建立訂單').item.json.order_no+'\\n金額 NT$'+$('彙整結果').item.json.amount_total+'\\n聯絡 '+$('彙整結果').item.json.contact }) }}",
+          "options": {}
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "id": "rs073",
+        "name": "回應成功",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          780,
+          170
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: true, order_no: $('建立訂單').item.json.order_no, amount_total: $('彙整結果').item.json.amount_total, shipping: $('彙整結果').item.json.raw.shipping_backend, shipping_mismatch: $('彙整結果').item.json.raw.shipping_mismatch, coupon_discount: $('彙整結果').item.json.raw.coupon_discount } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg074",
+        "name": "回補庫存",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1040,
+          170
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH p AS (SELECT $1::jsonb AS j),\nitems AS (SELECT (e->>'id')::bigint AS id, (e->>'qty')::int AS qty FROM p, jsonb_array_elements(p.j->'rollback') e)\nUPDATE pps2_products pr SET stock = pr.stock + i.qty FROM items i WHERE pr.id = i.id",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('彙整結果').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "rs075",
+        "name": "回應缺貨",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1300,
+          170
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: false, error: ($('彙整結果').item.json.all_ok ? $('彙整結果').item.json.coupon_error : 'out_of_stock'), out_of_stock_ids: $('彙整結果').item.json.out_of_stock_ids } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg150",
+        "name": "查運費與優惠券",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          260,
+          340
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT\n  (SELECT value FROM pps2_settings WHERE key='shipping_rules') AS shipping_rules,\n  (SELECT to_jsonb(c) FROM pps2_coupons c WHERE c.code = $1::jsonb->>'coupon_code') AS coupon",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "pg151",
+        "name": "扣優惠券使用次數",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          520,
+          340
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "UPDATE pps2_coupons SET used_count = used_count + 1\nWHERE code = $1::jsonb->>'coupon_code' AND coalesce($1::jsonb->>'coupon_code','') <> ''",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('彙整結果').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      }
+    ],
+    "connections": {
+      "Webhook 建單": {
+        "main": [
+          [
+            {
+              "node": "驗證與正規化",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "驗證與正規化": {
+        "main": [
+          [
+            {
+              "node": "查運費與優惠券",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "展開品項": {
+        "main": [
+          [
+            {
+              "node": "逐項扣庫存",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "逐項扣庫存": {
+        "main": [
+          [
+            {
+              "node": "彙整結果",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "彙整結果": {
+        "main": [
+          [
+            {
+              "node": "可建單?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "建立訂單": {
+        "main": [
+          [
+            {
+              "node": "會員更新",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "會員更新": {
+        "main": [
+          [
+            {
+              "node": "扣優惠券使用次數",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "推TG通知": {
+        "main": [
+          [
+            {
+              "node": "回應成功",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "回補庫存": {
+        "main": [
+          [
+            {
+              "node": "回應缺貨",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "查運費與優惠券": {
+        "main": [
+          [
+            {
+              "node": "展開品項",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "可建單?": {
+        "main": [
+          [
+            {
+              "node": "建立訂單",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "回補庫存",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "扣優惠券使用次數": {
+        "main": [
+          [
+            {
+              "node": "推TG通知",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1"
+    }
+  },
+  {
+    "id": "pps2Auth0001",
+    "name": "pps2-auth",
+    "active": true,
+    "nodes": [
+      {
+        "id": "wh001",
+        "name": "Webhook 登入",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          0,
+          0
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "pps2-auth",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "webhookId": "pps2-auth"
+      },
+      {
+        "id": "cd002",
+        "name": "解析輸入",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          260,
+          0
+        ],
+        "parameters": {
+          "jsCode": "const b = $json.body || $json;\nif (JSON.stringify(b).length > 4000) throw new Error('payload too big');\nconst op = String(b.op || 'login');\nconst OPS = ['login','register','set_totp','ping'];\nconst idx = OPS.indexOf(op);\nif (idx < 0) throw new Error('bad op');\nconst s = (v, n) => String(v ?? '').slice(0, n);\nif (op !== 'ping' && b.token !== \"pps_07ae287ed522c33e0422fdd4837d97bf\") throw new Error('bad token');\nreturn [{ json: {\n  _branch: idx, op,\n  username: s(b.username, 30).trim(), pin_hash: s(b.pin_hash, 100), totp_code: s(b.totp_code, 10),\n  role_token: s(b.role_token, 400), actor: s(b.actor, 30), role: s(b.role, 10),\n  new_username: s(b.new_username, 30).trim(), new_pin_hash: s(b.new_pin_hash, 100), new_role: s(b.new_role, 10),\n  target_username: s(b.target_username || b.actor, 30).trim(), totp_action: s(b.action, 10),\n  secret_base32: s(b.secret_base32, 64)\n} }];"
+        }
+      },
+      {
+        "id": "sw003",
+        "name": "分流",
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.2,
+        "position": [
+          520,
+          0
+        ],
+        "parameters": {
+          "mode": "expression",
+          "numberOutputs": 4,
+          "output": "={{ $json._branch }}"
+        }
+      },
+      {
+        "id": "rs004",
+        "name": "回應pong",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          780,
+          0
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: true, msg: 'pong' } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg005",
+        "name": "查帳號",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1040,
+          0
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT id,username,pin_hash,role,totp_secret,totp_enabled,status\nFROM pps2_admin_users WHERE username=$1::jsonb->>'username' LIMIT 1",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('解析輸入').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "cd006",
+        "name": "核對PIN",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1300,
+          0
+        ],
+        "parameters": {
+          "jsCode": "const acc = $json; const req = $('解析輸入').item.json;\nif (!acc.id) return [{ json: { ok: false, error: 'account_not_found' } }];\nif (acc.status !== '啟用') return [{ json: { ok: false, error: 'disabled' } }];\nif (acc.pin_hash !== req.pin_hash) return [{ json: { ok: false, error: 'bad_pin' } }];\nreturn [{ json: { ok: true, username: acc.username, role: acc.role, need_totp: !!acc.totp_enabled, totp_secret: acc.totp_secret, totp_code: req.totp_code } }];"
+        }
+      },
+      {
+        "id": "if007",
+        "name": "PIN正確?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          0,
+          170
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "version": 2
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "leftValue": "={{ $json.ok }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "rs008",
+        "name": "回應PIN失敗",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          260,
+          170
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ $json }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "if009",
+        "name": "需TOTP?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          520,
+          170
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "version": 2
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "leftValue": "={{ $json.need_totp }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "pg010",
+        "name": "驗TOTP",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          780,
+          170
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT pps2_totp_verify($1::jsonb->>'totp_secret', $1::jsonb->>'totp_code') AS totp_ok",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "if011",
+        "name": "TOTP正確?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1040,
+          170
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "version": 2
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "leftValue": "={{ $json.totp_ok }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "rs012",
+        "name": "回應TOTP失敗",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1300,
+          170
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: false, error: 'bad_totp' } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg013",
+        "name": "簽發token",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          340
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH s AS (SELECT value#>>'{}' AS secret FROM pps2_settings WHERE key='auth_secret'),\nt AS (SELECT ($1::jsonb->>'username') AS u, ($1::jsonb->>'role') AS r, (extract(epoch FROM now())::bigint + 43200) AS exp)\nSELECT t.u||'|'||t.r||'|'||t.exp||'|'||encode(hmac(t.u||'|'||t.r||'|'||t.exp, s.secret, 'sha256'),'hex') AS role_token,\n       t.exp AS exp, t.u AS username, t.r AS role\nFROM s, t",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('核對PIN').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "rs014",
+        "name": "回應登入成功",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          260,
+          340
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ Object.assign({ ok: true }, $json) }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg015",
+        "name": "驗Token_register",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          520,
+          340
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH p AS (SELECT $1::jsonb AS j),\ns AS (SELECT value#>>'{}' AS secret FROM pps2_settings WHERE key='auth_secret'),\nparts AS (SELECT string_to_array(coalesce((SELECT j->>'role_token' FROM p),''), '|') AS a),\nvalid_shape AS (SELECT a FROM parts WHERE array_length(a,1)=4 AND a[3] ~ '^[0-9]+$')\nSELECT EXISTS (\n  SELECT 1 FROM valid_shape v, s\n  WHERE v.a[1] = (SELECT j->>'actor' FROM p)\n    AND v.a[2] = (SELECT j->>'role' FROM p)\n    AND v.a[3]::bigint > extract(epoch FROM now())::bigint\n    AND v.a[4] = encode(hmac(v.a[1]||'|'||v.a[2]||'|'||v.a[3], s.secret, 'sha256'), 'hex')\n) AS valid, (SELECT j->>'role' FROM p) AS verified_role",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('解析輸入').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd016",
+        "name": "角色閘register",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          780,
+          340
+        ],
+        "parameters": {
+          "jsCode": "const v = $json; const req = $('解析輸入').item.json;\nconst ok = v.valid === true && v.verified_role === 'owner'\n  && req.new_username && req.new_pin_hash && [\"owner\",\"客服\",\"倉管\",\"行銷\"].includes(req.new_role);\nreturn [{ json: { ok, actor: req.actor, role: req.role, new_username: req.new_username, new_pin_hash: req.new_pin_hash, new_role: req.new_role } }];"
+        }
+      },
+      {
+        "id": "if017",
+        "name": "register授權通過?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1040,
+          340
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "version": 2
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "leftValue": "={{ $json.ok }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "rs018",
+        "name": "回應register無權限",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1300,
+          340
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: false, error: 'forbidden' } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg019",
+        "name": "建帳號",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          510
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_admin_users(username,pin_hash,role)\nSELECT $1::jsonb->>'new_username', $1::jsonb->>'new_pin_hash', $1::jsonb->>'new_role'\nON CONFLICT (username) DO NOTHING RETURNING id,username,role",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('角色閘register').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "pg020",
+        "name": "審計register",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          260,
+          510
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_audit_log(actor, role, action, target, detail)\nSELECT $1::jsonb->>'actor', $1::jsonb->>'role', $1::jsonb->>'action', $1::jsonb->>'target', ($1::jsonb->'detail')",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify({ actor: $('角色閘register').item.json.actor, role: $('角色閘register').item.json.role, action: 'register', target: $('角色閘register').item.json.new_username, detail: { new_role: $('角色閘register').item.json.new_role } }) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "rs021",
+        "name": "回應register結果",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          520,
+          510
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: !!$('建帳號').item.json.id } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg022",
+        "name": "驗Token_settotp",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          780,
+          510
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH p AS (SELECT $1::jsonb AS j),\ns AS (SELECT value#>>'{}' AS secret FROM pps2_settings WHERE key='auth_secret'),\nparts AS (SELECT string_to_array(coalesce((SELECT j->>'role_token' FROM p),''), '|') AS a),\nvalid_shape AS (SELECT a FROM parts WHERE array_length(a,1)=4 AND a[3] ~ '^[0-9]+$')\nSELECT EXISTS (\n  SELECT 1 FROM valid_shape v, s\n  WHERE v.a[1] = (SELECT j->>'actor' FROM p)\n    AND v.a[2] = (SELECT j->>'role' FROM p)\n    AND v.a[3]::bigint > extract(epoch FROM now())::bigint\n    AND v.a[4] = encode(hmac(v.a[1]||'|'||v.a[2]||'|'||v.a[3], s.secret, 'sha256'), 'hex')\n) AS valid, (SELECT j->>'role' FROM p) AS verified_role",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('解析輸入').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd023",
+        "name": "角色閘settotp",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1040,
+          510
+        ],
+        "parameters": {
+          "jsCode": "const v = $json; const req = $('解析輸入').item.json;\nconst selfService = req.actor && req.actor === req.target_username;\nconst ok = v.valid === true && (v.verified_role === 'owner' || selfService)\n  && ['enable','disable'].includes(req.totp_action);\nreturn [{ json: { ok, actor: req.actor, role: req.role, target_username: req.target_username, totp_action: req.totp_action, secret_base32: req.secret_base32, totp_code: req.totp_code } }];"
+        }
+      },
+      {
+        "id": "if024",
+        "name": "settotp授權通過?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1300,
+          510
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "version": 2
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "leftValue": "={{ $json.ok }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "rs025",
+        "name": "回應settotp無權限",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          0,
+          680
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: false, error: 'forbidden' } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "if026",
+        "name": "是否啟用?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          260,
+          680
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "version": 2
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "leftValue": "={{ $json.totp_action === 'enable' }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "pg027",
+        "name": "驗證綁定碼",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          520,
+          680
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT pps2_totp_verify($1::jsonb->>'secret_base32', $1::jsonb->>'totp_code') AS totp_ok",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "if028",
+        "name": "綁定碼正確?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          780,
+          680
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "version": 2
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "leftValue": "={{ $json.totp_ok }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "rs029",
+        "name": "回應綁定失敗",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1040,
+          680
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: false, error: 'bad_totp' } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg030",
+        "name": "啟用TOTP",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1300,
+          680
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "UPDATE pps2_admin_users SET totp_secret=$1::jsonb->>'secret_base32', totp_enabled=true, updated_at=now()\nWHERE username=$1::jsonb->>'target_username' RETURNING username",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('角色閘settotp').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "pg031",
+        "name": "審計totp_on",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          850
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_audit_log(actor, role, action, target, detail)\nSELECT $1::jsonb->>'actor', $1::jsonb->>'role', $1::jsonb->>'action', $1::jsonb->>'target', ($1::jsonb->'detail')",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify({ actor: $('角色閘settotp').item.json.actor, role: $('角色閘settotp').item.json.role, action: 'set_totp_enable', target: $('角色閘settotp').item.json.target_username, detail: {} }) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "rs032",
+        "name": "回應啟用結果",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          260,
+          850
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: !!$('啟用TOTP').item.json.username } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg033",
+        "name": "停用TOTP",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          520,
+          850
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "UPDATE pps2_admin_users SET totp_enabled=false, updated_at=now()\nWHERE username=$1::jsonb->>'target_username' RETURNING username",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('角色閘settotp').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "pg034",
+        "name": "審計totp_off",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          780,
+          850
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_audit_log(actor, role, action, target, detail)\nSELECT $1::jsonb->>'actor', $1::jsonb->>'role', $1::jsonb->>'action', $1::jsonb->>'target', ($1::jsonb->'detail')",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify({ actor: $('角色閘settotp').item.json.actor, role: $('角色閘settotp').item.json.role, action: 'set_totp_disable', target: $('角色閘settotp').item.json.target_username, detail: {} }) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "rs035",
+        "name": "回應停用結果",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1040,
+          850
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: !!$('停用TOTP').item.json.username } }}",
+          "options": {}
+        }
+      }
+    ],
+    "connections": {
+      "Webhook 登入": {
+        "main": [
+          [
+            {
+              "node": "解析輸入",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "解析輸入": {
+        "main": [
+          [
+            {
+              "node": "分流",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "分流": {
+        "main": [
+          [
+            {
+              "node": "查帳號",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "驗Token_register",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "驗Token_settotp",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "回應pong",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "查帳號": {
+        "main": [
+          [
+            {
+              "node": "核對PIN",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "核對PIN": {
+        "main": [
+          [
+            {
+              "node": "PIN正確?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "PIN正確?": {
+        "main": [
+          [
+            {
+              "node": "需TOTP?",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "回應PIN失敗",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "需TOTP?": {
+        "main": [
+          [
+            {
+              "node": "驗TOTP",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "簽發token",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "驗TOTP": {
+        "main": [
+          [
+            {
+              "node": "TOTP正確?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "TOTP正確?": {
+        "main": [
+          [
+            {
+              "node": "簽發token",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "回應TOTP失敗",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "簽發token": {
+        "main": [
+          [
+            {
+              "node": "回應登入成功",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "驗Token_register": {
+        "main": [
+          [
+            {
+              "node": "角色閘register",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "角色閘register": {
+        "main": [
+          [
+            {
+              "node": "register授權通過?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "register授權通過?": {
+        "main": [
+          [
+            {
+              "node": "建帳號",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "回應register無權限",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "建帳號": {
+        "main": [
+          [
+            {
+              "node": "審計register",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "審計register": {
+        "main": [
+          [
+            {
+              "node": "回應register結果",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "驗Token_settotp": {
+        "main": [
+          [
+            {
+              "node": "角色閘settotp",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "角色閘settotp": {
+        "main": [
+          [
+            {
+              "node": "settotp授權通過?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "settotp授權通過?": {
+        "main": [
+          [
+            {
+              "node": "是否啟用?",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "回應settotp無權限",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "是否啟用?": {
+        "main": [
+          [
+            {
+              "node": "驗證綁定碼",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "停用TOTP",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "驗證綁定碼": {
+        "main": [
+          [
+            {
+              "node": "綁定碼正確?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "綁定碼正確?": {
+        "main": [
+          [
+            {
+              "node": "啟用TOTP",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "回應綁定失敗",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "啟用TOTP": {
+        "main": [
+          [
+            {
+              "node": "審計totp_on",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "審計totp_on": {
+        "main": [
+          [
+            {
+              "node": "回應啟用結果",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "停用TOTP": {
+        "main": [
+          [
+            {
+              "node": "審計totp_off",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "審計totp_off": {
+        "main": [
+          [
+            {
+              "node": "回應停用結果",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1"
+    }
+  },
+  {
+    "id": "pps2Admin001",
+    "name": "pps2-admin",
+    "active": true,
+    "nodes": [
+      {
+        "id": "wh076",
+        "name": "Webhook 後台",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          0,
+          0
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "pps2-admin",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "webhookId": "pps2-admin"
+      },
+      {
+        "id": "cd077",
+        "name": "解析輸入",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          260,
+          0
+        ],
+        "parameters": {
+          "jsCode": "const b = $json.body || $json;\nif (JSON.stringify(b).length > 10000) throw new Error('payload too big');\nconst OPS = [\"ping\",\"order_list\",\"order_update\",\"member_list\",\"member_upsert\",\"coupon_list\",\"coupon_save\",\"coupon_delete\",\"faq_list\",\"faq_save\",\"faq_delete\",\"settings_set\",\"audit_list\",\"user_save\",\"settings_get\",\"report_summary\",\"user_list\",\"payment_add\",\"payment_list\",\"order_edit\",\"settings_enum_get\",\"settings_enum_set\",\"member_detail\",\"member_export\",\"report_revenue\"];\nconst op = String(b.op || '');\nconst idx = OPS.indexOf(op);\nif (idx < 0) throw new Error('bad op');\nconst s = (v, n) => String(v ?? '').slice(0, n);\nreturn [{ json: {\n  _branch: idx, op,\n  role_token: s(b.role_token, 400), actor: s(b.actor, 30), role: s(b.role, 10),\n  payload: (b.payload && typeof b.payload === 'object') ? b.payload : b\n} }];"
+        }
+      },
+      {
+        "id": "pg078",
+        "name": "驗Token",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          520,
+          0
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH p AS (SELECT $1::jsonb AS j),\ns AS (SELECT value#>>'{}' AS secret FROM pps2_settings WHERE key='auth_secret'),\nparts AS (SELECT string_to_array(coalesce((SELECT j->>'role_token' FROM p),''), '|') AS a),\nvalid_shape AS (SELECT a FROM parts WHERE array_length(a,1)=4 AND a[3] ~ '^[0-9]+$')\nSELECT EXISTS (\n  SELECT 1 FROM valid_shape v, s\n  WHERE v.a[1] = (SELECT j->>'actor' FROM p)\n    AND v.a[2] = (SELECT j->>'role' FROM p)\n    AND v.a[3]::bigint > extract(epoch FROM now())::bigint\n    AND v.a[4] = encode(hmac(v.a[1]||'|'||v.a[2]||'|'||v.a[3], s.secret, 'sha256'), 'hex')\n) AS valid, (SELECT j->>'role' FROM p) AS verified_role",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('解析輸入').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd079",
+        "name": "角色閘",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          780,
+          0
+        ],
+        "parameters": {
+          "jsCode": "const v = $json; const req = $('解析輸入').item.json;\nconst MATRIX = {\"ping\":[\"owner\",\"客服\",\"倉管\",\"行銷\"],\"order_list\":[\"owner\",\"客服\",\"倉管\"],\"order_update\":[\"owner\",\"客服\",\"倉管\"],\"order_edit\":[\"owner\",\"客服\",\"倉管\"],\"member_list\":[\"owner\",\"客服\"],\"member_upsert\":[\"owner\",\"客服\"],\"member_detail\":[\"owner\",\"客服\"],\"member_export\":[\"owner\"],\"coupon_list\":[\"owner\",\"行銷\"],\"coupon_save\":[\"owner\",\"行銷\"],\"coupon_delete\":[\"owner\",\"行銷\"],\"faq_list\":[\"owner\",\"客服\"],\"faq_save\":[\"owner\",\"客服\"],\"faq_delete\":[\"owner\",\"客服\"],\"audit_list\":[\"owner\"],\"user_save\":[\"owner\"],\"user_list\":[\"owner\"],\"settings_get\":[\"owner\",\"客服\",\"倉管\",\"行銷\"],\"settings_enum_get\":[\"owner\",\"客服\",\"倉管\",\"行銷\"],\"settings_enum_set\":[\"owner\",\"倉管\"],\"report_summary\":[\"owner\",\"行銷\"],\"report_revenue\":[\"owner\",\"行銷\"],\"payment_add\":[\"owner\",\"客服\"],\"payment_list\":[\"owner\",\"客服\"]};\nconst SETTINGS_KEY_ROLES = {\"auth_secret\":[\"owner\"],\"low_stock_threshold\":[\"owner\",\"倉管\"],\"ecpay\":[\"owner\",\"倉管\"],\"ga4_id\":[\"owner\",\"行銷\"],\"meta_pixel_id\":[\"owner\",\"行銷\"],\"notify_templates\":[\"owner\",\"客服\"]};\nlet ok = false;\nif (v.valid === true) {\n  if (req.op === 'settings_set') {\n    const key = String((req.payload && req.payload.key) || '');\n    const allowed = SETTINGS_KEY_ROLES[key] || ['owner'];\n    ok = allowed.includes(v.verified_role);\n  } else {\n    ok = (MATRIX[req.op] || []).includes(v.verified_role);\n  }\n}\nreturn [{ json: {\n  ok, _branch: req._branch, op: req.op, actor: req.actor, role: req.role,\n  is_owner: v.verified_role === 'owner', payload: req.payload\n} }];"
+        }
+      },
+      {
+        "id": "if080",
+        "name": "授權通過?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1040,
+          0
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "version": 2
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "leftValue": "={{ $json.ok }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "rs081",
+        "name": "回應無權限",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1300,
+          0
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: false, error: 'forbidden' } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "sw082",
+        "name": "分流op",
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.2,
+        "position": [
+          0,
+          170
+        ],
+        "parameters": {
+          "mode": "expression",
+          "numberOutputs": 25,
+          "output": "={{ $json._branch }}"
+        }
+      },
+      {
+        "id": "rs083",
+        "name": "回應ping",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          260,
+          170
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: true, msg: 'pong' } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg084",
+        "name": "查訂單清單",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          520,
+          170
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT order_no,items,amount_total,customer_name,contact,ship_method,payment_method,status,tracking_no,refund_note,refund_amount,created_at,updated_at\nFROM pps2_shop_orders\nWHERE ($1::jsonb->'payload'->>'status') IS NULL OR status = ($1::jsonb->'payload'->>'status')\nORDER BY created_at DESC LIMIT 500",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('角色閘').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd085",
+        "name": "包裝訂單清單",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          780,
+          170
+        ],
+        "parameters": {
+          "jsCode": "return [{ json: { ok: true, orders: $input.all().map(x => x.json) } }];"
+        }
+      },
+      {
+        "id": "rs086",
+        "name": "回應訂單清單",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1040,
+          170
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ $json }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg087",
+        "name": "更新訂單",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1300,
+          170
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "UPDATE pps2_shop_orders SET\n  status = COALESCE(NULLIF($1::jsonb->'payload'->>'status',''), status),\n  tracking_no = COALESCE(NULLIF($1::jsonb->'payload'->>'tracking_no',''), tracking_no),\n  refund_note = COALESCE(NULLIF($1::jsonb->'payload'->>'refund_note',''), refund_note),\n  refund_amount = COALESCE(($1::jsonb->'payload'->>'refund_amount')::int, refund_amount),\n  updated_at = now()\nWHERE order_no = $1::jsonb->'payload'->>'order_no'\nRETURNING order_no, status, tracking_no",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('角色閘').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "ht088",
+        "name": "推TG_order_update",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          0,
+          340
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.telegram.org/bot8979621738:AAFKozzU9n9s4ql8xagfWO2blhQxiOMnDHg/sendMessage",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify({ chat_id: 8410048576, parse_mode:'HTML', disable_web_page_preview:true, text: '📦 訂單狀態更新 <b>'+($json.order_no||'—')+'</b>\\n狀態：'+($json.status||'—')+(($json.tracking_no)?('\\n物流編號：'+$json.tracking_no):'') }) }}",
+          "options": {}
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "id": "pg089",
+        "name": "審計_order_update",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          260,
+          340
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_audit_log(actor, role, action, target, detail)\nSELECT $1::jsonb->>'actor', $1::jsonb->>'role', $1::jsonb->>'action', $1::jsonb->>'target', ($1::jsonb->'detail')",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify({ actor: $('角色閘').item.json.actor, role: $('角色閘').item.json.role, action: 'order_update', target: String($('更新訂單').item.json.order_no||''), detail: $('角色閘').item.json.payload }) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "rs090",
+        "name": "回應_order_update",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          520,
+          340
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: !!$('更新訂單').item.json.order_no } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg091",
+        "name": "查會員清單",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          780,
+          340
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT id,contact,name,email,total_spent,order_count,tags,note,created_at,updated_at FROM pps2_members ORDER BY updated_at DESC LIMIT 500",
+          "options": {}
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd092",
+        "name": "包裝會員清單",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1040,
+          340
+        ],
+        "parameters": {
+          "jsCode": "return [{ json: { ok: true, members: $input.all().map(x => x.json) } }];"
+        }
+      },
+      {
+        "id": "rs093",
+        "name": "回應會員清單",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1300,
+          340
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ $json }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg094",
+        "name": "會員upsert",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          510
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_members(contact,name,email,tags,note,login_email,profile)\nSELECT $1::jsonb->'payload'->>'contact', $1::jsonb->'payload'->>'name', $1::jsonb->'payload'->>'email',\n       COALESCE($1::jsonb->'payload'->'tags','[]'::jsonb), $1::jsonb->'payload'->>'note',\n       NULLIF($1::jsonb->'payload'->>'login_email',''), COALESCE($1::jsonb->'payload'->'profile','{}'::jsonb)\nON CONFLICT (contact) DO UPDATE SET\n  name = EXCLUDED.name, email = EXCLUDED.email, tags = EXCLUDED.tags, note = EXCLUDED.note,\n  login_email = COALESCE(NULLIF($1::jsonb->'payload'->>'login_email',''), pps2_members.login_email),\n  profile = CASE WHEN $1::jsonb->'payload'->'profile' IS NOT NULL THEN ($1::jsonb->'payload'->'profile') ELSE pps2_members.profile END,\n  updated_at = now()\nRETURNING id, contact",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('角色閘').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "pg095",
+        "name": "審計_member_upsert",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          260,
+          510
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_audit_log(actor, role, action, target, detail)\nSELECT $1::jsonb->>'actor', $1::jsonb->>'role', $1::jsonb->>'action', $1::jsonb->>'target', ($1::jsonb->'detail')",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify({ actor: $('角色閘').item.json.actor, role: $('角色閘').item.json.role, action: 'member_upsert', target: String($('會員upsert').item.json.contact||''), detail: $('角色閘').item.json.payload }) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "rs096",
+        "name": "回應_member_upsert",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          520,
+          510
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: !!$('會員upsert').item.json.id } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg097",
+        "name": "查優惠券清單",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          780,
+          510
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT code,discount_percent,discount_amount,min_amount,max_uses,used_count,expires_at,status,created_at FROM pps2_coupons ORDER BY created_at DESC",
+          "options": {}
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd098",
+        "name": "包裝優惠券清單",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1040,
+          510
+        ],
+        "parameters": {
+          "jsCode": "return [{ json: { ok: true, coupons: $input.all().map(x => x.json) } }];"
+        }
+      },
+      {
+        "id": "rs099",
+        "name": "回應優惠券清單",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1300,
+          510
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ $json }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg100",
+        "name": "優惠券save",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          680
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_coupons(code,discount_percent,discount_amount,min_amount,max_uses,expires_at,status)\nSELECT $1::jsonb->'payload'->>'code', ($1::jsonb->'payload'->>'discount_percent')::int, ($1::jsonb->'payload'->>'discount_amount')::int,\n       COALESCE(($1::jsonb->'payload'->>'min_amount')::int,0), ($1::jsonb->'payload'->>'max_uses')::int,\n       NULLIF($1::jsonb->'payload'->>'expires_at','')::timestamptz, COALESCE(NULLIF($1::jsonb->'payload'->>'status',''),'啟用')\nON CONFLICT (code) DO UPDATE SET\n  discount_percent = EXCLUDED.discount_percent, discount_amount = EXCLUDED.discount_amount,\n  min_amount = EXCLUDED.min_amount, max_uses = EXCLUDED.max_uses,\n  expires_at = EXCLUDED.expires_at, status = EXCLUDED.status\nRETURNING code",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('角色閘').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "pg101",
+        "name": "審計_coupon_save",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          260,
+          680
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_audit_log(actor, role, action, target, detail)\nSELECT $1::jsonb->>'actor', $1::jsonb->>'role', $1::jsonb->>'action', $1::jsonb->>'target', ($1::jsonb->'detail')",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify({ actor: $('角色閘').item.json.actor, role: $('角色閘').item.json.role, action: 'coupon_save', target: String($('優惠券save').item.json.code||''), detail: $('角色閘').item.json.payload }) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "rs102",
+        "name": "回應_coupon_save",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          520,
+          680
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: !!$('優惠券save').item.json.code } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg103",
+        "name": "優惠券delete",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          780,
+          680
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "DELETE FROM pps2_coupons WHERE code = $1::jsonb->'payload'->>'code' RETURNING code",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('角色閘').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "pg104",
+        "name": "審計_coupon_delete",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1040,
+          680
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_audit_log(actor, role, action, target, detail)\nSELECT $1::jsonb->>'actor', $1::jsonb->>'role', $1::jsonb->>'action', $1::jsonb->>'target', ($1::jsonb->'detail')",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify({ actor: $('角色閘').item.json.actor, role: $('角色閘').item.json.role, action: 'coupon_delete', target: String($('優惠券delete').item.json.code||''), detail: {} }) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "rs105",
+        "name": "回應_coupon_delete",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1300,
+          680
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: !!$('優惠券delete').item.json.code } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg106",
+        "name": "查FAQ清單",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          850
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT id,category,question,answer,sort_order,status FROM pps2_faq ORDER BY category, sort_order",
+          "options": {}
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd107",
+        "name": "包裝FAQ清單",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          260,
+          850
+        ],
+        "parameters": {
+          "jsCode": "return [{ json: { ok: true, faq: $input.all().map(x => x.json) } }];"
+        }
+      },
+      {
+        "id": "rs108",
+        "name": "回應FAQ清單",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          520,
+          850
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ $json }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "if109",
+        "name": "FAQ有ID?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          780,
+          850
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "version": 2
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "leftValue": "={{ !!($('角色閘').item.json.payload.id) }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "pg110",
+        "name": "FAQ更新",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1040,
+          850
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "UPDATE pps2_faq SET\n  category=$1::jsonb->'payload'->>'category', question=$1::jsonb->'payload'->>'question', answer=$1::jsonb->'payload'->>'answer',\n  sort_order=COALESCE(($1::jsonb->'payload'->>'sort_order')::int,0), status=COALESCE(NULLIF($1::jsonb->'payload'->>'status',''),'上架'),\n  updated_at=now()\nWHERE id=($1::jsonb->'payload'->>'id')::bigint RETURNING id",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('角色閘').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "pg111",
+        "name": "FAQ新增",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1300,
+          850
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_faq(category,question,answer,sort_order,status)\nSELECT $1::jsonb->'payload'->>'category', $1::jsonb->'payload'->>'question', $1::jsonb->'payload'->>'answer',\n       COALESCE(($1::jsonb->'payload'->>'sort_order')::int,0), COALESCE(NULLIF($1::jsonb->'payload'->>'status',''),'上架')\nRETURNING id",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('角色閘').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "cd112",
+        "name": "FAQ save合流",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          0,
+          1020
+        ],
+        "parameters": {
+          "jsCode": "return [{ json: { id: $json.id } }];"
+        }
+      },
+      {
+        "id": "pg113",
+        "name": "審計_faq_save",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          260,
+          1020
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_audit_log(actor, role, action, target, detail)\nSELECT $1::jsonb->>'actor', $1::jsonb->>'role', $1::jsonb->>'action', $1::jsonb->>'target', ($1::jsonb->'detail')",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify({ actor: $('角色閘').item.json.actor, role: $('角色閘').item.json.role, action: 'faq_save', target: String($('FAQ save合流').item.json.id||''), detail: $('角色閘').item.json.payload }) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "rs114",
+        "name": "回應_faq_save",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          520,
+          1020
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: !!$('FAQ save合流').item.json.id } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg115",
+        "name": "FAQ delete",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          780,
+          1020
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "DELETE FROM pps2_faq WHERE id=($1::jsonb->'payload'->>'id')::bigint RETURNING id",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('角色閘').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "pg116",
+        "name": "審計_faq_delete",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1040,
+          1020
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_audit_log(actor, role, action, target, detail)\nSELECT $1::jsonb->>'actor', $1::jsonb->>'role', $1::jsonb->>'action', $1::jsonb->>'target', ($1::jsonb->'detail')",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify({ actor: $('角色閘').item.json.actor, role: $('角色閘').item.json.role, action: 'faq_delete', target: String($('FAQ delete').item.json.id||''), detail: {} }) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "rs117",
+        "name": "回應_faq_delete",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1300,
+          1020
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: !!$('FAQ delete').item.json.id } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg118",
+        "name": "settings寫入",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          1190
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_settings(key,value) VALUES($1::jsonb->'payload'->>'key', ($1::jsonb->'payload'->'value'))\nON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()\nRETURNING key",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('角色閘').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "pg119",
+        "name": "審計_settings_set",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          260,
+          1190
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_audit_log(actor, role, action, target, detail)\nSELECT $1::jsonb->>'actor', $1::jsonb->>'role', $1::jsonb->>'action', $1::jsonb->>'target', ($1::jsonb->'detail')",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify({ actor: $('角色閘').item.json.actor, role: $('角色閘').item.json.role, action: 'settings_set', target: String($('settings寫入').item.json.key||''), detail: $('角色閘').item.json.payload }) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "rs120",
+        "name": "回應_settings_set",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          520,
+          1190
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: !!$('settings寫入').item.json.key } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg121",
+        "name": "查稽核日誌",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          780,
+          1190
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT id,actor,role,action,target,detail,at FROM pps2_audit_log ORDER BY at DESC LIMIT 500",
+          "options": {}
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd122",
+        "name": "包裝稽核清單",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1040,
+          1190
+        ],
+        "parameters": {
+          "jsCode": "return [{ json: { ok: true, logs: $input.all().map(x => x.json) } }];"
+        }
+      },
+      {
+        "id": "rs123",
+        "name": "回應稽核清單",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1300,
+          1190
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ $json }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg124",
+        "name": "帳號save",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          1360
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_admin_users(username,pin_hash,role,status)\nSELECT $1::jsonb->'payload'->>'username', COALESCE(NULLIF($1::jsonb->'payload'->>'pin_hash',''),'CHANGE_ME'),\n       COALESCE(NULLIF($1::jsonb->'payload'->>'role',''),'客服'), COALESCE(NULLIF($1::jsonb->'payload'->>'status',''),'啟用')\nON CONFLICT (username) DO UPDATE SET\n  role = COALESCE(NULLIF(EXCLUDED.role,''), pps2_admin_users.role),\n  status = COALESCE(NULLIF(EXCLUDED.status,''), pps2_admin_users.status),\n  pin_hash = CASE WHEN NULLIF($1::jsonb->'payload'->>'pin_hash','') IS NOT NULL THEN EXCLUDED.pin_hash ELSE pps2_admin_users.pin_hash END,\n  updated_at = now()\nRETURNING username, role, status",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('角色閘').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "pg125",
+        "name": "審計_user_save",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          260,
+          1360
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_audit_log(actor, role, action, target, detail)\nSELECT $1::jsonb->>'actor', $1::jsonb->>'role', $1::jsonb->>'action', $1::jsonb->>'target', ($1::jsonb->'detail')",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify({ actor: $('角色閘').item.json.actor, role: $('角色閘').item.json.role, action: 'user_save', target: String($('帳號save').item.json.username||''), detail: { role: $('帳號save').item.json.role, status: $('帳號save').item.json.status } }) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "rs126",
+        "name": "回應_user_save",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          520,
+          1360
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: !!$('帳號save').item.json.username } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg127",
+        "name": "settings查詢",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          780,
+          1360
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT key, value FROM pps2_settings\nWHERE ( $1::jsonb->'payload'->>'key' IS NULL OR key = $1::jsonb->'payload'->>'key' )\n  AND ( key <> 'auth_secret' OR ($1::jsonb->>'is_owner')::boolean = true )\nORDER BY key",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify(Object.assign({}, $('角色閘').item.json, { is_owner: $('角色閘').item.json.is_owner })) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd128",
+        "name": "包裝settings",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1040,
+          1360
+        ],
+        "parameters": {
+          "jsCode": "const rows = $input.all().map(x => x.json);\nconst obj = {}; rows.forEach(r => { obj[r.key] = r.value; });\nreturn [{ json: { ok: true, settings: obj } }];"
+        }
+      },
+      {
+        "id": "rs129",
+        "name": "回應settings",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1300,
+          1360
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ $json }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg130",
+        "name": "報表聚合",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          1530
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT to_char(date_trunc('day',created_at),'YYYY-MM-DD') AS day, count(*) AS orders, sum(amount_total) AS revenue\nFROM pps2_shop_orders WHERE created_at > now() - interval '180 days' AND status <> '新單'\nGROUP BY 1 ORDER BY 1",
+          "options": {}
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd131",
+        "name": "包裝報表",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          260,
+          1530
+        ],
+        "parameters": {
+          "jsCode": "const rows = $input.all().map(x => x.json);\nconst revenue_total = rows.reduce((s,r)=>s+(parseInt(r.revenue,10)||0),0);\nconst orders_total = rows.reduce((s,r)=>s+(parseInt(r.orders,10)||0),0);\nreturn [{ json: { ok: true, daily: rows, revenue_total, orders_total } }];"
+        }
+      },
+      {
+        "id": "rs132",
+        "name": "回應報表",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          520,
+          1530
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ $json }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg133",
+        "name": "查帳號清單",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          780,
+          1530
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT id,username,role,status,totp_enabled,created_at,updated_at FROM pps2_admin_users ORDER BY username",
+          "options": {}
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd134",
+        "name": "包裝帳號清單",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1040,
+          1530
+        ],
+        "parameters": {
+          "jsCode": "return [{ json: { ok: true, users: $input.all().map(x => x.json) } }];"
+        }
+      },
+      {
+        "id": "rs135",
+        "name": "回應帳號清單",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1300,
+          1530
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ $json }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg152",
+        "name": "新增收款",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          1700
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_payments(order_no, order_type, method, amount, paid_at, ref_no, note, created_by)\nSELECT $1::jsonb->'payload'->>'order_no', COALESCE(NULLIF($1::jsonb->'payload'->>'order_type',''),'shop'),\n       $1::jsonb->'payload'->>'method', ($1::jsonb->'payload'->>'amount')::int,\n       COALESCE(NULLIF($1::jsonb->'payload'->>'paid_at','')::timestamptz, now()),\n       $1::jsonb->'payload'->>'ref_no', $1::jsonb->'payload'->>'note', $1::jsonb->>'actor'\nRETURNING id, order_no",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('角色閘').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "pg153",
+        "name": "審計_payment_add",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          260,
+          1700
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_audit_log(actor, role, action, target, detail)\nSELECT $1::jsonb->>'actor', $1::jsonb->>'role', $1::jsonb->>'action', $1::jsonb->>'target', ($1::jsonb->'detail')",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify({ actor: $('角色閘').item.json.actor, role: $('角色閘').item.json.role, action: 'payment_add', target: String($('新增收款').item.json.id||''), detail: $('角色閘').item.json.payload }) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "rs154",
+        "name": "回應_payment_add",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          520,
+          1700
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: !!$('新增收款').item.json.id, id: $('新增收款').item.json.id } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg155",
+        "name": "查收款清單",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          780,
+          1700
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT id, order_no, order_type, method, amount, paid_at, ref_no, note, created_by, created_at\nFROM pps2_payments\nWHERE ($1::jsonb->'payload'->>'order_no' IS NULL OR order_no = $1::jsonb->'payload'->>'order_no')\nORDER BY paid_at DESC LIMIT 500",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('角色閘').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd156",
+        "name": "包裝收款清單",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1040,
+          1700
+        ],
+        "parameters": {
+          "jsCode": "return [{ json: { ok: true, payments: $input.all().map(x => x.json) } }];"
+        }
+      },
+      {
+        "id": "rs157",
+        "name": "回應收款清單",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1300,
+          1700
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ $json }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg158",
+        "name": "查訂單原值",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          1870
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT order_no, items, amount_total, customer_name, contact, ship_method, ship_addr, payment_method, raw\nFROM pps2_shop_orders WHERE order_no = $1::jsonb->'payload'->>'order_no'",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('角色閘').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "cd159",
+        "name": "套用訂單編輯",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          260,
+          1870
+        ],
+        "parameters": {
+          "jsCode": "const g = $('角色閘').item.json;\nconst p = g.payload || {};\nconst old = $json;\nconst oldRaw = old.raw || {};\nconst skip = !old.order_no;\nconst merged = {\n  order_no: p.order_no, skip,\n  items: Array.isArray(p.items) ? p.items : old.items,\n  amount_total: (p.amount_total != null) ? Math.max(0, parseInt(p.amount_total,10) || 0) : old.amount_total,\n  customer_name: (p.customer_name != null) ? String(p.customer_name).slice(0,40) : old.customer_name,\n  contact: (p.contact != null) ? String(p.contact).slice(0,60) : old.contact,\n  ship_method: (p.ship_method != null) ? String(p.ship_method).slice(0,20) : old.ship_method,\n  ship_addr: (p.ship_addr != null) ? String(p.ship_addr).slice(0,200) : old.ship_addr,\n  raw: Object.assign({}, oldRaw, {\n    note: (p.note != null) ? String(p.note).slice(0,500) : oldRaw.note,\n    manual_discount: (p.discount != null) ? (parseInt(p.discount,10) || 0) : oldRaw.manual_discount\n  })\n};\nconst diff = {};\nif (!skip) {\n  ['items','amount_total','customer_name','contact','ship_method','ship_addr'].forEach(k => {\n    if (JSON.stringify(old[k]) !== JSON.stringify(merged[k])) diff[k] = { from: old[k], to: merged[k] };\n  });\n  if ((oldRaw.note||'') !== (merged.raw.note||'')) diff.note = { from: oldRaw.note||'', to: merged.raw.note||'' };\n  if ((oldRaw.manual_discount||0) !== (merged.raw.manual_discount||0)) diff.discount = { from: oldRaw.manual_discount||0, to: merged.raw.manual_discount||0 };\n}\nreturn [{ json: Object.assign({ actor: g.actor, role: g.role, diff }, merged) }];"
+        }
+      },
+      {
+        "id": "pg160",
+        "name": "寫入訂單編輯",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          520,
+          1870
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "UPDATE pps2_shop_orders SET\n  items=($1::jsonb->'items'), amount_total=($1::jsonb->>'amount_total')::int,\n  customer_name=$1::jsonb->>'customer_name', contact=$1::jsonb->>'contact',\n  ship_method=$1::jsonb->>'ship_method', ship_addr=$1::jsonb->>'ship_addr',\n  raw=($1::jsonb->'raw'), updated_at=now()\nWHERE order_no=$1::jsonb->>'order_no' AND NOT COALESCE(($1::jsonb->>'skip')::boolean,false)\nRETURNING order_no",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('套用訂單編輯').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "pg161",
+        "name": "審計_order_edit",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          780,
+          1870
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_audit_log(actor, role, action, target, detail)\nSELECT $1::jsonb->>'actor', $1::jsonb->>'role', $1::jsonb->>'action', $1::jsonb->>'target', ($1::jsonb->'detail')",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify({ actor: $('套用訂單編輯').item.json.actor, role: $('套用訂單編輯').item.json.role, action: 'order_edit', target: String($('寫入訂單編輯').item.json.order_no||''), detail: $('套用訂單編輯').item.json.diff }) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "rs162",
+        "name": "回應_order_edit",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1040,
+          1870
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: !!$('寫入訂單編輯').item.json.order_no, diff: $('套用訂單編輯').item.json.diff } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg163",
+        "name": "查enum設定",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          2040
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT key, value FROM pps2_settings\nWHERE key IN ('enum_category','enum_beadwork','enum_feel','enum_crystal') ORDER BY key",
+          "options": {}
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd164",
+        "name": "包裝enum",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          260,
+          2040
+        ],
+        "parameters": {
+          "jsCode": "const rows = $input.all().map(x => x.json);\nconst obj = {}; rows.forEach(r => { obj[r.key] = r.value; });\nreturn [{ json: { ok: true, enums: obj } }];"
+        }
+      },
+      {
+        "id": "rs165",
+        "name": "回應_settings_enum_get",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          520,
+          2040
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ $json }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg166",
+        "name": "設定enum",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          780,
+          2040
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_settings(key,value)\nSELECT $1::jsonb->'payload'->>'key', ($1::jsonb->'payload'->'value')\nWHERE $1::jsonb->'payload'->>'key' IN ('enum_category','enum_beadwork','enum_feel','enum_crystal')\nON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()\nRETURNING key",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('角色閘').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "pg167",
+        "name": "審計_settings_enum_set",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1040,
+          2040
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO pps2_audit_log(actor, role, action, target, detail)\nSELECT $1::jsonb->>'actor', $1::jsonb->>'role', $1::jsonb->>'action', $1::jsonb->>'target', ($1::jsonb->'detail')",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify({ actor: $('角色閘').item.json.actor, role: $('角色閘').item.json.role, action: 'settings_enum_set', target: String($('設定enum').item.json.key||''), detail: $('角色閘').item.json.payload }) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "rs168",
+        "name": "回應_settings_enum_set",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1300,
+          2040
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: !!$('設定enum').item.json.key } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg169",
+        "name": "查會員detail",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          2210
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT id,contact,name,email,login_email,total_spent,order_count,tags,note,profile,created_at,updated_at\nFROM pps2_members WHERE id = ($1::jsonb->'payload'->>'id')::bigint",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('角色閘').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "pg170",
+        "name": "查會員訂單",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          260,
+          2210
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH m AS (SELECT contact, login_email FROM pps2_members WHERE id = ($1::jsonb->'payload'->>'id')::bigint)\nSELECT order_no, 'shop' AS order_type, status, amount_total, created_at, updated_at\nFROM pps2_shop_orders, m WHERE pps2_shop_orders.contact = m.contact\nUNION ALL\nSELECT order_id AS order_no, 'custom' AS order_type, status, NULL::int AS amount_total, created_at, updated_at\nFROM orders, m WHERE m.login_email IS NOT NULL AND orders.email = m.login_email\nORDER BY created_at DESC",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('角色閘').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd171",
+        "name": "包裝會員detail",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          520,
+          2210
+        ],
+        "parameters": {
+          "jsCode": "const orders = $input.all().map(x => x.json);\nconst member = $('查會員detail').item.json;\nreturn [{ json: { ok: true, member, orders } }];"
+        }
+      },
+      {
+        "id": "rs172",
+        "name": "回應_member_detail",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          780,
+          2210
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ $json }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg173",
+        "name": "查會員export",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1040,
+          2210
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT id,contact,name,email,login_email,total_spent,order_count,tags,note,profile,created_at,updated_at\nFROM pps2_members ORDER BY created_at DESC",
+          "options": {}
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd174",
+        "name": "包裝會員export",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1300,
+          2210
+        ],
+        "parameters": {
+          "jsCode": "return [{ json: { ok: true, members: $input.all().map(x => x.json) } }];"
+        }
+      },
+      {
+        "id": "rs175",
+        "name": "回應_member_export",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1560,
+          2210
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ $json }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg176",
+        "name": "營收聚合",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          2380
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT to_char(date_trunc('day', paid_at), 'YYYY-MM-DD') AS day, method, order_type, count(*) AS payments, sum(amount) AS revenue\nFROM pps2_payments\nWHERE ($1::jsonb->'payload'->>'date_from' IS NULL OR paid_at >= ($1::jsonb->'payload'->>'date_from')::timestamptz)\n  AND ($1::jsonb->'payload'->>'date_to'   IS NULL OR paid_at <  ($1::jsonb->'payload'->>'date_to')::timestamptz + interval '1 day')\n  AND ($1::jsonb->'payload'->>'method'     IS NULL OR method = $1::jsonb->'payload'->>'method')\n  AND ($1::jsonb->'payload'->>'order_type' IS NULL OR order_type = $1::jsonb->'payload'->>'order_type')\nGROUP BY 1,2,3 ORDER BY 1",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('角色閘').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd177",
+        "name": "包裝營收報表",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          260,
+          2380
+        ],
+        "parameters": {
+          "jsCode": "const rows = $input.all().map(x => x.json);\nconst revenue_total = rows.reduce((s,r)=>s+(parseInt(r.revenue,10)||0),0);\nconst payments_total = rows.reduce((s,r)=>s+(parseInt(r.payments,10)||0),0);\nconst by_method = {}; rows.forEach(r => { by_method[r.method] = (by_method[r.method]||0) + (parseInt(r.revenue,10)||0); });\nreturn [{ json: { ok: true, rows, revenue_total, payments_total, by_method } }];"
+        }
+      },
+      {
+        "id": "rs178",
+        "name": "回應_report_revenue",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          520,
+          2380
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ $json }}",
+          "options": {}
+        }
+      }
+    ],
+    "connections": {
+      "Webhook 後台": {
+        "main": [
+          [
+            {
+              "node": "解析輸入",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "解析輸入": {
+        "main": [
+          [
+            {
+              "node": "驗Token",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "驗Token": {
+        "main": [
+          [
+            {
+              "node": "角色閘",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "角色閘": {
+        "main": [
+          [
+            {
+              "node": "授權通過?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "授權通過?": {
+        "main": [
+          [
+            {
+              "node": "分流op",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "回應無權限",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "分流op": {
+        "main": [
+          [
+            {
+              "node": "回應ping",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "查訂單清單",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "更新訂單",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "查會員清單",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "會員upsert",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "查優惠券清單",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "優惠券save",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "優惠券delete",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "查FAQ清單",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "FAQ有ID?",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "FAQ delete",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "settings寫入",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "查稽核日誌",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "帳號save",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "settings查詢",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "報表聚合",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "查帳號清單",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "新增收款",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "查收款清單",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "查訂單原值",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "查enum設定",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "設定enum",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "查會員detail",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "查會員export",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "營收聚合",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "查訂單清單": {
+        "main": [
+          [
+            {
+              "node": "包裝訂單清單",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "包裝訂單清單": {
+        "main": [
+          [
+            {
+              "node": "回應訂單清單",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "更新訂單": {
+        "main": [
+          [
+            {
+              "node": "推TG_order_update",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "推TG_order_update": {
+        "main": [
+          [
+            {
+              "node": "審計_order_update",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "審計_order_update": {
+        "main": [
+          [
+            {
+              "node": "回應_order_update",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "查會員清單": {
+        "main": [
+          [
+            {
+              "node": "包裝會員清單",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "包裝會員清單": {
+        "main": [
+          [
+            {
+              "node": "回應會員清單",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "會員upsert": {
+        "main": [
+          [
+            {
+              "node": "審計_member_upsert",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "審計_member_upsert": {
+        "main": [
+          [
+            {
+              "node": "回應_member_upsert",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "查優惠券清單": {
+        "main": [
+          [
+            {
+              "node": "包裝優惠券清單",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "包裝優惠券清單": {
+        "main": [
+          [
+            {
+              "node": "回應優惠券清單",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "優惠券save": {
+        "main": [
+          [
+            {
+              "node": "審計_coupon_save",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "審計_coupon_save": {
+        "main": [
+          [
+            {
+              "node": "回應_coupon_save",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "優惠券delete": {
+        "main": [
+          [
+            {
+              "node": "審計_coupon_delete",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "審計_coupon_delete": {
+        "main": [
+          [
+            {
+              "node": "回應_coupon_delete",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "查FAQ清單": {
+        "main": [
+          [
+            {
+              "node": "包裝FAQ清單",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "包裝FAQ清單": {
+        "main": [
+          [
+            {
+              "node": "回應FAQ清單",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "FAQ有ID?": {
+        "main": [
+          [
+            {
+              "node": "FAQ更新",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "FAQ新增",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "FAQ更新": {
+        "main": [
+          [
+            {
+              "node": "FAQ save合流",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "FAQ新增": {
+        "main": [
+          [
+            {
+              "node": "FAQ save合流",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "FAQ save合流": {
+        "main": [
+          [
+            {
+              "node": "審計_faq_save",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "審計_faq_save": {
+        "main": [
+          [
+            {
+              "node": "回應_faq_save",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "FAQ delete": {
+        "main": [
+          [
+            {
+              "node": "審計_faq_delete",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "審計_faq_delete": {
+        "main": [
+          [
+            {
+              "node": "回應_faq_delete",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "settings寫入": {
+        "main": [
+          [
+            {
+              "node": "審計_settings_set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "審計_settings_set": {
+        "main": [
+          [
+            {
+              "node": "回應_settings_set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "查稽核日誌": {
+        "main": [
+          [
+            {
+              "node": "包裝稽核清單",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "包裝稽核清單": {
+        "main": [
+          [
+            {
+              "node": "回應稽核清單",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "帳號save": {
+        "main": [
+          [
+            {
+              "node": "審計_user_save",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "審計_user_save": {
+        "main": [
+          [
+            {
+              "node": "回應_user_save",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "settings查詢": {
+        "main": [
+          [
+            {
+              "node": "包裝settings",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "包裝settings": {
+        "main": [
+          [
+            {
+              "node": "回應settings",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "報表聚合": {
+        "main": [
+          [
+            {
+              "node": "包裝報表",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "包裝報表": {
+        "main": [
+          [
+            {
+              "node": "回應報表",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "查帳號清單": {
+        "main": [
+          [
+            {
+              "node": "包裝帳號清單",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "包裝帳號清單": {
+        "main": [
+          [
+            {
+              "node": "回應帳號清單",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "新增收款": {
+        "main": [
+          [
+            {
+              "node": "審計_payment_add",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "審計_payment_add": {
+        "main": [
+          [
+            {
+              "node": "回應_payment_add",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "查收款清單": {
+        "main": [
+          [
+            {
+              "node": "包裝收款清單",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "包裝收款清單": {
+        "main": [
+          [
+            {
+              "node": "回應收款清單",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "查訂單原值": {
+        "main": [
+          [
+            {
+              "node": "套用訂單編輯",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "套用訂單編輯": {
+        "main": [
+          [
+            {
+              "node": "寫入訂單編輯",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "寫入訂單編輯": {
+        "main": [
+          [
+            {
+              "node": "審計_order_edit",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "審計_order_edit": {
+        "main": [
+          [
+            {
+              "node": "回應_order_edit",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "查enum設定": {
+        "main": [
+          [
+            {
+              "node": "包裝enum",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "包裝enum": {
+        "main": [
+          [
+            {
+              "node": "回應_settings_enum_get",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "設定enum": {
+        "main": [
+          [
+            {
+              "node": "審計_settings_enum_set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "審計_settings_enum_set": {
+        "main": [
+          [
+            {
+              "node": "回應_settings_enum_set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "查會員detail": {
+        "main": [
+          [
+            {
+              "node": "查會員訂單",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "查會員訂單": {
+        "main": [
+          [
+            {
+              "node": "包裝會員detail",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "包裝會員detail": {
+        "main": [
+          [
+            {
+              "node": "回應_member_detail",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "查會員export": {
+        "main": [
+          [
+            {
+              "node": "包裝會員export",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "包裝會員export": {
+        "main": [
+          [
+            {
+              "node": "回應_member_export",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "營收聚合": {
+        "main": [
+          [
+            {
+              "node": "包裝營收報表",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "包裝營收報表": {
+        "main": [
+          [
+            {
+              "node": "回應_report_revenue",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1"
+    }
+  },
+  {
+    "id": "pps2Notify01",
+    "name": "pps2-notify",
+    "active": true,
+    "nodes": [
+      {
+        "id": "wh136",
+        "name": "Webhook 通知",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          0,
+          0
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "pps2-notify",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "webhookId": "pps2-notify"
+      },
+      {
+        "id": "cd137",
+        "name": "解析輸入",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          260,
+          0
+        ],
+        "parameters": {
+          "jsCode": "const b = $json.body || $json;\nif (JSON.stringify(b).length > 6000) throw new Error('payload too big');\nconst op = String(b.op || 'send');\nif (!['send','test'].includes(op)) throw new Error('bad op');\nconst channel = String(b.channel || 'email');\nif (!['email','tg','sms'].includes(channel)) throw new Error('bad channel');\nconst s = (v, n) => String(v ?? '').slice(0, n);\nreturn [{ json: {\n  op, channel, role_token: s(b.role_token, 400), actor: s(b.actor, 30), role: s(b.role, 10),\n  to: s(b.to, 100), test_to: s(b.test_to, 100), template_key: s(b.template_key, 30),\n  subject: s(b.subject, 200), html: s(b.html, 4000), vars: (b.vars && typeof b.vars === 'object') ? b.vars : {}\n} }];"
+        }
+      },
+      {
+        "id": "pg138",
+        "name": "驗Token",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          520,
+          0
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH p AS (SELECT $1::jsonb AS j),\ns AS (SELECT value#>>'{}' AS secret FROM pps2_settings WHERE key='auth_secret'),\nparts AS (SELECT string_to_array(coalesce((SELECT j->>'role_token' FROM p),''), '|') AS a),\nvalid_shape AS (SELECT a FROM parts WHERE array_length(a,1)=4 AND a[3] ~ '^[0-9]+$')\nSELECT EXISTS (\n  SELECT 1 FROM valid_shape v, s\n  WHERE v.a[1] = (SELECT j->>'actor' FROM p)\n    AND v.a[2] = (SELECT j->>'role' FROM p)\n    AND v.a[3]::bigint > extract(epoch FROM now())::bigint\n    AND v.a[4] = encode(hmac(v.a[1]||'|'||v.a[2]||'|'||v.a[3], s.secret, 'sha256'), 'hex')\n) AS valid, (SELECT j->>'role' FROM p) AS verified_role",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('解析輸入').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd139",
+        "name": "角色閘",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          780,
+          0
+        ],
+        "parameters": {
+          "jsCode": "const v = $json; const req = $('解析輸入').item.json;\nconst ok = v.valid === true && [\"owner\",\"客服\"].includes(v.verified_role);\nreturn [{ json: Object.assign({ ok }, req) }];"
+        }
+      },
+      {
+        "id": "if140",
+        "name": "授權通過?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1040,
+          0
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "version": 2
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "leftValue": "={{ $json.ok }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "rs141",
+        "name": "回應無權限",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1300,
+          0
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: false, error: 'forbidden' } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg142",
+        "name": "取範本設定",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          170
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT value FROM pps2_settings WHERE key='notify_templates'",
+          "options": {}
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "cd143",
+        "name": "套版",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          260,
+          170
+        ],
+        "parameters": {
+          "jsCode": "const g = $('角色閘').item.json;\nconst templates = $json.value || {};\nconst tpl = (g.template_key && templates[g.template_key]) ? templates[g.template_key] : { subject: g.subject, html: g.html };\nconst vars = g.vars || {};\nconst fill = (str) => String(str || '').replace(/\\{\\{(\\w+)\\}\\}/g, (_, k) => String(vars[k] ?? ''));\nconst isTest = g.op === 'test';\nconst html = fill(tpl.html);\nreturn [{ json: {\n  channel: g.channel, to: isTest ? (g.test_to || g.to) : g.to,\n  subject: fill(tpl.subject) || '拍拍深通知', html, text: html.replace(/<[^>]+>/g, '')\n} }];"
+        }
+      },
+      {
+        "id": "sw144",
+        "name": "分流channel",
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.2,
+        "position": [
+          520,
+          170
+        ],
+        "parameters": {
+          "mode": "expression",
+          "numberOutputs": 3,
+          "output": "={{ ({email:0,tg:1,sms:2})[$json.channel] }}"
+        }
+      },
+      {
+        "id": "em145",
+        "name": "寄Email",
+        "type": "n8n-nodes-base.emailSend",
+        "typeVersion": 2.1,
+        "position": [
+          780,
+          170
+        ],
+        "parameters": {
+          "fromEmail": "={{ 'noreply@paipaishen.local' }}",
+          "toEmail": "={{ $json.to }}",
+          "subject": "={{ $json.subject }}",
+          "emailFormat": "html",
+          "options": {},
+          "html": "={{ $json.html }}"
+        },
+        "onError": "continueRegularOutput",
+        "credentials": {
+          "smtp": {
+            "id": "PLACEHOLDER_GMAIL_SMTP",
+            "name": "Gmail_SMTP_佔位"
+          }
+        }
+      },
+      {
+        "id": "rs146",
+        "name": "回應email",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1040,
+          170
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: true, channel: 'email' } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "ht147",
+        "name": "推TG",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1300,
+          170
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.telegram.org/bot8979621738:AAFKozzU9n9s4ql8xagfWO2blhQxiOMnDHg/sendMessage",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify({ chat_id: 8410048576, parse_mode:'HTML', disable_web_page_preview:true, text: $json.subject + '\\n' + $json.text }) }}",
+          "options": {}
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "id": "rs148",
+        "name": "回應tg",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          0,
+          340
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: true, channel: 'tg' } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "rs149",
+        "name": "回應sms",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          260,
+          340
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: false, error: 'not_configured' } }}",
+          "options": {}
+        }
+      }
+    ],
+    "connections": {
+      "Webhook 通知": {
+        "main": [
+          [
+            {
+              "node": "解析輸入",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "解析輸入": {
+        "main": [
+          [
+            {
+              "node": "驗Token",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "驗Token": {
+        "main": [
+          [
+            {
+              "node": "角色閘",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "角色閘": {
+        "main": [
+          [
+            {
+              "node": "授權通過?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "授權通過?": {
+        "main": [
+          [
+            {
+              "node": "取範本設定",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "回應無權限",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "取範本設定": {
+        "main": [
+          [
+            {
+              "node": "套版",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "套版": {
+        "main": [
+          [
+            {
+              "node": "分流channel",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "分流channel": {
+        "main": [
+          [
+            {
+              "node": "寄Email",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "推TG",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "回應sms",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "寄Email": {
+        "main": [
+          [
+            {
+              "node": "回應email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "推TG": {
+        "main": [
+          [
+            {
+              "node": "回應tg",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1"
+    }
+  },
+  {
+    "id": "pps2Member01",
+    "name": "pps2-member",
+    "active": true,
+    "nodes": [
+      {
+        "id": "wh179",
+        "name": "Webhook 會員",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          0,
+          0
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "pps2-member",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "webhookId": "pps2-member"
+      },
+      {
+        "id": "cd180",
+        "name": "解析輸入",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          260,
+          0
+        ],
+        "parameters": {
+          "jsCode": "const b = $json.body || $json;\nif (JSON.stringify(b).length > 4000) throw new Error('payload too big');\nconst op = String(b.op || '');\nconst OPS = ['member_otp_request','member_otp_verify','member_profile_get','member_profile_update','member_orders'];\nconst idx = OPS.indexOf(op);\nif (idx < 0) throw new Error('bad op');\nif (b.token !== \"pps_07ae287ed522c33e0422fdd4837d97bf\") throw new Error('bad token');\nconst s = (v, n) => String(v ?? '').slice(0, n);\nreturn [{ json: {\n  _branch: idx, op,\n  email: s(b.email, 100).trim().toLowerCase(), otp_code: s(b.otp_code, 10),\n  member_token: s(b.member_token, 300),\n  profile: (b.profile && typeof b.profile === 'object') ? b.profile : {},\n  name: s(b.name, 40)\n} }];"
+        }
+      },
+      {
+        "id": "sw181",
+        "name": "分流",
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.2,
+        "position": [
+          520,
+          0
+        ],
+        "parameters": {
+          "mode": "expression",
+          "numberOutputs": 5,
+          "output": "={{ $json._branch }}"
+        }
+      },
+      {
+        "id": "pg182",
+        "name": "查建會員並產OTP",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          170
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH gen AS (\n  SELECT lpad((floor(random()*1000000))::int::text,6,'0') AS code\n),\ntarget AS (\n  (SELECT id FROM pps2_members WHERE login_email = $1::jsonb->>'email' LIMIT 1)\n  UNION ALL\n  (SELECT id FROM pps2_members WHERE login_email IS NULL AND contact = $1::jsonb->>'email' LIMIT 1)\n  LIMIT 1\n),\nupd AS (\n  UPDATE pps2_members m SET\n    login_email = $1::jsonb->>'email',\n    otp_hash = encode(digest(($1::jsonb->>'email')||'|'||(SELECT code FROM gen),'sha256'),'base64'),\n    otp_expires = now() + interval '10 minutes', updated_at = now()\n  WHERE m.id IN (SELECT id FROM target)\n  RETURNING m.id\n),\nins AS (\n  INSERT INTO pps2_members(contact, login_email, otp_hash, otp_expires)\n  SELECT $1::jsonb->>'email', $1::jsonb->>'email',\n         encode(digest(($1::jsonb->>'email')||'|'||(SELECT code FROM gen),'sha256'),'base64'),\n         now() + interval '10 minutes'\n  FROM gen\n  WHERE NOT EXISTS (SELECT 1 FROM target)\n  ON CONFLICT (contact) DO UPDATE SET\n    login_email = EXCLUDED.login_email, otp_hash = EXCLUDED.otp_hash, otp_expires = EXCLUDED.otp_expires, updated_at = now()\n  RETURNING id\n)\nSELECT coalesce((SELECT id FROM upd), (SELECT id FROM ins)) AS member_id, (SELECT code FROM gen) AS otp_code, $1::jsonb->>'email' AS email",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('解析輸入').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "cd183",
+        "name": "準備OTP信件",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          260,
+          170
+        ],
+        "parameters": {
+          "jsCode": "const r = $json;\nreturn [{ json: {\n  to: r.email,\n  subject: '【拍拍深】您的登入驗證碼',\n  html: '<p>您的一次性登入驗證碼為 <b>'+r.otp_code+'</b>，10 分鐘內有效，請勿提供給他人。</p>'\n} }];"
+        }
+      },
+      {
+        "id": "em184",
+        "name": "寄OTP信件",
+        "type": "n8n-nodes-base.emailSend",
+        "typeVersion": 2.1,
+        "position": [
+          520,
+          170
+        ],
+        "parameters": {
+          "fromEmail": "={{ 'noreply@paipaishen.local' }}",
+          "toEmail": "={{ $json.to }}",
+          "subject": "={{ $json.subject }}",
+          "emailFormat": "html",
+          "options": {},
+          "html": "={{ $json.html }}"
+        },
+        "onError": "continueRegularOutput",
+        "credentials": {
+          "smtp": {
+            "id": "PLACEHOLDER_GMAIL_SMTP",
+            "name": "Gmail_SMTP_佔位"
+          }
+        }
+      },
+      {
+        "id": "rs185",
+        "name": "回應otp_request",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          780,
+          170
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: true } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg186",
+        "name": "驗OTP",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          340
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT id, contact, login_email,\n  (otp_hash = encode(digest($1::jsonb->>'email'||'|'||$1::jsonb->>'otp_code','sha256'),'base64')\n   AND otp_expires > now()) AS otp_ok\nFROM pps2_members WHERE login_email = $1::jsonb->>'email'",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('解析輸入').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "cd187",
+        "name": "核對OTP",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          260,
+          340
+        ],
+        "parameters": {
+          "jsCode": "const r = $json;\nif (!r.id || !r.otp_ok) return [{ json: { ok: false, error: 'otp_invalid' } }];\nreturn [{ json: { ok: true, member_id: r.id } }];"
+        }
+      },
+      {
+        "id": "if188",
+        "name": "OTP正確?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          520,
+          340
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "version": 2
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "leftValue": "={{ $json.ok }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "rs189",
+        "name": "回應OTP失敗",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          780,
+          510
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ $json }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg190",
+        "name": "簽發member_token並清OTP",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1040,
+          340
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH s AS (SELECT value#>>'{}' AS secret FROM pps2_settings WHERE key='auth_secret'),\nt AS (SELECT ($1::jsonb->>'member_id')::bigint AS mid, (extract(epoch FROM now())::bigint + 86400) AS exp),\nclr AS (UPDATE pps2_members SET otp_hash=NULL, otp_expires=NULL WHERE id=(SELECT mid FROM t))\nSELECT 'member|'||t.mid||'|'||t.exp||'|'||encode(hmac('member|'||t.mid||'|'||t.exp, s.secret, 'sha256'),'hex') AS member_token,\n       t.exp AS exp, t.mid AS member_id\nFROM s, t",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('核對OTP').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "rs191",
+        "name": "回應登入成功",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1300,
+          340
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ Object.assign({ ok: true }, $json) }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg192",
+        "name": "驗Token_profile_get",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          510
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH p AS (SELECT $1::jsonb AS j),\ns AS (SELECT value#>>'{}' AS secret FROM pps2_settings WHERE key='auth_secret'),\nparts AS (SELECT string_to_array(coalesce((SELECT j->>'member_token' FROM p),''), '|') AS a),\nvalid_shape AS (SELECT a FROM parts WHERE array_length(a,1)=4 AND a[1]='member' AND a[2] ~ '^[0-9]+$' AND a[3] ~ '^[0-9]+$')\nSELECT EXISTS (\n  SELECT 1 FROM valid_shape v, s\n  WHERE v.a[3]::bigint > extract(epoch FROM now())::bigint\n    AND v.a[4] = encode(hmac(v.a[1]||'|'||v.a[2]||'|'||v.a[3], s.secret, 'sha256'), 'hex')\n) AS valid, (SELECT (v.a[2])::bigint FROM valid_shape v LIMIT 1) AS member_id",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('解析輸入').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd193",
+        "name": "取id_profile_get",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          260,
+          510
+        ],
+        "parameters": {
+          "jsCode": "const v = $json;\nif (!v.valid) return [{ json: { ok: false, error: 'unauthorized' } }];\nreturn [{ json: { ok: true, member_id: v.member_id } }];"
+        }
+      },
+      {
+        "id": "if194",
+        "name": "授權通過?_profile_get",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          520,
+          510
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "version": 2
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "leftValue": "={{ $json.ok }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "rs195",
+        "name": "回應無權限_profile_get",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          780,
+          680
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: false, error: 'unauthorized' } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg196",
+        "name": "查profile",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1040,
+          510
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT id,contact,name,email,login_email,total_spent,order_count,tags,note,profile,created_at\nFROM pps2_members WHERE id = ($1::jsonb->>'member_id')::bigint",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('取id_profile_get').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "rs197",
+        "name": "回應profile",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1300,
+          510
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ Object.assign({ ok: true }, $json) }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg198",
+        "name": "驗Token_profile_update",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          680
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH p AS (SELECT $1::jsonb AS j),\ns AS (SELECT value#>>'{}' AS secret FROM pps2_settings WHERE key='auth_secret'),\nparts AS (SELECT string_to_array(coalesce((SELECT j->>'member_token' FROM p),''), '|') AS a),\nvalid_shape AS (SELECT a FROM parts WHERE array_length(a,1)=4 AND a[1]='member' AND a[2] ~ '^[0-9]+$' AND a[3] ~ '^[0-9]+$')\nSELECT EXISTS (\n  SELECT 1 FROM valid_shape v, s\n  WHERE v.a[3]::bigint > extract(epoch FROM now())::bigint\n    AND v.a[4] = encode(hmac(v.a[1]||'|'||v.a[2]||'|'||v.a[3], s.secret, 'sha256'), 'hex')\n) AS valid, (SELECT (v.a[2])::bigint FROM valid_shape v LIMIT 1) AS member_id",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('解析輸入').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd199",
+        "name": "取id_profile_update",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          260,
+          680
+        ],
+        "parameters": {
+          "jsCode": "const v = $json; const req = $('解析輸入').item.json;\nif (!v.valid) return [{ json: { ok: false, error: 'unauthorized' } }];\nreturn [{ json: { ok: true, member_id: v.member_id, name: req.name, profile: req.profile } }];"
+        }
+      },
+      {
+        "id": "if200",
+        "name": "授權通過?_profile_update",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          520,
+          680
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "version": 2
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "leftValue": "={{ $json.ok }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "rs201",
+        "name": "回應無權限_profile_update",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          780,
+          850
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: false, error: 'unauthorized' } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg202",
+        "name": "更新profile",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1040,
+          680
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "UPDATE pps2_members SET\n  name = COALESCE(NULLIF($1::jsonb->>'name',''), name),\n  profile = COALESCE($1::jsonb->'profile', profile),\n  updated_at = now()\nWHERE id = ($1::jsonb->>'member_id')::bigint\nRETURNING id, name, profile",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('取id_profile_update').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        },
+        "alwaysOutputData": true
+      },
+      {
+        "id": "rs203",
+        "name": "回應profile_update",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1300,
+          680
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: !!$('更新profile').item.json.id, name: $('更新profile').item.json.name, profile: $('更新profile').item.json.profile } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg204",
+        "name": "驗Token_orders",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          850
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH p AS (SELECT $1::jsonb AS j),\ns AS (SELECT value#>>'{}' AS secret FROM pps2_settings WHERE key='auth_secret'),\nparts AS (SELECT string_to_array(coalesce((SELECT j->>'member_token' FROM p),''), '|') AS a),\nvalid_shape AS (SELECT a FROM parts WHERE array_length(a,1)=4 AND a[1]='member' AND a[2] ~ '^[0-9]+$' AND a[3] ~ '^[0-9]+$')\nSELECT EXISTS (\n  SELECT 1 FROM valid_shape v, s\n  WHERE v.a[3]::bigint > extract(epoch FROM now())::bigint\n    AND v.a[4] = encode(hmac(v.a[1]||'|'||v.a[2]||'|'||v.a[3], s.secret, 'sha256'), 'hex')\n) AS valid, (SELECT (v.a[2])::bigint FROM valid_shape v LIMIT 1) AS member_id",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('解析輸入').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd205",
+        "name": "取id_orders",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          260,
+          850
+        ],
+        "parameters": {
+          "jsCode": "const v = $json;\nif (!v.valid) return [{ json: { ok: false, error: 'unauthorized' } }];\nreturn [{ json: { ok: true, member_id: v.member_id } }];"
+        }
+      },
+      {
+        "id": "if206",
+        "name": "授權通過?_orders",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          520,
+          850
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "version": 2
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "leftValue": "={{ $json.ok }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "rs207",
+        "name": "回應無權限_orders",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          780,
+          1020
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ { ok: false, error: 'unauthorized' } }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "pg208",
+        "name": "查會員訂單merged",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1040,
+          850
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH m AS (SELECT contact, login_email FROM pps2_members WHERE id = ($1::jsonb->>'member_id')::bigint)\nSELECT order_no, 'shop' AS order_type, status, amount_total, created_at, updated_at\nFROM pps2_shop_orders, m WHERE pps2_shop_orders.contact = m.contact\nUNION ALL\nSELECT order_id AS order_no, 'custom' AS order_type, status, NULL::int AS amount_total, created_at, updated_at\nFROM orders, m WHERE m.login_email IS NOT NULL AND orders.email = m.login_email\nORDER BY created_at DESC",
+          "options": {
+            "queryReplacement": "={{ JSON.stringify($('取id_orders').item.json) }}"
+          }
+        },
+        "credentials": {
+          "postgres": {
+            "id": "VlUClUMAVuxVid9c",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "id": "cd209",
+        "name": "包裝orders",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1300,
+          850
+        ],
+        "parameters": {
+          "jsCode": "return [{ json: { ok: true, orders: $input.all().map(x => x.json) } }];"
+        }
+      },
+      {
+        "id": "rs210",
+        "name": "回應orders",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1560,
+          850
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ $json }}",
+          "options": {}
+        }
+      }
+    ],
+    "connections": {
+      "Webhook 會員": {
+        "main": [
+          [
+            {
+              "node": "解析輸入",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "解析輸入": {
+        "main": [
+          [
+            {
+              "node": "分流",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "查建會員並產OTP": {
+        "main": [
+          [
+            {
+              "node": "準備OTP信件",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "準備OTP信件": {
+        "main": [
+          [
+            {
+              "node": "寄OTP信件",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "寄OTP信件": {
+        "main": [
+          [
+            {
+              "node": "回應otp_request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "驗OTP": {
+        "main": [
+          [
+            {
+              "node": "核對OTP",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "核對OTP": {
+        "main": [
+          [
+            {
+              "node": "OTP正確?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OTP正確?": {
+        "main": [
+          [
+            {
+              "node": "簽發member_token並清OTP",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "回應OTP失敗",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "簽發member_token並清OTP": {
+        "main": [
+          [
+            {
+              "node": "回應登入成功",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "驗Token_profile_get": {
+        "main": [
+          [
+            {
+              "node": "取id_profile_get",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "取id_profile_get": {
+        "main": [
+          [
+            {
+              "node": "授權通過?_profile_get",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "授權通過?_profile_get": {
+        "main": [
+          [
+            {
+              "node": "查profile",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "回應無權限_profile_get",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "查profile": {
+        "main": [
+          [
+            {
+              "node": "回應profile",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "驗Token_profile_update": {
+        "main": [
+          [
+            {
+              "node": "取id_profile_update",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "取id_profile_update": {
+        "main": [
+          [
+            {
+              "node": "授權通過?_profile_update",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "授權通過?_profile_update": {
+        "main": [
+          [
+            {
+              "node": "更新profile",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "回應無權限_profile_update",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "更新profile": {
+        "main": [
+          [
+            {
+              "node": "回應profile_update",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "驗Token_orders": {
+        "main": [
+          [
+            {
+              "node": "取id_orders",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "取id_orders": {
+        "main": [
+          [
+            {
+              "node": "授權通過?_orders",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "授權通過?_orders": {
+        "main": [
+          [
+            {
+              "node": "查會員訂單merged",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "回應無權限_orders",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "查會員訂單merged": {
+        "main": [
+          [
+            {
+              "node": "包裝orders",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "包裝orders": {
+        "main": [
+          [
+            {
+              "node": "回應orders",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "分流": {
+        "main": [
+          [
+            {
+              "node": "查建會員並產OTP",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "驗OTP",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "驗Token_profile_get",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "驗Token_profile_update",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "驗Token_orders",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1"
+    }
+  }
+]
