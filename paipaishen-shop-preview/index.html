@@ -301,12 +301,23 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
 @keyframes fillin{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
 .chip-lbl{text-align:center;font-size:12px;letter-spacing:.2em;color:var(--muted);margin:6px 0}
 .persona{max-width:640px;margin:16px auto 0;text-align:center;color:var(--muted);font-size:15px;min-height:24px;transition:opacity var(--t)}
-.gal{grid-template-columns:repeat(4,1fr);gap:14px;margin-top:24px}
-.gitem{border-radius:var(--r-sm);overflow:hidden;cursor:pointer;position:relative;aspect-ratio:1/1;background:#EEE7D8;box-shadow:var(--shadow-sm);transition:box-shadow var(--t)}
-.gitem img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease}
+.gal{grid-template-columns:repeat(4,1fr);gap:14px;margin-top:24px;animation:none}
+.gal.fade-in{animation:galfade .35s ease}
+@keyframes galfade{from{opacity:0}to{opacity:1}}
+.gitem{border-radius:var(--r-sm);overflow:hidden;cursor:pointer;position:relative;aspect-ratio:1/1;background:var(--line);box-shadow:var(--shadow-sm);transition:box-shadow var(--t)}
+.gitem.filler{visibility:hidden;cursor:default;box-shadow:none}
+.gitem img{width:100%;height:100%;object-fit:contain;transition:transform .5s ease}
 .gitem:hover img{transform:scale(1.07)}
 .gitem .cap{position:absolute;left:0;right:0;bottom:0;padding:20px 10px 8px;background:linear-gradient(0deg,rgba(16,24,40,.8),transparent);color:#fff;font-size:12px;opacity:0;transition:opacity var(--t)}
 .gitem:hover .cap{opacity:1}
+.galpager{margin-top:20px;text-align:center}
+.pg-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center}
+.pg-btn{border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:7px 12px;font-size:14px;cursor:pointer;color:var(--ink);transition:all var(--t);min-width:38px}
+.pg-btn:hover:not(:disabled){border-color:var(--glow);background:var(--glow-soft)}
+.pg-btn.on{background:var(--glow-soft);border-color:var(--glow);font-weight:600}
+.pg-btn:disabled{opacity:.4;cursor:not-allowed}
+.pg-dots{padding:0 4px;color:var(--muted)}
+.pg-info{margin-top:10px;font-size:13px;color:var(--muted)}
 .gitem.hide{display:none}
 
 /* ── FAQ 手風琴 ── */
@@ -430,7 +441,7 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
   .cartBtn{padding:8px}
 }
 /* 觸控目標 */
-@media(pointer:coarse){ .nav-links a,.seg button,.chip-f{min-height:44px;display:inline-flex;align-items:center} }
+@media(pointer:coarse){ .nav-links a,.seg button,.chip-f,.pg-btn{min-height:44px;display:inline-flex;align-items:center} }
 /* 尊重減少動態偏好 */
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
@@ -737,6 +748,7 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
       <div class="chips" id="chipsAes"></div>
       <p class="persona" id="persona"></p>
       <div class="grid gal" id="gal" aria-live="polite"></div>
+      <div class="galpager" id="galPager" role="navigation" aria-label="作品集分頁"></div>
       <div style="text-align:center;margin-top:30px"><a class="btn2 hide" id="moreWorksBtn" target="_blank" rel="noopener">看更多作品相簿 →</a></div>
     </div>
   </section>
@@ -1368,33 +1380,10 @@ $('#againBtn').addEventListener('click',()=>{ $('#done').style.display='none'; F
 est();
 
 /* ═══════════ 作品集：雙軸 chip 過濾（FLIP）＋ lightbox ═══════════ */
-const PHOTOS = [
-  {f:'photos/w1.jpg',l:'五行相生搭配法',a:'自由共振',c:'五行雙色，深淺相映'},
-  {f:'photos/w2.jpg',l:'五行相生搭配法',a:'自由共振',c:'淺色五行，晴空湖光交織'},
-  {f:'photos/w3.jpg',l:'五行相生搭配法',a:'自由共振',c:'淺色五行，柔霧清透可人'},
-  {f:'photos/w4.jpg',l:'五行相生搭配法',a:'自由共振',c:'深邃五行，星夜沉穩內斂'},
-  {f:'photos/w5.jpg',l:'五行相生搭配法',a:'自由共振',c:'深邃五行，墨藍映亮金棕'},
-  {f:'photos/works/w01.jpg',l:'跳色不規則混搭',a:'內斂磐石',c:'灰藍墨黑，礦石光影交錯'},
-  {f:'photos/works/w02.jpg',l:'間隔排列法',a:'內斂磐石',c:'墨綠粉紫，間隔規律成串'},
-  {f:'photos/works/w03.jpg',l:'間隔排列法',a:'內斂磐石',c:'墨綠粉紫，圓潤交替排列'},
-  {f:'photos/works/w04.jpg',l:'跳色不規則混搭',a:'內斂磐石',c:'灰藍墨黑，色澤深沉低調'},
-  {f:'photos/works/w05.jpg',l:'跳色不規則混搭',a:'內斂磐石',c:'灰藍墨黑，腕間低吟沉靜'},
-  {f:'photos/works/w06.jpg',l:'跳色不規則混搭',a:'輕盈流光',c:'墨綠駝白，自然色調交融'},
-  {f:'photos/works/w07.jpg',l:'跳色不規則混搭',a:'輕盈流光',c:'墨綠粉白，清透柔和交錯'},
-  {f:'photos/works/w08.jpg',l:'大小一致無主珠',a:'內斂磐石',c:'藍黑金棕，礦紋流轉深邃'},
-  {f:'photos/works/w09.jpg',l:'大小一致無主珠',a:'內斂磐石',c:'藍黑金棕，紋理沉靜內斂'},
-  {f:'photos/works/w10.jpg',l:'跳色不規則混搭',a:'內斂磐石',c:'墨綠黑棕，深淺錯落有致'},
-  {f:'photos/works/w11.jpg',l:'跳色不規則混搭',a:'輕盈流光',c:'墨綠粉白，微光點綴其間'},
-  {f:'photos/works/w12.jpg',l:'大小一致無主珠',a:'輕盈流光',c:'通透水晶，冰花點點剔透'},
-  {f:'photos/works/w13.jpg',l:'大小一致無主珠',a:'輕盈流光',c:'剔透水晶，指尖流光溢彩'},
-  {f:'photos/works/w14.jpg',l:'區塊排列法',a:'輕盈流光',c:'淺藍煙灰，塊面分明清雅'},
-  {f:'photos/works/w15.jpg',l:'區塊排列法',a:'輕盈流光',c:'藍白相間，腕上溫柔相映'},
-  {f:'photos/works/w16.jpg',l:'主角配角法',a:'輕盈流光',c:'白灰煙棕，素雅中見亮點'},
-  {f:'photos/works/w17.jpg',l:'五行相生搭配法',a:'自由共振',c:'淺色五行，柔和層次分明'},
-  {f:'photos/works/w18.jpg',l:'五行相生搭配法',a:'自由共振',c:'雙色五行，深淺一次呈現'}
-];
-const LAYOUTS = ['五行相生搭配法','跳色不規則混搭','大小一致無主珠','間隔排列法','區塊排列法','主角配角法','對稱法','對比撞色搭配法','深淺同色漸層排列'];
-const AES = ['輕盈流光','內斂磐石','自由共振'];
+const PAGE_SIZE = 12;
+let PHOTOS = [];
+let LAYOUTS = ['五行相生搭配法','跳色不規則混搭','大小一致無主珠','間隔排列法','區塊排列法','主角配角法','對稱法','對比撞色搭配法','深淺同色漸層排列'];
+let AES = ['輕盈流光','內斂磐石','自由共振'];
 const PERSONA = {
   '五行相生搭配法':'順著金木水火土相生的次序排。像一條會呼吸的動線，色彩自然接力，適合喜歡流動與圓融的人。',
   '跳色不規則混搭':'刻意打破規律、深淺跳色。個性、不按牌理，留給不想被定義的你。',
@@ -1408,51 +1397,80 @@ const PERSONA = {
 };
 const AES_COLOR = {'輕盈流光':'#7FB0C8','內斂磐石':'#4A5568','自由共振':'#C9A24B'};
 const LAY_COLOR = {'五行相生搭配法':'var(--mu)','跳色不規則混搭':'var(--huo)','大小一致無主珠':'var(--shui)','間隔排列法':'var(--tu)','區塊排列法':'#7FB0C8','主角配角法':'var(--jin)','對稱法':'#5B6B7A','對比撞色搭配法':'#8A4F7D','深淺同色漸層排列':'#7FA8A0'};
-let fLayout='all', fAes='all';
-$('#chipsLayout').innerHTML = `<button class="chip-f on" data-t="all"><span class="bead" style="background:#C9A24B"></span>全部</button>`+
-  LAYOUTS.map(l=>`<button class="chip-f" data-t="${esc(l)}"><span class="bead" style="background:${LAY_COLOR[l]}"></span>${esc(l)}</button>`).join('');
-$('#chipsAes').innerHTML = `<button class="chip-f on" data-t="all"><span class="bead" style="background:#C9A24B"></span>全部</button>`+
-  AES.map(a=>`<button class="chip-f" data-t="${esc(a)}"><span class="bead" style="background:${AES_COLOR[a]}"></span>${esc(a)}</button>`).join('');
-// 一條手串可同時屬於多種排法／體感，所以 l 與 a 都容許陣列。
-// 存成 |A|B| 這種前後帶分隔線的字串，比對時整段包含 |X| 才算命中，避免「對稱法」誤中「非對稱法」這類子字串。
-const tags = v => '|' + (Array.isArray(v)?v:[v]).join('|') + '|';
+let fLayout='all', fAes='all', galPage=1;
+// 一條手串可同時屬於多種排法／體感，l 與 a 皆為陣列。
 const tagText = v => (Array.isArray(v)?v:[v]).join('・');
-$('#gal').innerHTML = PHOTOS.map((p,i)=>`
-  <figure class="gitem" data-i="${i}" data-l="${esc(tags(p.l))}" data-a="${esc(tags(p.a))}" tabindex="0" role="button" aria-label="放大 ${esc(p.c)}">
-    <img src="${esc(p.f)}" alt="${esc(p.c)}｜${esc(tagText(p.l))}・${esc(tagText(p.a))}" loading="lazy" decoding="async" width="280" height="280">
-    <figcaption class="cap">${esc(p.c)}</figcaption>
-  </figure>`).join('');
-function matchPhoto(el){ return (fLayout==='all'||el.dataset.l.includes('|'+fLayout+'|'))
-                             && (fAes==='all'   ||el.dataset.a.includes('|'+fAes+'|')); }
-function applyFilter(){
-  const items = $$('#gal .gitem');
-  if(reduce){ items.forEach(el=>el.classList.toggle('hide',!matchPhoto(el))); return; }
-  const first = new Map(); items.forEach(el=>{ if(!el.classList.contains('hide')) first.set(el,el.getBoundingClientRect()); });
-  items.forEach(el=>el.classList.toggle('hide',!matchPhoto(el)));
-  items.forEach(el=>{
-    if(el.classList.contains('hide')) return;
-    const fb=first.get(el), lb=el.getBoundingClientRect();
-    if(fb){ const dx=fb.left-lb.left, dy=fb.top-lb.top;
-      if(dx||dy){ el.style.transform=`translate(${dx}px,${dy}px)`; el.style.transition='none';
-        requestAnimationFrame(()=>{ el.style.transition='transform .42s cubic-bezier(.22,.61,.36,1)'; el.style.transform=''; }); }
-    } else { el.style.opacity='0'; el.style.transform='scale(.9)';
-      requestAnimationFrame(()=>{ el.style.transition='opacity .4s ease,transform .4s ease'; el.style.opacity=''; el.style.transform=''; }); }
-  });
+const hasTag = (v,t) => (Array.isArray(v)?v:[v]).includes(t);
+const capOf = p => `${tagText(p.l)} ／ ${tagText(p.a)}`;
+const altOf = p => `拍拍深訂製水晶手串作品｜${tagText(p.l)}・${tagText(p.a)}`;
+
+function renderChips(){
+  $('#chipsLayout').innerHTML = `<button class="chip-f on" data-t="all"><span class="bead" style="background:#C9A24B"></span>全部</button>`+
+    LAYOUTS.map(l=>`<button class="chip-f" data-t="${esc(l)}"><span class="bead" style="background:${LAY_COLOR[l]||'#C9A24B'}"></span>${esc(l)}</button>`).join('');
+  $('#chipsAes').innerHTML = `<button class="chip-f on" data-t="all"><span class="bead" style="background:#C9A24B"></span>全部</button>`+
+    AES.map(a=>`<button class="chip-f" data-t="${esc(a)}"><span class="bead" style="background:${AES_COLOR[a]||'#C9A24B'}"></span>${esc(a)}</button>`).join('');
 }
+function matchPhoto(p){ return (fLayout==='all'||hasTag(p.l,fLayout)) && (fAes==='all'||hasTag(p.a,fAes)); }
+function filteredIdx(){ return PHOTOS.map((_,i)=>i).filter(i=>matchPhoto(PHOTOS[i])); }
+// 頁碼太多時收斂成 1 2 3 … 7 這種格式
+function pageList(cur,total){
+  if(total<=7) return Array.from({length:total},(_,i)=>i+1);
+  const set = new Set([1,2,total-1,total,cur-1,cur,cur+1].filter(p=>p>=1&&p<=total));
+  const arr=[...set].sort((a,b)=>a-b), out=[];
+  arr.forEach((p,i)=>{ if(i>0 && p-arr[i-1]>1) out.push('…'); out.push(p); });
+  return out;
+}
+function renderPager(total,totalPages){
+  const pager=$('#galPager');
+  if(!total){ pager.innerHTML=`<p class="pg-info">目前沒有符合條件的作品</p>`; return; }
+  const btn=(label,p,disabled,current)=>`<button class="pg-btn${current?' on':''}" data-p="${p}" ${disabled?'disabled':''} ${current?'aria-current="page"':''} aria-label="${current?`目前第 ${p} 頁`:`前往第 ${p} 頁`}">${label}</button>`;
+  let html=`<div class="pg-row">`+btn('‹ 上一頁',galPage-1,galPage<=1,false);
+  pageList(galPage,totalPages).forEach(p=>{ html += p==='…' ? `<span class="pg-dots" aria-hidden="true">…</span>` : btn(p,p,false,p===galPage); });
+  html += btn('下一頁 ›',galPage+1,galPage>=totalPages,false)+`</div><p class="pg-info">第 ${galPage} / ${totalPages} 頁・共 ${total} 件</p>`;
+  pager.innerHTML=html;
+}
+function renderGallery(){
+  const gal=$('#gal');
+  if(!PHOTOS.length){ gal.innerHTML=`<p style="grid-column:1/-1;text-align:center;color:var(--muted);padding:40px 0">作品集載入中…</p>`; $('#galPager').innerHTML=''; return; }
+  const idx=filteredIdx(), totalPages=Math.max(1,Math.ceil(idx.length/PAGE_SIZE));
+  galPage=Math.min(Math.max(galPage,1),totalPages);
+  const pageIdx=idx.slice((galPage-1)*PAGE_SIZE, galPage*PAGE_SIZE);
+  const cells=[];
+  for(let k=0;k<PAGE_SIZE;k++){
+    const i=pageIdx[k];
+    if(i===undefined){ cells.push('<div class="gitem filler" aria-hidden="true"></div>'); continue; }
+    const p=PHOTOS[i];
+    cells.push(`<figure class="gitem" data-i="${i}" tabindex="0" role="button" aria-label="放大 ${esc(altOf(p))}">
+    <img src="${esc(p.f)}" alt="${esc(altOf(p))}" loading="lazy" decoding="async" width="${p.w||280}" height="${p.h||280}">
+    <figcaption class="cap">${esc(capOf(p))}</figcaption>
+  </figure>`);
+  }
+  gal.innerHTML=cells.join('');
+  gal.classList.remove('fade-in');
+  if(!reduce){ void gal.offsetWidth; gal.classList.add('fade-in'); }
+  renderPager(idx.length,totalPages);
+}
+function applyFilter(){ galPage=1; renderGallery(); }
 function updPersona(){ const p=$('#persona'); p.style.opacity='0'; setTimeout(()=>{ p.textContent = fLayout==='all'?'':(PERSONA[fLayout]||''); p.style.opacity='1'; },reduce?0:160); }
 $('#chipsLayout').addEventListener('click',e=>{ const b=e.target.closest('.chip-f'); if(!b) return; $$('#chipsLayout .chip-f').forEach(x=>x.classList.remove('on')); b.classList.add('on'); fLayout=b.dataset.t; applyFilter(); updPersona(); });
 $('#chipsAes').addEventListener('click',e=>{ const b=e.target.closest('.chip-f'); if(!b) return; $$('#chipsAes .chip-f').forEach(x=>x.classList.remove('on')); b.classList.add('on'); fAes=b.dataset.t; applyFilter(); });
+$('#galPager').addEventListener('click',e=>{ const b=e.target.closest('.pg-btn'); if(!b||b.disabled) return; galPage=+b.dataset.p; renderGallery(); });
 if(CONFIG.ICLOUD_ALBUM_URL){ const mb=$('#moreWorksBtn'); mb.href=CONFIG.ICLOUD_ALBUM_URL; mb.classList.remove('hide'); }
 
-// lightbox（頁內，絕不另開網頁）
+// lightbox（頁內，絕不另開網頁）— 走訪目前篩選結果的全部照片，跨頁時分頁跟著跳
 let lbList=[], lbPos=0;
-function visiblePhotos(){ return $$('#gal .gitem:not(.hide)').map(el=>+el.dataset.i); }
-function openLb(i){ lbList=visiblePhotos(); lbPos=lbList.indexOf(i); if(lbPos<0)lbPos=0; showLb(); $('#lightbox').classList.add('on'); }
-function showLb(){ const p=PHOTOS[lbList[lbPos]]; $('#lbImg').src=p.f; $('#lbImg').alt=p.c;
-  $('#lbCap').innerHTML=`${esc(p.c)}<div class="tags"><span>${esc(p.l)}</span><span>${esc(p.a)}</span></div>`; }
+function openLb(i){ lbList=filteredIdx(); lbPos=lbList.indexOf(i); if(lbPos<0)lbPos=0; showLb(); $('#lightbox').classList.add('on'); }
+function showLb(){
+  const i=lbList[lbPos], p=PHOTOS[i];
+  const page=Math.floor(lbPos/PAGE_SIZE)+1;
+  if(page!==galPage){ galPage=page; renderGallery(); }
+  $('#lbImg').src=p.f; $('#lbImg').alt=altOf(p);
+  const pills=[...(Array.isArray(p.l)?p.l:[p.l]),...(Array.isArray(p.a)?p.a:[p.a])].map(t=>`<span>${esc(t)}</span>`).join('');
+  $('#lbCap').innerHTML=`${esc(capOf(p))}<div class="tags">${pills}</div>`;
+}
 function lbStep(d){ lbPos=(lbPos+d+lbList.length)%lbList.length; showLb(); }
-$('#gal').addEventListener('click',e=>{ const g=e.target.closest('.gitem'); if(g) openLb(+g.dataset.i); });
-$('#gal').addEventListener('keydown',e=>{ if((e.key==='Enter'||e.key===' ')&&e.target.closest('.gitem')){ e.preventDefault(); openLb(+e.target.closest('.gitem').dataset.i); } });
+$('#gal').addEventListener('click',e=>{ const g=e.target.closest('.gitem'); if(g && !g.classList.contains('filler')) openLb(+g.dataset.i); });
+$('#gal').addEventListener('keydown',e=>{ const g=e.target.closest('.gitem'); if((e.key==='Enter'||e.key===' ')&&g&&!g.classList.contains('filler')){ e.preventDefault(); openLb(+g.dataset.i); } });
 $('#lbClose').addEventListener('click',()=>$('#lightbox').classList.remove('on'));
 $('#lbPrev').addEventListener('click',()=>lbStep(-1));
 $('#lbNext').addEventListener('click',()=>lbStep(1));
@@ -1461,6 +1479,23 @@ addEventListener('keydown',e=>{
   if($('#lightbox').classList.contains('on')){ if(e.key==='Escape')$('#lightbox').classList.remove('on'); if(e.key==='ArrowLeft')lbStep(-1); if(e.key==='ArrowRight')lbStep(1); }
   if(e.key==='Escape'){ closeModal(); closeCart(); $('#chatPanel').classList.remove('on'); }
 });
+
+// 讀取 gallery.json；失敗 fail-safe，不讓整頁 JS 崩掉
+(async function loadGallery(){
+  try{
+    const res = await fetch('photos/gallery/gallery.json');
+    if(!res.ok) throw new Error('http '+res.status);
+    const data = await res.json();
+    PHOTOS = Array.isArray(data.items) ? data.items : [];
+    if(Array.isArray(data.layouts) && data.layouts.length) LAYOUTS = data.layouts;
+    if(Array.isArray(data.feels) && data.feels.length) AES = data.feels;
+  }catch(err){
+    console.error('作品集載入失敗：', err);
+    PHOTOS = [];
+  }
+  renderChips();
+  renderGallery();
+})();
 
 /* ═══════════ FAQ（30 題）＝ 手風琴 ＋ JSON-LD ＋ 客服知識庫 ═══════════ */
 const FAQ = [
