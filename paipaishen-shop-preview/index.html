@@ -1261,6 +1261,10 @@ function base(w,b){ const r=CONFIG.PRICE.rows[w]; const i=CONFIG.PRICE.beads.ind
 const cart = [];
 function shopBadge(p){ if(p.stock<=0) return '<span class="badge out">已售完</span>'; if(p.stock<=(CONFIG.SHOP?.lowStock??3)) return `<span class="badge">僅剩 ${p.stock}</span>`; return ''; }
 function renderProducts(list){
+  if(!list.length){
+    $('#prodGrid').innerHTML = `<p class="reveal" style="grid-column:1/-1;text-align:center;color:var(--muted);padding:44px 20px;border:1px dashed var(--line);border-radius:var(--r)">現貨剛好都出清了，補貨中。<br>想要的款式可以直接走<a href="#custom" style="color:var(--glow-deep);text-decoration:underline">訂製</a>，或到<a href="#works" style="color:var(--glow-deep);text-decoration:underline">作品集</a>看看有沒有喜歡的方向。</p>`;
+    return;
+  }
   $('#prodGrid').innerHTML = list.map((p,i)=>`
     <article class="prod reveal lift" style="--i:${Math.min(i,5)}" data-id="${esc(p.id)}" tabindex="0" role="button" aria-label="查看 ${esc(p.name)}">
       <div class="ph">${shopBadge(p)}<img src="${esc(p.imgs[0])}" alt="${esc(p.name)}｜${esc(p.layout)}・${esc(p.aesthetic)}" loading="lazy" decoding="async" width="360" height="360"></div>
@@ -1280,11 +1284,18 @@ function normProd(p){
     spec: p.spec || [p.bead_mm?p.bead_mm+'mm':'', p.size_cm?'約 '+p.size_cm+'cm':'', '彈力線'].filter(Boolean).join('・') };
 }
 async function loadProducts(){
-  let list = null;
-  try{ const r = await api(CONFIG.PATHS.PRODUCTS,{ op:'list' }); if(r && r.ok && Array.isArray(r.products)) list = r.products; }catch(_){}
-  PRODUCTS = ((list && list.length) ? list : (CONFIG.PRODUCTS||[])).map(normProd);
+  // 「API 成功但回空陣列」＝真的沒有現貨，必須顯示補貨中；
+  // 只有「API 打不到」才退化成 config.js 的示例商品。
+  // 用 list.length 判斷會把「已全部下架」誤判成離線，讓假商品出現在正式站上。
+  let list = null, reached = false;
+  try{
+    const r = await api(CONFIG.PATHS.PRODUCTS,{ op:'list' });
+    if(r && r.ok && Array.isArray(r.products)){ list = r.products; reached = true; }
+  }catch(_){}
+  PRODUCTS = (reached ? list : (CONFIG.PRODUCTS||[])).map(normProd);
   renderProducts(PRODUCTS);
   observeReveals();
+  if(typeof prodLd==='function') prodLd();   // JSON-LD 要等真實商品載入後才建，見 prodLd() 註解
 }
 loadProducts();
 
@@ -1654,15 +1665,20 @@ const FAQ = [
   const ld = { "@context":"https://schema.org","@type":"FAQPage","mainEntity":FAQ.map(f=>({"@type":"Question","name":f.q,"acceptedAnswer":{"@type":"Answer","text":f.a}})) };
   const s=document.createElement('script'); s.type='application/ld+json'; s.textContent=JSON.stringify(ld); document.head.appendChild(s);
 })();
-// Product JSON-LD（現貨示例）
-(function prodLd(){
-  const items=(CONFIG.PRODUCTS||[]).map(p=>({ "@type":"Product","name":p.name.replace('【示例】',''),"image":"https://anwer3712.github.io/paipaishen-shop/"+p.imgs[0],"description":p.desc,
+// Product JSON-LD — 只送真實上架商品給搜尋引擎。
+// 舊版讀 CONFIG.PRODUCTS（示例資料）並把「【示例】」字樣去掉再送出，
+// 等於把不存在的商品與價格當成真商品提交給 Google。改讀實際載入的 PRODUCTS，
+// 並排除任何仍帶「【示例】」的項目；沒有真商品時整段不輸出。
+function prodLd(){
+  if(document.getElementById('prodLd')) return;
+  const src=(typeof PRODUCTS!=='undefined'?PRODUCTS:[]).filter(p=>p&&p.name&&!p.name.includes('【示例】'));
+  const items=src.map(p=>({ "@type":"Product","name":p.name,"image":"https://anwer3712.github.io/paipaishen-shop/"+p.imgs[0],"description":p.desc,
     "offers":{"@type":"Offer","priceCurrency":"TWD","price":p.price,"availability":p.stock>0?"https://schema.org/InStock":"https://schema.org/OutOfStock"} }));
   if(!items.length) return;
-  const s=document.createElement('script'); s.type='application/ld+json';
+  const s=document.createElement('script'); s.id='prodLd'; s.type='application/ld+json';
   s.textContent=JSON.stringify({ "@context":"https://schema.org","@type":"ItemList","itemListElement":items.map((it,i)=>({"@type":"ListItem","position":i+1,"item":it})) });
   document.head.appendChild(s);
-})();
+}
 
 /* ═══════════ 訂單查詢（pps-status 契約不變）＋光路七階段 ═══════════ */
 (function track(){
