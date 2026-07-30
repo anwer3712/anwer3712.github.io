@@ -749,7 +749,7 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
             <legend id="legendA">你的資料</legend>
             <div class="fcol"><label>姓名／暱稱<span class="req">必填</span></label><input type="text" name="a_name" required maxlength="30"></div>
             <div class="frow">
-              <div><label>生理性別（八字排盤用）</label><select name="a_gender"><option>女</option><option>男</option><option>其他／不填</option></select></div>
+              <div><label>生理性別（八字排盤用）</label><select name="a_gender"><option>其他／不填</option><option>女</option><option>男</option></select></div>
               <div><label>國曆生日<span class="req">必填</span></label><input type="date" name="a_birth" required></div>
             </div>
             <div class="frow">
@@ -771,7 +771,7 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
             <legend>伴侶的資料</legend>
             <div class="fcol"><label>姓名／暱稱</label><input type="text" name="b_name" maxlength="30"></div>
             <div class="frow">
-              <div><label>生理性別（八字排盤用）</label><select name="b_gender"><option>男</option><option>女</option><option>其他／不填</option></select></div>
+              <div><label>生理性別（八字排盤用）</label><select name="b_gender"><option>其他／不填</option><option>女</option><option>男</option></select></div>
               <div><label>國曆生日</label><input type="date" name="b_birth"></div>
             </div>
             <div class="frow">
@@ -795,7 +795,7 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
             <legend>物流與聯絡</legend>
             <div class="fcol"><label>取貨方式</label><div class="opts">
               <label class="opt"><input type="radio" name="ship" value="store" checked><span><b>店到店</b>（超商取貨，+60）</span></label>
-              <label class="opt"><input type="radio" name="ship" value="self"><span><b>店長自送／面交</b>（免運，龍潭—中壢）</span></label>
+              <label class="opt"><input type="radio" name="ship" value="self"><span><b>中壢–龍潭面交</b>（免運）</span></label>
             </div></div>
             <div class="fcol"><label>聯絡方式（LINE／電話）<span class="req">必填</span></label><input type="text" name="contact" required maxlength="60" placeholder="方便我們與你確認設計；也用於訂單進度查詢驗證"></div>
             <div class="fcol"><label>Email<span class="req">必填</span></label><input type="email" name="email" required maxlength="120" placeholder="用於接收命盤解析、報價單與出貨通知信"></div>
@@ -1448,7 +1448,7 @@ function collect(){
   const d=new Date(), ymd=d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
   const o={ type:mode, ts:d.toISOString(), temp_id:'T'+ymd+'-'+Math.random().toString(36).slice(2,5).toUpperCase(),
     A:{ name:g('a_name'),gender:g('a_gender'),birth:g('a_birth'),btime:g('a_btime')||'無時辰',wrist:g('a_wrist'),bead:g('a_bead'),core:rv('a_core'),pain:g('a_pain'),vis:rv('a_vis'),deep:g('a_deep') },
-    ship: F.ship.value==='store'?'店到店':'店長自送', contact:g('contact'), email:g('email'), est: $('#pAmt').textContent };
+    ship: F.ship.value==='store'?'店到店':'中壢–龍潭面交', contact:g('contact'), email:g('email'), est: $('#pAmt').textContent };
   if(mode==='single') o.qty=+F.qty.value||1;
   else o.B={ name:g('b_name'),gender:g('b_gender'),birth:g('b_birth'),btime:g('b_btime')||'無時辰',wrist:g('b_wrist'),bead:g('b_bead'),core:rv('b_core'),pain:g('b_pain'),vis:rv('b_vis'),deep:g('b_deep'), stage:g('stage') };
   return o;
@@ -1493,7 +1493,9 @@ est();
 /* ═══════════ 作品集：雙軸 chip 過濾（FLIP）＋ lightbox ═══════════ */
 const PAGE_SIZE = 12;
 let PHOTOS = [];
-let LAYOUTS = ['五行相生搭配法','跳色不規則混搭','大小一致無主珠','間隔排列法','區塊排列法','主角配角法','對稱法','對比撞色搭配法','深淺同色漸層排列'];
+// 使用者裁定不對外提供的排法（照片標籤仍保留，只是不出現在篩選器；帶此標的 6 張仍會被其他標籤篩到）
+const HIDE_LAYOUTS = ['間隔排列法'];
+let LAYOUTS = ['五行相生搭配法','跳色不規則混搭','大小一致無主珠','區塊排列法','主角配角法','對稱法','對比撞色搭配法','深淺同色漸層排列'];
 let AES = ['輕盈流光','內斂磐石','自由共振'];
 const PERSONA = {
   '五行相生搭配法':'順著金木水火土相生的次序排。像一條會呼吸的動線，色彩自然接力，適合喜歡流動與圓融的人。',
@@ -1598,7 +1600,7 @@ addEventListener('keydown',e=>{
     if(!res.ok) throw new Error('http '+res.status);
     const data = await res.json();
     PHOTOS = Array.isArray(data.items) ? data.items : [];
-    if(Array.isArray(data.layouts) && data.layouts.length) LAYOUTS = data.layouts;
+    if(Array.isArray(data.layouts) && data.layouts.length) LAYOUTS = data.layouts.filter(l=>!HIDE_LAYOUTS.includes(l));
     if(Array.isArray(data.feels) && data.feels.length) AES = data.feels;
   }catch(err){
     console.error('作品集載入失敗：', err);
@@ -1615,22 +1617,22 @@ const FAQ = [
   {g:'價值疑問',q:'排珠有什麼專業依據？',a:'三層。五大命理學派先各自主張、再硬仲裁取交集；接著套心理學排列——嚴謹的人用對稱建立安定，突破期的人用不對稱強化主導；最後是物理禁忌，金與木、水與火不相鄰，中間插隔珠緩衝。主屬性只有一個，不含糊。',t:`<p>三層。</p><div class="mt-wrap"><table class="mt"><tr><th>層次</th><th>內容</th></tr><tr><td>五大命理學派</td><td>先各自主張、再硬仲裁取交集</td></tr><tr><td>心理學排列</td><td>嚴謹的人用對稱建立安定，突破期的人用不對稱強化主導</td></tr><tr><td>物理禁忌</td><td>金與木、水與火不相鄰，中間插隔珠緩衝</td></tr></table></div><p>主屬性只有一個，不含糊。</p>`},
   {g:'價值疑問',q:'戴了一陣子沒什麼感覺，正常嗎？',a:'謝謝你誠實說，這是很重要的回饋。通常三種情況：一，你正處在動態平衡，提醒的作用是隱性的；二，已經適應了，建議對照一開始的基準線看具體指標；三，狀態剛好劇變，需要重新校準，我們走回饋閉環幫你調。我們的立場很清楚：尚未通過雙盲驗證，賣的是可追溯的文化推論，不是神效。',t:`<p>謝謝你誠實說，這是很重要的回饋。通常三種情況：</p><div class="mt-wrap"><table class="mt"><tr><th>情況</th><th>說明</th></tr><tr><td>你正處在動態平衡</td><td>提醒的作用是隱性的</td></tr><tr><td>已經適應了</td><td>建議對照一開始的基準線看具體指標</td></tr><tr><td>狀態剛好劇變</td><td>需要重新校準，我們走回饋閉環幫你調</td></tr></table></div><p>我們的立場很清楚：尚未通過雙盲驗證，賣的是可追溯的文化推論，不是神效。</p>`},
   {g:'價值疑問',q:'戴了會帶來好運、帶來財富、擋掉身邊的麻煩人嗎？',a:'我們不做這類承諾。命盤是性格傾向的統計模型，不是宿命。換句話說：對財富的想望，我們放進「務實執行力與資源判斷」的提醒；對人際的困擾，做成「人際覺察與心理邊界」的練習，那是隔珠的符號意涵；對運勢的期待，是用五行視覺補足性格符號的缺口、把潛能撬動起來。裝的是提醒，不是奇蹟。',t:`<p>我們不做這類承諾。命盤是性格傾向的統計模型，不是宿命。換句話說：</p><div class="mt-wrap"><table class="mt"><tr><th>你在意的</th><th>我們怎麼處理</th></tr><tr><td>財富的想望</td><td>我們放進「務實執行力與資源判斷」的提醒</td></tr><tr><td>人際的困擾</td><td>做成「人際覺察與心理邊界」的練習，那是隔珠的符號意涵</td></tr><tr><td>運勢的期待</td><td>是用五行視覺補足性格符號的缺口、把潛能撬動起來</td></tr></table></div><p>裝的是提醒，不是奇蹟。</p>`},
-  {g:'價格',q:'價格怎麼算？',a:'底價看「手圍 × 珠徑」查矩陣，價格區有完整表。顆數＝floor(手圍÷珠徑)+2，多兩顆做緩衝。加購：深度命理推論報告 +300／串。運費：店到店 60、店長自送免運。少數晶石有更高規格版本，設計完成後在訂單確認頁另外提，你自由選。問卷下方會即時試算，正式金額以報價單為準。',t:`<div class="mt-wrap"><table class="mt"><tr><th>項目</th><th>費用／說明</th></tr><tr><td>底價</td><td>看「手圍 × 珠徑」查矩陣，價格區有完整表</td></tr><tr><td>顆數</td><td>＝floor(手圍÷珠徑)+2，多兩顆做緩衝</td></tr><tr><td>加購：深度命理推論報告</td><td>+300／串</td></tr><tr><td>運費：店到店</td><td>60</td></tr><tr><td>運費：店長自送</td><td>免運</td></tr></table></div><p>少數晶石有更高規格版本，設計完成後在訂單確認頁另外提，你自由選。問卷下方會即時試算，正式金額以報價單為準。</p>`},
-  {g:'價格',q:'這筆錢到底買到什麼？',a:'三塊。精密運算：五派整合、需求向量、配珠分配。客製報告：個人九節、情侶十二節，含五派主張、基準盤、行為建議。實體：排列設計與科學品管篩選，加上手作。你付的不是一串珠子，是背後那套可追溯的推論。',t:`<p>三塊。</p><div class="mt-wrap"><table class="mt"><tr><th>項目</th><th>內容</th></tr><tr><td>精密運算</td><td>五派整合、需求向量、配珠分配</td></tr><tr><td>客製報告</td><td>個人九節、情侶十二節，含五派主張、基準盤、行為建議</td></tr><tr><td>實體</td><td>排列設計與科學品管篩選，加上手作</td></tr></table></div><p>你付的不是一串珠子，是背後那套可追溯的推論。</p>`},
+  {g:'價格',q:'價格怎麼算？',a:'底價看「手圍 × 珠徑」查矩陣，價格區有完整表。顆數＝floor(手圍÷珠徑)+2，多兩顆做緩衝。加購：深度命理推論報告 +300／串。運費：店到店 60、中壢–龍潭面交免運。少數晶石有更高規格版本，設計完成後在訂單確認頁另外提，你自由選。問卷下方會即時試算，正式金額以報價單為準。',t:`<div class="mt-wrap"><table class="mt"><tr><th>項目</th><th>費用／說明</th></tr><tr><td>底價</td><td>看「手圍 × 珠徑」查矩陣，價格區有完整表</td></tr><tr><td>顆數</td><td>＝floor(手圍÷珠徑)+2，多兩顆做緩衝</td></tr><tr><td>加購：深度命理推論報告</td><td>+300／串</td></tr><tr><td>運費：店到店</td><td>60</td></tr><tr><td>運費：中壢–龍潭面交</td><td>免運</td></tr></table></div><p>少數晶石有更高規格版本，設計完成後在訂單確認頁另外提，你自由選。問卷下方會即時試算，正式金額以報價單為準。</p>`},
+  {g:'價格',q:'這筆錢到底買到什麼？',a:'精密運算：五派整合、需求向量、配珠分配。客製報告：個人九節、情侶十二節，含五派主張、基準盤、行為建議。實體：排列設計與科學品管篩選，加上手作。你付的不是一串珠子，是背後那套可追溯的推論。',t:`<div class="mt-wrap"><table class="mt"><tr><th>項目</th><th>內容</th></tr><tr><td>精密運算</td><td>五派整合、需求向量、配珠分配</td></tr><tr><td>客製報告</td><td>個人九節、情侶十二節，含五派主張、基準盤、行為建議</td></tr><tr><td>實體</td><td>排列設計與科學品管篩選，加上手作</td></tr></table></div><p>你付的不是一串珠子，是背後那套可追溯的推論。</p>`},
   {g:'價格',q:'手圍怎麼量？',a:'軟尺緊貼手腕最細處平繞、不留鬆份，回報像 15.2cm 這樣。系統級距向上取（15.2 會取 15.5）。再加兩顆緩衝珠吸收誤差，戴起來剛好。沒有軟尺，拿一條紙條繞一圈再量長度也可以。'},
   {g:'價格',q:'珠徑跟顆數怎麼決定？',a:'珠徑看你的偏好與手圍比例，常見 8–10mm。顆數是算出來的：floor(手圍÷珠徑)+2。你只要給手圍和想要的珠徑，剩下我們精算，不用你自己數。'},
   {g:'流程',q:'下單到收到要多久？',a:'送出問卷後，一個工作天內聯繫你；初步規劃你確認、報價你同意、匯款到帳，才開始手工製作，大約 7–10 個工作天交付。每一步都能在「訂單查詢」看到走到哪。'},
-  {g:'流程',q:'完整流程是什麼樣子？',a:'三階段。一，進件與初步運算：你填問卷，系統跑八字引擎。二，報告生成與正式報價：出九節（或十二節）報告與報價單。三，實體製作與自檢交付。中間有兩個確認節點——初步配珠規劃要你點頭，報價也要你同意，才往下走。交付含手串、三摺頁解析卡、儀式小卡、售後卡。',t:`<p>三階段。</p><div class="mt-wrap"><table class="mt"><tr><th>階段</th><th>內容</th></tr><tr><td>進件與初步運算</td><td>你填問卷，系統跑八字引擎</td></tr><tr><td>報告生成與正式報價</td><td>出九節（或十二節）報告與報價單</td></tr><tr><td colspan="2">實體製作與自檢交付</td></tr></table></div><p>中間有兩個確認節點——初步配珠規劃要你點頭，報價也要你同意，才往下走。交付含手串、三摺頁解析卡、儀式小卡、售後卡。</p>`},
+  {g:'流程',q:'完整流程是什麼樣子？',a:'三階段。一，進件與初步運算：你填問卷，系統跑八字引擎。二，報告生成與正式報價：出九節（或十二節）報告與報價單。三，實體製作與自檢交付。中間有兩個確認節點——初步配珠規劃要你點頭，報價也要你同意，才往下走。',t:`<p>三階段。</p><div class="mt-wrap"><table class="mt"><tr><th>階段</th><th>內容</th></tr><tr><td>進件與初步運算</td><td>你填問卷，系統跑八字引擎</td></tr><tr><td>報告生成與正式報價</td><td>出九節（或十二節）報告與報價單</td></tr><tr><td colspan="2">實體製作與自檢交付</td></tr></table></div><p>中間有兩個確認節點——初步配珠規劃要你點頭，報價也要你同意，才往下走。</p>`},
   {g:'流程',q:'可以幫家人或朋友訂嗎？',a:'可以。需要：對方的國曆生日與出生時間（不知道時辰走三柱模式）、生理性別、精確手圍、珠徑偏好，還有你觀察到的核心煩惱。驚喜訂製也行，手圍可以拿對方的手錶或飾品估。',t:`<p>可以。需要：</p><div class="mt-wrap"><table class="mt"><tr><th>欄位</th><th>備註</th></tr><tr><td>對方的國曆生日與出生時間</td><td>不知道時辰走三柱模式</td></tr><tr><td colspan="2">生理性別</td></tr><tr><td colspan="2">精確手圍</td></tr><tr><td colspan="2">珠徑偏好</td></tr><tr><td colspan="2">你觀察到的核心煩惱</td></tr></table></div><p>驚喜訂製也行，手圍可以拿對方的手錶或飾品估。</p>`},
   {g:'流程',q:'三軌道 A／B／C 差在哪？',a:'A 主方案，尊崇意志款：五行配比內優先照你的視覺喜好，適合初次訂製、重穿搭。B 錦囊組，專業核心款：用神導向直擊缺口，適合轉折期、壓力大、需要決斷力。C 本源重置，深層回填款：最柔和的晶石、貼合本命比例，適合靜心與夜間配戴。',t:`<div class="mt-wrap"><table class="mt"><tr><th>方案</th><th>名稱</th><th>內容</th><th>適合</th></tr><tr><td>A 主方案</td><td>尊崇意志款</td><td>五行配比內優先照你的視覺喜好</td><td>初次訂製、重穿搭</td></tr><tr><td>B 錦囊組</td><td>專業核心款</td><td>用神導向直擊缺口</td><td>轉折期、壓力大、需要決斷力</td></tr><tr><td>C 本源重置</td><td>深層回填款</td><td>最柔和的晶石、貼合本命比例</td><td>靜心與夜間配戴</td></tr></table></div>`},
-  {g:'資料安全',q:'我的生日資料安全嗎？',a:'生日是演算法唯一的符號輸入源，我們很謹慎。運算採不可逆處理去識別化；不儲存你的姓名、確切生日、聯絡方式與八字原局；只留匿名參數供日後校準。你的隱私寫在流程裡，不是口號。'},
-  {g:'資料安全',q:'為什麼不收出生地？',a:'因為真太陽時我們一律以東經 120° 計算，不靠出生地。這是寫進公式的隱私設計——少收一個欄位，就少一分外洩風險。生日資料也只用於配珠運算。'},
+  {g:'資料安全',q:'我的生日資料安全嗎？',a:'生日是演算法唯一的符號輸入源。你填的問卷、排出的命盤與運算結果會被保存下來——製作要用，日後重算或售後校準也要用，我們不會假裝沒存。用途限於你的手串、你的報告，以及系統本身的校準。想知道具體存了哪些欄位、保存多久、怎麼刪，直接問我們，我們照實回答。'},
+  {g:'資料安全',q:'為什麼不收出生地？',a:'因為真太陽時我們一律以東經 120° 計算，不靠出生地。這是寫進公式的隱私設計——少收一個欄位，就少一分外洩風險。'},
   {g:'資料安全',q:'不知道出生時辰可以訂嗎？',a:'可以。走三柱模式：時柱權重歸零、分母從 100 改成 80 重新歸一化、整體置信度乘 0.70，並誠實標註。我們不會偷偷補一個子時假裝完整。你仍然拿得到基於年月日三主軸的方案。',t:`<p>可以。走三柱模式：</p><div class="mt-wrap"><table class="mt"><tr><th>調整項目</th><th>內容</th></tr><tr><td>時柱權重</td><td>歸零</td></tr><tr><td>分母</td><td>從 100 改成 80 重新歸一化</td></tr><tr><td>整體置信度</td><td>乘 0.70</td></tr></table></div><p>並誠實標註。我們不會偷偷補一個子時假裝完整。你仍然拿得到基於年月日三主軸的方案。</p>`},
-  {g:'售後',q:'怎麼保養？',a:'多數水晶清水沖一沖就好。水敏感材質（像透石膏、月光石類）別浸水。洗澡請取下——清潔劑會蝕光澤，熱水也讓彈力線老化更快。避開烈日暴曬和鹽水。想做個儀式，把它放月光下靜置一晚，當作給自己的心理狀態重整。',t:`<div class="mt-wrap"><table class="mt"><tr><th>情境</th><th>怎麼做</th></tr><tr><td>多數水晶</td><td>清水沖一沖就好</td></tr><tr><td>水敏感材質（透石膏、月光石類）</td><td>別浸水</td></tr><tr><td>洗澡</td><td>請取下——清潔劑會蝕光澤，熱水也讓彈力線老化更快</td></tr><tr><td colspan="2">避開烈日暴曬和鹽水</td></tr><tr><td>想做個儀式</td><td>把它放月光下靜置一晚，當作給自己的心理狀態重整</td></tr></table></div>`},
+  {g:'售後',q:'怎麼保養？',a:'多數水晶清水沖一沖就好。水敏感材質（像透石膏、月光石類）別浸水。洗澡請取下——清潔劑會蝕光澤，熱水也讓彈力線老化更快。避開烈日暴曬和鹽水。想做個儀式，把它放月光下靜置一晚，當作給自己的心理狀態重整。',t:`<div class="mt-wrap"><table class="mt"><tr><th>情境</th><th>怎麼做</th></tr><tr><td>多數水晶</td><td>清水沖一沖就好</td></tr><tr><td>水敏感材質（透石膏、月光石類）</td><td>別浸水</td></tr><tr><td>洗澡</td><td>請取下。清潔劑會蝕光澤，熱水也讓彈力線老化更快</td></tr><tr><td>日曬與海水</td><td>避開烈日暴曬和鹽水</td></tr><tr><td>想做個儀式</td><td>放月光下靜置一晚，當作給自己的心理狀態重整</td></tr></table></div>`},
   {g:'售後',q:'睡覺可以戴嗎？',a:'軌道 C 本源重置就是為夜間設計的，可以睡戴。金火比較重的行動款，建議白天戴、睡前取下，讓身體也休息。'},
-  {g:'售後',q:'斷了或壞了怎麼辦？',a:'彈力線是消耗品，隨貨附備用線和手作教學卡，自己就能換。天然的冰裂、雲霧是身分證明，不是瑕疵。嚴重磕碰可以聯繫我們找替代方案。戴滿一個月，還能依你的回饋做一次配比微調，叫 30 天動態校準。',t:`<div class="mt-wrap"><table class="mt"><tr><th>情況</th><th>處理</th></tr><tr><td>彈力線是消耗品</td><td>隨貨附備用線和手作教學卡，自己就能換</td></tr><tr><td>天然的冰裂、雲霧</td><td>是身分證明，不是瑕疵</td></tr><tr><td>嚴重磕碰</td><td>可以聯繫我們找替代方案</td></tr><tr><td>戴滿一個月</td><td>還能依你的回饋做一次配比微調，叫 30 天動態校準</td></tr></table></div>`},
-  {g:'售後',q:'可以退換貨嗎？',a:'客製化商品依消保法第 19 條，排除七天無條件退貨——所以下單前一定有規劃表給你確認，先擋掉視覺落差。尺寸有誤走售後微調、不退款。材質有疑慮，假一賠三；單價 2,000 以上附第三方鑑定書影本。',t:`<div class="mt-wrap"><table class="mt"><tr><th>情況</th><th>處理方式</th></tr><tr><td>客製化商品（依消保法第 19 條排除七天無條件退貨）</td><td>下單前一定有規劃表給你確認，先擋掉視覺落差</td></tr><tr><td>尺寸有誤</td><td>走售後微調、不退款</td></tr><tr><td>材質有疑慮</td><td>假一賠三；單價 2,000 以上附第三方鑑定書影本</td></tr></table></div>`},
-  {g:'售後',q:'設計可以修改嗎？',a:'分兩種。P1 五行配比不能改，那是命盤決定的目標。P2、P3 可以微調：同屬性白名單內換晶石、同五行換色系、換排列方式。流程是——你提異議、我們調替代路徑、重新演算、再請你確認。',t:`<p>分兩種。</p><div class="mt-wrap"><table class="mt"><tr><th>層級</th><th>可否調整</th></tr><tr><td>P1 五行配比</td><td>不能改，那是命盤決定的目標</td></tr><tr><td>P2、P3</td><td>可以微調：同屬性白名單內換晶石、同五行換色系、換排列方式</td></tr></table></div><p>流程是——你提異議、我們調替代路徑、重新演算、再請你確認。</p>`},
+  {g:'售後',q:'斷了或壞了怎麼辦？',a:'彈力線是消耗品。我們用的是彈力蠶絲線——它斷之前會一絲一絲慢慢鬆開、出現毛邊，你會先看到警訊，而不是珠子突然噴散。另一種常見的透明彈力線雖然隱形、好穿珠，但老化後往往是無預警整串斷開，珠子容易散落遺失，所以我們不用。看到毛邊就是該換線的訊號，可以聯繫我們討論。天然的冰裂、雲霧是身分證明，不是瑕疵。嚴重磕碰可以聯繫我們找替代方案。戴滿一個月，還能依你的回饋做一次配比微調，叫 30 天動態校準。',t:`<div class="mt-wrap"><table class="mt"><tr><th>情況</th><th>處理</th></tr><tr><td>我們用的線材</td><td>彈力蠶絲線。斷前會一絲一絲鬆開、出現毛邊，有警訊，不會突然整串噴散</td></tr><tr><td>為什麼不用透明彈力線</td><td>它隱形、好穿珠，但老化後往往無預警整串斷開，珠子容易散落遺失</td></tr><tr><td>出現毛邊</td><td>就是該換線的訊號，聯繫我們討論</td></tr><tr><td>天然的冰裂、雲霧</td><td>是身分證明，不是瑕疵</td></tr><tr><td>嚴重磕碰</td><td>可以聯繫我們找替代方案</td></tr><tr><td>戴滿一個月</td><td>可依你的回饋做一次配比微調，叫 30 天動態校準</td></tr></table></div>`},
+  {g:'售後',q:'可以退換貨嗎？',a:'客製化商品依消保法第 19 條，排除七天無條件退貨——所以下單前一定有規劃表給你確認，先擋掉視覺落差。尺寸有誤走售後微調、不退款。材質有疑慮可以直接提出來，我們一起確認、把來源與判斷講清楚。',t:`<div class="mt-wrap"><table class="mt"><tr><th>情況</th><th>處理方式</th></tr><tr><td>客製化商品（依消保法第 19 條排除七天無條件退貨）</td><td>下單前一定有規劃表給你確認，先擋掉視覺落差</td></tr><tr><td>尺寸有誤</td><td>走售後微調、不退款</td></tr><tr><td>材質有疑慮</td><td>直接提出來，我們一起確認、把來源與判斷講清楚</td></tr></table></div>`},
+  {g:'售後',q:'設計可以修改嗎？',a:'分兩種。五行配比不能改——那是從你的命盤算出來的目標，改了整份推論就不成立。可以改的是實現方式：同屬性白名單內換晶石、同五行換色系、換排列方式。流程是——你提異議、我們調替代路徑、重新演算、再請你確認。',t:`<p>分兩種。</p><div class="mt-wrap"><table class="mt"><tr><th>項目</th><th>可否調整</th></tr><tr><td>五行配比</td><td><b>不能改。</b>那是從你的命盤算出來的目標，改了整份推論就不成立</td></tr><tr><td>實現方式（晶石、色系、排列）</td><td><b>可以改。</b>同屬性白名單內換晶石、同五行換色系、換排列方式</td></tr></table></div><p>流程是——你提異議、我們調替代路徑、重新演算、再請你確認。</p>`},
   {g:'售後',q:'怎麼付款？',a:'報價確認後，收款資訊會放在你的專屬報價單上。可以銀行匯款、電子支付掃碼，或面交現金。先付款、後製作，匯款完回傳帳號末五碼就能對帳。信用卡之後開放。'},
   {g:'情侶',q:'情侶對串跟買兩條個人款差在哪？',a:'兩條個人款是各算各的，各自補各自的缺。情侶對串是先合成再拆開：兩人的需求向量合成一份雙人向量（0.4×你 ＋ 0.4×對方 ＋ 0.2×橋接元素），再乘上關係階段的修正係數、重新正規化，最後只從你們的共同喜神取石。所以對串處理的是「你們之間」的缺口，不是「你」和「他」各自的缺口相加。主珠仍取各自最高的五行，各自置中——是一組，不是一對複製品。',t:`<div class="mt-wrap"><table class="mt"><tr><th>面向</th><th>兩條個人款</th><th>情侶對串</th></tr><tr><td>處理方式</td><td>各算各的，各自補各自的缺</td><td>先合成再拆開：兩人的需求向量合成一份雙人向量（0.4×你 ＋ 0.4×對方 ＋ 0.2×橋接元素），再乘上關係階段的修正係數、重新正規化，最後只從你們的共同喜神取石</td></tr><tr><td>處理的缺口</td><td>「你」和「他」各自的缺口相加</td><td>「你們之間」的缺口</td></tr></table></div><p>主珠仍取各自最高的五行，各自置中——是一組，不是一對複製品。</p>`},
   {g:'情侶',q:'我們兩個八字相沖，怎麼辦？',a:'相沖是互動摩擦大一點，不是不合。舉例水火沖：熱情高、但安全感低。系統會放一個橋接元素當「關係翻譯官」，像木——水生木、木生火，把對撞轉成流動，提醒你們摩擦時先開口溝通，而不是硬碰。'},
@@ -1716,7 +1718,7 @@ function localBrain(qtext){
   const has=(...ws)=>ws.some(w=>qtext.includes(w));
   const mW=qtext.match(/(1[4-9](?:\.5)?|20)\s*(?:cm|公分|手圍)?/), mB=qtext.match(/(?:[^\d]|^)([4-9]|1[0-2])\s*mm/);
   if(mW&&mB){ const w=mW[1], b=+mB[1], v=base(w,b);
-    if(v!=null) return `手圍 ${w}cm × 珠徑 ${b}mm 的底價是 NT$ ${v.toLocaleString()}／串。\n加購：深度報告 +300；店到店運費 60、面交免運。\n（正式金額以報價單為準，問卷下方也有即時試算）`;
+    if(v!=null) return `手圍 ${w}cm × 珠徑 ${b}mm 的底價是 NT$ ${v.toLocaleString()}／串。\n加購：深度報告 +300；店到店運費 60、中壢–龍潭面交免運。\n（正式金額以報價單為準，問卷下方也有即時試算）`;
     return '這個尺寸超出底價矩陣範圍，需要人工報價——加 LINE '+CONFIG.CONTACT.line+'，店長直接算給你。'; }
   if(has('價','錢','費用','多少','報價')) return FAQ[5].a;
   if(has('多久','幾天','交期','什麼時候','何時','工作天')) return FAQ[9].a;
@@ -1733,7 +1735,7 @@ function localBrain(qtext){
   if(has('有效','有用','靈','神效','宿命','招','擋','發財','桃花','好運')) return FAQ[4].a;
   if(has('原理','公式','數值','由來','怎麼算出','演算')) return '方法攤在「關於我們」的運算原理區：需求向量六分量（扶抑、缺口、調候、流年、盲派、意圖）、五派交叉裁決、上下限與相生溢出、Hamilton 分配、禁鄰規則。歡迎去看。';
   if(has('真人','店長','客服','聯絡','line','LINE')) return '真人服務走官方 LINE：'+CONFIG.CONTACT.line+'（回覆最快）。也可以 IG 私訊 '+CONFIG.CONTACT.ig+'。';
-  if(has('地址','面交','自送','店到店','運費','宅配')) return '物流：店到店 +60；店長自送／面交免運（範圍龍潭—中壢，約時間地點）。';
+  if(has('地址','面交','自送','店到店','運費','宅配')) return '物流：店到店 +60；中壢–龍潭面交免運（約時間地點）。';
   if(has('訂','買','下單','開始','怎麼訂')) return '切到「訂製服務」分頁，一步步填，約 3 分鐘；送出會拿到訂單編號，之後都能線上查進度。';
   return null;
 }
