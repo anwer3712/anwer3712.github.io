@@ -100,10 +100,30 @@ main{min-height:70vh}
 section.block{padding:clamp(46px,7vw,84px) 0}
 .block.alt{background:linear-gradient(180deg,#F6F1E6,#FBF9F4)}
 .head{text-align:center;max-width:660px;margin:0 auto clamp(28px,5vw,48px)}
-.head h2{font-size:clamp(25px,4.4vw,36px);margin:8px 0 12px}
+.head h2{font-size:clamp(25px,4.4vw,36px);margin:8px 0 12px;position:relative;display:inline-block}
 .head p{color:var(--muted);font-size:16px}
-.reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
-.reveal.in{opacity:1;transform:none}
+.reveal{opacity:0;translate:0 20px;transition:opacity .6s ease,translate .6s ease;transition-delay:calc(var(--i,0)*70ms)}
+.reveal.in{opacity:1;translate:0 0}
+
+/* ═══ 動效語彙 第二層：互動（hover／focus 共用，觸控裝置不留殘影）═══ */
+/* 用 translate（第一層進場位移）與 transform（第二層 hover 上浮）分開兩個屬性，
+   避免同一元素同時有 .reveal 與 .lift 時，transition-property 被其中一條規則整組覆蓋掉。 */
+.lift{transition:transform var(--t),box-shadow var(--t),border-color var(--t)}
+.lift:focus-visible{transform:translateY(-4px);box-shadow:var(--shadow);border-color:rgba(232,201,122,.55)}
+@media(hover:hover){ .lift:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:rgba(232,201,122,.55)} }
+/* .reveal 與 .lift 同時存在時，transition 需合併宣告一次，否則兩條同權重規則會整組互相蓋掉（含 transition-delay） */
+.reveal.lift{transition:opacity .6s ease calc(var(--i,0)*70ms),translate .6s ease calc(var(--i,0)*70ms),transform var(--t) 0s,box-shadow var(--t) 0s,border-color var(--t) 0s}
+
+/* ═══ 動效語彙 第三層：分頁標誌動作——標題底下掃一次的細光線，隨 reveal 觸發，五行主色分頁 ═══ */
+.head h2::after{content:"";position:absolute;left:50%;bottom:-10px;width:56px;height:2px;border-radius:2px;background:var(--glow-deep);transform:translateX(-50%) scaleX(0);transform-origin:center;transition:transform .7s cubic-bezier(.22,.61,.36,1) .1s}
+.head.in h2::after{transform:translateX(-50%) scaleX(1)}
+#tab-home .head h2::after{background:var(--jin)}
+#tab-shop .head h2::after{background:var(--tu)}
+#tab-custom .head h2::after{background:var(--huo)}
+#tab-works .head h2::after{background:var(--mu)}
+#tab-about .head h2::after{background:var(--shui)}
+#tab-faq .head h2::after{background:var(--jin)}
+#tab-track .head h2::after{background:var(--tu)}
 
 /* ── Hero ── */
 .hero{position:relative;background:radial-gradient(120% 95% at 50% -8%,#22304a 0%,var(--abyss-2) 34%,var(--abyss) 100%);color:#EDE7DA;overflow:hidden}
@@ -139,8 +159,7 @@ section.block{padding:clamp(46px,7vw,84px) 0}
 .g3{grid-template-columns:repeat(3,1fr)}
 .g2{grid-template-columns:repeat(2,1fr)}
 .g3-aes{grid-template-columns:repeat(3,1fr)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:26px;box-shadow:var(--shadow-sm);transition:transform var(--t),box-shadow var(--t),border-color var(--t)}
-.card:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:rgba(232,201,122,.5)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:26px;box-shadow:var(--shadow-sm)}
 .card .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:22px;margin-bottom:14px;background:var(--glow-soft)}
 .card h3{font-size:19px;margin-bottom:8px}
 .card p{color:var(--muted);font-size:15px}
@@ -152,8 +171,7 @@ section.block{padding:clamp(46px,7vw,84px) 0}
 .aes-card .aes-detail{margin-top:10px;font-size:13px;color:var(--muted);background:#F3EEE2;display:inline-block;padding:4px 10px;border-radius:20px}
 /* X 而非 Y 對比卡 */
 .vs{display:grid;grid-template-columns:1fr;gap:16px}
-.vs .adv{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--glow);border-radius:var(--r);padding:22px 24px;box-shadow:var(--shadow-sm);transition:transform var(--t),box-shadow var(--t)}
-.vs .adv:hover{transform:translateX(4px);box-shadow:var(--shadow)}
+.vs .adv{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--glow);border-radius:var(--r);padding:22px 24px;box-shadow:var(--shadow-sm)}
 .vs .adv .row{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
 .vs .adv h3{font-size:19px}
 .vs .adv .xy{font-size:14px;color:var(--muted)}
@@ -173,11 +191,14 @@ section.block{padding:clamp(46px,7vw,84px) 0}
 .seg{display:inline-flex;background:#EFE9DC;border-radius:999px;padding:5px;gap:4px}
 .seg button{border:none;background:none;padding:10px 22px;border-radius:999px;font-weight:600;font-size:15px;cursor:pointer;color:var(--muted);transition:all var(--t)}
 .seg button.on{background:#fff;color:var(--glow-deep);box-shadow:var(--shadow-sm)}
+/* 個人／情侶按鈕自身的視覺語言：單軸暖光一條線 vs 雙軸交織兩段線 */
+.mode-mark{display:inline-block;vertical-align:middle;margin-right:7px;height:3px;border-radius:2px}
+#modeSeg button[data-mode="single"] .mode-mark{width:16px;background:linear-gradient(90deg,var(--jin),var(--tu))}
+#modeSeg button[data-mode="couple"] .mode-mark{width:20px;background:linear-gradient(90deg,var(--shui) 0 42%,transparent 42% 58%,var(--huo) 58% 100%)}
 
 /* ── 商城 ── */
 .prods{grid-template-columns:repeat(3,1fr)}
-.prod{background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-sm);transition:transform var(--t),box-shadow var(--t);display:flex;flex-direction:column;cursor:pointer}
-.prod:hover{transform:translateY(-5px);box-shadow:var(--shadow)}
+.prod{background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;cursor:pointer}
 .ph{position:relative;aspect-ratio:1/1;background:#EEE7D8;overflow:hidden}
 .ph img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease}
 .prod:hover .ph img{transform:scale(1.05)}
@@ -232,8 +253,7 @@ section.block{padding:clamp(46px,7vw,84px) 0}
 
 /* ── 軌道卡 / 時間軸 / 表單 ── */
 .tracks{grid-template-columns:repeat(3,1fr)}
-.track-card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:26px;box-shadow:var(--shadow-sm);position:relative;transition:transform var(--t),box-shadow var(--t)}
-.track-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.track-card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:26px;box-shadow:var(--shadow-sm);position:relative}
 .track-card .code{position:absolute;top:20px;right:22px;font-family:var(--serif);font-size:40px;color:var(--glow-soft);line-height:1}
 .track-card h3{font-size:20px;margin-bottom:4px}
 .track-card .sub{color:var(--glow-deep);font-size:13px;margin-bottom:10px}
@@ -286,6 +306,15 @@ table.mt tr th:first-child{background:#EFE9DC}
 .orderbox b{font-family:var(--serif);font-size:22px;color:var(--glow-deep)}
 pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid var(--line);border-radius:12px;padding:16px;font-size:13.5px;font-family:var(--sans);max-height:280px;overflow:auto}
 
+/* ── 個人／情侶 雙主線視覺區隔：結構性差異（線的數量／漸層方向），不是只換色 ── */
+#soloInfo,#duoInfo{position:relative;padding-top:10px;border-radius:var(--r);animation:tabIn .4s ease}
+#soloInfo::before{content:"";position:absolute;left:50%;top:0;transform:translateX(-50%);width:120px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--jin),var(--tu))}
+#soloInfo{background:linear-gradient(180deg,rgba(212,166,60,.07),transparent 260px)}
+#duoInfo::before,#duoInfo::after{content:"";position:absolute;top:0;width:92px;height:3px;border-radius:3px}
+#duoInfo::before{left:calc(50% - 58px);background:var(--shui);transform:rotate(-4deg)}
+#duoInfo::after{left:calc(50% - 34px);background:var(--huo);transform:rotate(4deg)}
+#duoInfo{background:linear-gradient(90deg,rgba(27,65,101,.08),transparent 45%),linear-gradient(270deg,rgba(155,61,70,.08),transparent 45%)}
+
 /* 情侶圖解 */
 .duo{grid-template-columns:1fr 1fr;align-items:center;gap:30px}
 .duo>*{min-width:0}
@@ -337,6 +366,9 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
 .acc summary::-webkit-details-marker{display:none}
 .acc summary::after{content:"+";font-size:22px;color:var(--glow-deep);transition:transform var(--t);flex:0 0 auto}
 .acc[open] summary::after{transform:rotate(45deg)}
+.acc summary.lift{transition:background var(--t),transform var(--t)}
+.acc summary.lift:focus-visible{background:var(--glow-soft);transform:translateY(-1px)}
+@media(hover:hover){ .acc summary.lift:hover{background:var(--glow-soft);transform:translateY(-1px)} }
 .acc .a{padding:0 20px 18px;color:var(--muted);font-size:15px;line-height:1.85}
 .acc .a p{margin-bottom:10px}
 .acc .a p:last-child{margin-bottom:0}
@@ -458,7 +490,7 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
 @media(pointer:coarse){ .nav-links a,.seg button,.chip-f,.pg-btn{min-height:44px;display:inline-flex;align-items:center} }
 /* 尊重減少動態偏好 */
 @media(prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;transition-delay:0ms!important;scroll-behavior:auto!important}
   .spin{animation:none}
   .bead-tip-spin{animation:none}
   .tab{animation:none}
@@ -519,9 +551,9 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
     <div class="wrap">
       <div class="head reveal"><p class="tag-eyebrow">你會得到什麼</p><h2>一套人生狀態的轉譯工具</h2><p>不是算命，不是神效。是被理解的體感，加上一個看得見、摸得到的心理錨點。</p></div>
       <div class="grid g3">
-        <div class="card reveal"><div class="ic">🫧</div><h3>被理解</h3><p>用八字十神，勾勒你慣性壓抑的方式與行為模式。那種「有人懂」的體感，是一切的起點。</p></div>
-        <div class="card reveal"><div class="ic">🧭</div><h3>視覺錨點</h3><p>摸到特定晶石，就提醒自己：該沉澱，還是該點火。顏色與排列的規律，是給日常的定錨。</p></div>
-        <div class="card reveal"><div class="ic">🌙</div><h3>情緒支撐</h3><p>日常的儀式感，壓力來的時候有個著力點。它不替你解決問題，它陪你穩住自己。</p></div>
+        <div class="card lift reveal" style="--i:0"><div class="ic">🫧</div><h3>被理解</h3><p>用八字十神，勾勒你慣性壓抑的方式與行為模式。那種「有人懂」的體感，是一切的起點。</p></div>
+        <div class="card lift reveal" style="--i:1"><div class="ic">🧭</div><h3>視覺錨點</h3><p>摸到特定晶石，就提醒自己：該沉澱，還是該點火。顏色與排列的規律，是給日常的定錨。</p></div>
+        <div class="card lift reveal" style="--i:2"><div class="ic">🌙</div><h3>情緒支撐</h3><p>日常的儀式感，壓力來的時候有個著力點。它不替你解決問題，它陪你穩住自己。</p></div>
       </div>
     </div>
   </section>
@@ -530,11 +562,11 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
     <div class="wrap">
       <div class="head reveal"><p class="tag-eyebrow">為什麼是我們</p><h2>五個，別人少做的堅持</h2><p>我們選擇量化、而非通靈；科學、而非迷信。</p></div>
       <div class="vs">
-        <div class="adv reveal"><div class="row"><span class="no">01</span><h3>工程級數據精確度</h3><span class="xy"><span class="x">量化</span> 而非 <span class="y">通靈</span></span></div><p>Hamilton 最大餘額法精算每一顆比例，配比設上限、循五行相生做溢出轉移。相同輸入，會得到相同輸出。</p></div>
-        <div class="adv reveal"><div class="row"><span class="no">02</span><h3>臨床心理學降維轉譯</h3><span class="xy"><span class="x">科學</span> 而非 <span class="y">迷信</span></span></div><p>我們不喊玄的。把命理語言，翻成 Gottman 溝通修復這類可操作的心理提醒。</p></div>
-        <div class="adv reveal"><div class="row"><span class="no">03</span><h3>真值仲裁與缺失懲罰</h3><span class="xy"><span class="x">真實</span> 而非 <span class="y">偽造</span></span></div><p>缺時辰不偷補子時。走三柱模式、置信度乘 0.70，誠實標註。我們寧可承認不足。</p></div>
-        <div class="adv reveal"><div class="row"><span class="no">04</span><h3>性別中立與多元適配</h3><span class="xy"><span class="x">現代</span> 而非 <span class="y">傳統</span></span></div><p>中立化十神代碼，不做男女二分。任何一種伴侶組合，同樣適用。同性伴侶友善。</p></div>
-        <div class="adv reveal"><div class="row"><span class="no">05</span><h3>合規防火牆與自我證偽</h3><span class="xy"><span class="x">安全</span> 而非 <span class="y">冒進</span></span></div><p>禁詞熔斷攔截，歷史案例回測通過才上線。業界少見地主動設對照組，承認命理尚未通過雙盲驗證。</p></div>
+        <div class="adv lift reveal" style="--i:0"><div class="row"><span class="no">01</span><h3>工程級數據精確度</h3><span class="xy"><span class="x">量化</span> 而非 <span class="y">通靈</span></span></div><p>Hamilton 最大餘額法精算每一顆比例，配比設上限、循五行相生做溢出轉移。相同輸入，會得到相同輸出。</p></div>
+        <div class="adv lift reveal" style="--i:1"><div class="row"><span class="no">02</span><h3>臨床心理學降維轉譯</h3><span class="xy"><span class="x">科學</span> 而非 <span class="y">迷信</span></span></div><p>我們不喊玄的。把命理語言，翻成 Gottman 溝通修復這類可操作的心理提醒。</p></div>
+        <div class="adv lift reveal" style="--i:2"><div class="row"><span class="no">03</span><h3>真值仲裁與缺失懲罰</h3><span class="xy"><span class="x">真實</span> 而非 <span class="y">偽造</span></span></div><p>缺時辰不偷補子時。走三柱模式、置信度乘 0.70，誠實標註。我們寧可承認不足。</p></div>
+        <div class="adv lift reveal" style="--i:3"><div class="row"><span class="no">04</span><h3>性別中立與多元適配</h3><span class="xy"><span class="x">現代</span> 而非 <span class="y">傳統</span></span></div><p>中立化十神代碼，不做男女二分。任何一種伴侶組合，同樣適用。同性伴侶友善。</p></div>
+        <div class="adv lift reveal" style="--i:4"><div class="row"><span class="no">05</span><h3>合規防火牆與自我證偽</h3><span class="xy"><span class="x">安全</span> 而非 <span class="y">冒進</span></span></div><p>禁詞熔斷攔截，歷史案例回測通過才上線。業界少見地主動設對照組，承認命理尚未通過雙盲驗證。</p></div>
       </div>
     </div>
   </section>
@@ -550,8 +582,8 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
     <div class="wrap">
       <div class="head reveal"><h2>兩條路，都通往同一件事</h2><p>把注意力，帶回最初的自己。</p></div>
       <div class="grid g2">
-        <div class="card reveal" style="text-align:center"><div class="ic" style="margin:0 auto 14px">🛍️</div><h3>現貨商品</h3><p>設計好的成品，看得到、直接帶走。適合想快一點、或先體驗看看的你。</p><br><a class="btn2" href="#shop">看現貨 →</a></div>
-        <div class="card reveal" style="text-align:center"><div class="ic" style="margin:0 auto 14px">✨</div><h3>個人化訂製</h3><p>從你的八字開始算，個人款修身、情侶對串治平。專屬報告與排珠設計。</p><br><a class="btn" href="#custom">開始訂製 →</a></div>
+        <div class="card lift reveal" style="text-align:center;--i:0"><div class="ic" style="margin:0 auto 14px">🛍️</div><h3>現貨商品</h3><p>設計好的成品，看得到、直接帶走。適合想快一點、或先體驗看看的你。</p><br><a class="btn2" href="#shop">看現貨 →</a></div>
+        <div class="card lift reveal" style="text-align:center;--i:1"><div class="ic" style="margin:0 auto 14px">✨</div><h3>個人化訂製</h3><p>從你的八字開始算，個人款修身、情侶對串治平。專屬報告與排珠設計。</p><br><a class="btn" href="#custom">開始訂製 →</a></div>
       </div>
     </div>
   </section>
@@ -574,8 +606,8 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
     <div class="wrap">
       <div class="head reveal"><p class="tag-eyebrow">個人化訂製</p><h2>從你的八字，長出一串專屬</h2></div>
       <div style="text-align:center;margin-bottom:30px"><div class="seg" id="modeSeg" role="tablist" aria-label="訂製類型">
-        <button class="on" data-mode="single" role="tab" aria-selected="true">個人手串</button>
-        <button data-mode="couple" role="tab" aria-selected="false">情侶對串</button>
+        <button class="on" data-mode="single" role="tab" aria-selected="true"><span class="mode-mark"></span>個人手串</button>
+        <button data-mode="couple" role="tab" aria-selected="false"><span class="mode-mark"></span>情侶對串</button>
       </div></div>
 
       <!-- 個人資訊區 -->
@@ -589,21 +621,21 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
 
         <p class="reveal" style="max-width:620px;margin:0 auto 24px;font-family:var(--serif);font-style:italic;color:var(--ink);border-left:3px solid var(--glow);padding:2px 0 2px 16px">同一份配比，可以長成三種樣子。配比決定「放哪些石頭」，體感決定「看起來是什麼調性」——這兩件事是分開選的。</p>
         <div class="grid g3-aes" style="margin-bottom:40px">
-          <div class="card aes-card reveal">
+          <div class="card aes-card lift reveal" style="--i:0">
             <img src="photos/brand/aes-1-light.webp" alt="輕盈流光系珠串樣本：簡約單色、多彩清透、流光組合" width="443" height="542" loading="lazy">
             <h3>輕盈流光</h3>
             <p class="aes-sub">Light &amp; Fluid</p>
             <p class="aes-desc">偏淺色或高透明度，視覺壓力小。像清晨的露水，戴起來心情輕盈無負擔。</p>
             <p class="aes-detail">簡約單色／多彩清透／流光組合</p>
           </div>
-          <div class="card aes-card reveal">
+          <div class="card aes-card lift reveal" style="--i:1">
             <img src="photos/brand/aes-2-solid.webp" alt="內斂磐石系珠串樣本：深邃單色、霧面質感、暗色飽和" width="465" height="542" loading="lazy">
             <h3>內斂磐石</h3>
             <p class="aes-sub">Solid &amp; Deep</p>
             <p class="aes-desc">沉穩低調，暗色或霧面質感，飽和度高。像深邃的大地，給予視覺上的安定感。</p>
             <p class="aes-detail">深邃單色／霧面質感／暗色飽和</p>
           </div>
-          <div class="card aes-card reveal">
+          <div class="card aes-card lift reveal" style="--i:2">
             <img src="photos/brand/aes-3-free.webp" alt="自由共振系珠串樣本：五行均衡、五行流動、天然原礦" width="450" height="542" loading="lazy">
             <h3>自由共振</h3>
             <p class="aes-sub">Natural Mix</p>
@@ -624,8 +656,8 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
       <!-- 情侶資訊區 -->
       <div id="duoInfo" style="display:none">
         <div class="grid duo" style="margin-bottom:40px">
-          <div class="illus reveal" id="rvIllus" aria-label="雙人配比五步流程圖解"></div>
-          <div class="reveal">
+          <div class="illus reveal" id="rvIllus" aria-label="雙人配比五步流程圖解" style="--i:0"></div>
+          <div class="reveal" style="--i:1">
             <h3 style="font-size:22px;margin-bottom:10px">兩個人的盤，不是各算各的</h3>
             <p style="color:var(--muted)">先各自算出需求向量，再合成一份雙人向量：<b style="color:var(--ink)">RV = 0.4×你 ＋ 0.4×對方 ＋ 0.2×橋接元素</b>。</p>
             <p style="color:var(--muted);margin-top:10px">但這只是第一步。合成完還要乘上關係階段的修正係數——熱戀期加重火、育兒期加重土、分居加重水——再重新正規化，才得到真正拿去挑石頭的那份配比。</p>
@@ -634,7 +666,7 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
         </div>
 
         <div class="grid duo" style="margin-bottom:40px">
-          <div class="reveal">
+          <div class="reveal" style="--i:0">
             <h3 style="font-size:22px;margin-bottom:10px">翻譯：把一句他聽不懂的話，換成他的語言再說一次</h3>
             <p style="color:var(--muted)">水和火不會直接相處，硬放在一起是對沖。所以我們不去「調和」它們，而是插一個<b style="color:var(--ink)">木</b>：水生木、木生火——同一股力氣，換一條路走，對撞就成了流動。金和木相剋，插的是<b style="color:var(--ink)">土</b>：金生於土、土載木。</p>
             <p style="color:var(--muted);margin-top:10px">要講清楚的是：<b style="color:var(--ink)">橋接是一個元素權重，不是一顆固定的珠子。</b>它占雙人向量的 20%，跟共同喜神一起被算進配比。如果那個元素正好落在你們的缺口上，它會化在整條串裡；如果你們不缺它，就不會為了「有個橋」而硬塞一顆。</p>
@@ -646,18 +678,18 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
             </table>
             <p style="color:var(--muted);font-size:13px;margin-top:8px">另外，金與木、水與火在同一條串上不相鄰，中間一定隔一顆。這是排珠鐵律，不是美學選擇。</p>
           </div>
-          <div class="illus reveal" id="translateIllus" aria-label="不直接相處，換一條路走：水生木、木生火繞道示意"></div>
+          <div class="illus reveal" id="translateIllus" aria-label="不直接相處，換一條路走：水生木、木生火繞道示意" style="--i:1"></div>
         </div>
 
         <div class="head reveal"><h2 style="font-size:26px">兩條，會像一對嗎</h2><p style="color:var(--muted);font-size:14px">這兩種都是算出來的結果，不是可以挑的方案。</p></div>
         <div class="grid pairtypes" style="margin-bottom:40px">
-          <div class="track-card reveal"><h3>同石不同位</h3><p>兩人的共同喜神重疊度高時，會出現同一種石頭，但各自的主珠不同、排列位置也不同。看起來是一組，不是一對複製品。</p></div>
-          <div class="track-card reveal"><h3>各有各的主</h3><p>共同喜神只重疊一部分時，兩條串的主珠會落在不同五行上。石頭清單有交集，中心不同——這很常見，不是算錯。</p></div>
+          <div class="track-card lift reveal" style="--i:0"><h3>同石不同位</h3><p>兩人的共同喜神重疊度高時，會出現同一種石頭，但各自的主珠不同、排列位置也不同。看起來是一組，不是一對複製品。</p></div>
+          <div class="track-card lift reveal" style="--i:1"><h3>各有各的主</h3><p>共同喜神只重疊一部分時，兩條串的主珠會落在不同五行上。石頭清單有交集，中心不同——這很常見，不是算錯。</p></div>
         </div>
 
         <div class="grid duo" style="margin-bottom:40px;align-items:start">
-          <div class="illus reveal" id="radarIllus" aria-label="Gottman 七維雷達圖，七軸各標對應五行"></div>
-          <div class="reveal">
+          <div class="illus reveal" id="radarIllus" aria-label="Gottman 七維雷達圖，七軸各標對應五行" style="--i:0"></div>
+          <div class="reveal" style="--i:1">
             <h3 style="font-size:20px;margin-bottom:12px">Gottman 七維：把關係拆成看得懂的七塊</h3>
             <table class="gottman-tbl">
               <tr><th>維度</th><th>對應五行</th><th>白話說</th></tr>
@@ -797,9 +829,9 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
     <div class="wrap">
       <div class="head reveal"><p class="tag-eyebrow">作品集</p><h2>看看別人戴上的樣子</h2><p>用兩個維度篩：排珠方式 × 體感美學。點一下照片看大圖。</p></div>
       <p class="chip-lbl">排珠方式</p>
-      <div class="chips" id="chipsLayout"></div>
+      <div class="chips reveal" id="chipsLayout" style="--i:0"></div>
       <p class="chip-lbl">體感美學</p>
-      <div class="chips" id="chipsAes"></div>
+      <div class="chips reveal" id="chipsAes" style="--i:1"></div>
       <p class="persona" id="persona"></p>
       <div class="grid gal" id="gal" aria-live="polite"></div>
       <div class="galpager" id="galPager" role="navigation" aria-label="作品集分頁"></div>
@@ -824,9 +856,9 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
     <div class="wrap" style="max-width:760px">
       <div class="rays reveal" id="raysIllus" style="margin-bottom:30px"></div>
       <div class="grid tri">
-        <div class="t reveal"><p class="n">深淵</p><h3>理解困局</h3><p style="color:var(--muted);font-size:14.5px">八字引擎照見你性格裡的慣性與壓抑。</p></div>
-        <div class="t reveal"><p class="n">在旁</p><h3>陪伴提醒</h3><p style="color:var(--muted);font-size:14.5px">物理性的陪伴，目光觸及時校準步調。</p></div>
-        <div class="t reveal"><p class="n">光芒</p><h3>心理導航</h3><p style="color:var(--muted);font-size:14.5px">點亮你原本具備、卻被遺忘的潛能。</p></div>
+        <div class="t lift reveal" style="--i:0"><p class="n">深淵</p><h3>理解困局</h3><p style="color:var(--muted);font-size:14.5px">八字引擎照見你性格裡的慣性與壓抑。</p></div>
+        <div class="t lift reveal" style="--i:1"><p class="n">在旁</p><h3>陪伴提醒</h3><p style="color:var(--muted);font-size:14.5px">物理性的陪伴，目光觸及時校準步調。</p></div>
+        <div class="t lift reveal" style="--i:2"><p class="n">光芒</p><h3>心理導航</h3><p style="color:var(--muted);font-size:14.5px">點亮你原本具備、卻被遺忘的潛能。</p></div>
       </div>
       <div class="reveal" style="max-width:320px;margin:36px auto 0">
         <img src="photos/brand/danny.webp" alt="拍拍深訂製五行水晶手串作品" width="1080" height="1120" loading="lazy" style="border-radius:var(--r);box-shadow:var(--shadow-sm)">
@@ -851,10 +883,10 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
     <div class="wrap" style="max-width:820px">
       <div class="head reveal"><h2>四個，我們不讓步的地方</h2></div>
       <div class="grid keeps">
-        <div class="keep reveal"><span class="ic">📐</span><div><h3 style="font-size:17px">確定論運算</h3><p style="color:var(--muted);font-size:14px">相同輸入會得到相同輸出，排除當下情緒的干擾。</p></div></div>
-        <div class="keep reveal"><span class="ic">⚖️</span><div><h3 style="font-size:17px">真值仲裁與缺失懲罰</h3><p style="color:var(--muted);font-size:14px">缺時辰不補子時，誠實折算置信度。</p></div></div>
-        <div class="keep reveal"><span class="ic">🤝</span><div><h3 style="font-size:17px">性別中立與多元適配</h3><p style="color:var(--muted);font-size:14px">中立十神代碼，任何伴侶組合同樣有效。</p></div></div>
-        <div class="keep reveal"><span class="ic">🛡️</span><div><h3 style="font-size:17px">合規防火牆與自我證偽</h3><p style="color:var(--muted);font-size:14px">回測通過才上線，主動承認尚未通過雙盲驗證。</p></div></div>
+        <div class="keep lift reveal" style="--i:0"><span class="ic">📐</span><div><h3 style="font-size:17px">確定論運算</h3><p style="color:var(--muted);font-size:14px">相同輸入會得到相同輸出，排除當下情緒的干擾。</p></div></div>
+        <div class="keep lift reveal" style="--i:1"><span class="ic">⚖️</span><div><h3 style="font-size:17px">真值仲裁與缺失懲罰</h3><p style="color:var(--muted);font-size:14px">缺時辰不補子時，誠實折算置信度。</p></div></div>
+        <div class="keep lift reveal" style="--i:2"><span class="ic">🤝</span><div><h3 style="font-size:17px">性別中立與多元適配</h3><p style="color:var(--muted);font-size:14px">中立十神代碼，任何伴侶組合同樣有效。</p></div></div>
+        <div class="keep lift reveal" style="--i:3"><span class="ic">🛡️</span><div><h3 style="font-size:17px">合規防火牆與自我證偽</h3><p style="color:var(--muted);font-size:14px">回測通過才上線，主動承認尚未通過雙盲驗證。</p></div></div>
       </div>
     </div>
   </section>
@@ -1229,8 +1261,8 @@ function base(w,b){ const r=CONFIG.PRICE.rows[w]; const i=CONFIG.PRICE.beads.ind
 const cart = [];
 function shopBadge(p){ if(p.stock<=0) return '<span class="badge out">已售完</span>'; if(p.stock<=(CONFIG.SHOP?.lowStock??3)) return `<span class="badge">僅剩 ${p.stock}</span>`; return ''; }
 function renderProducts(list){
-  $('#prodGrid').innerHTML = list.map(p=>`
-    <article class="prod" data-id="${esc(p.id)}" tabindex="0" role="button" aria-label="查看 ${esc(p.name)}">
+  $('#prodGrid').innerHTML = list.map((p,i)=>`
+    <article class="prod reveal lift" style="--i:${Math.min(i,5)}" data-id="${esc(p.id)}" tabindex="0" role="button" aria-label="查看 ${esc(p.name)}">
       <div class="ph">${shopBadge(p)}<img src="${esc(p.imgs[0])}" alt="${esc(p.name)}｜${esc(p.layout)}・${esc(p.aesthetic)}" loading="lazy" decoding="async" width="360" height="360"></div>
       <div class="info">
         <h3>${esc(p.name)}</h3>
@@ -1252,6 +1284,7 @@ async function loadProducts(){
   try{ const r = await api(CONFIG.PATHS.PRODUCTS,{ op:'list' }); if(r && r.ok && Array.isArray(r.products)) list = r.products; }catch(_){}
   PRODUCTS = ((list && list.length) ? list : (CONFIG.PRODUCTS||[])).map(normProd);
   renderProducts(PRODUCTS);
+  observeReveals();
 }
 loadProducts();
 
@@ -1610,9 +1643,9 @@ const FAQ = [
 (function faq(){
   const groups = ['價值疑問','價格','流程','資料安全','售後','情侶'];
   const icon = {'價值疑問':'💠','價格':'💰','流程':'🧭','資料安全':'🔒','售後':'🛠️','情侶':'💞'};
-  $('#faqWrap').innerHTML = groups.map(gp=>`
-    <div class="faq-group"><h3>${icon[gp]} ${gp}</h3>
-      ${FAQ.filter(f=>f.g===gp).map(f=>`<details class="acc"><summary>${esc(f.q)}</summary><div class="a">${f.t?f.t:esc(f.a)}</div></details>`).join('')}
+  $('#faqWrap').innerHTML = groups.map((gp,gi)=>`
+    <div class="faq-group reveal" style="--i:${gi}"><h3>${icon[gp]} ${gp}</h3>
+      ${FAQ.filter(f=>f.g===gp).map(f=>`<details class="acc"><summary class="lift">${esc(f.q)}</summary><div class="a">${f.t?f.t:esc(f.a)}</div></details>`).join('')}
     </div>`).join('');
   $$('#faqWrap .acc').forEach(d=>d.addEventListener('toggle',()=>d.classList.toggle('open',d.open)));
   // JSON-LD FAQPage
