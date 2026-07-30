@@ -33,7 +33,14 @@ const CONFIG = {
 
     // 訂單確認頁送出「選擇方案／要不要升級」→ resume WF2 的客戶等待節點。
     // P2a 已接線（CONFIRM_訂單確認頁送出 workflow）；欄位＝{token,order_token,plan,upgrade,note,confirm}。
-    CONFIRM_RESUME: "/pps-confirm-resume"
+    CONFIRM_RESUME: "/pps-confirm-resume",
+
+    // ── 現貨商城（P2b/SALES2 suite，pps2- 前綴）──
+    // PRODUCTS：POST {op:'list'} 取上架商品；抓不到自動退化為本檔 CONFIG.PRODUCTS 內嵌示例。
+    PRODUCTS: "/pps2-products",
+    // SHOP_ORDER：POST {order:{...}} 建立現貨訂單；後端交易性扣庫存防超賣，回 {ok,order_no} 或 {ok:false,error:'out_of_stock'}。
+    // 抓不到（未部署／離線）自動退化：複製訂單文字→LINE 人工下單。
+    SHOP_ORDER: "/pps2-shop-order"
   },
 
   timeoutMs: 12000,
@@ -90,8 +97,54 @@ const CONFIG = {
   COUPLE_STAGES: [
     "曖昧期／熱戀期","穩定交往／同居","新婚（0–2 年）","婚姻中（無子女）",
     "育兒期（子女未成年）","空巢期／退休","遠距／分居","其他"
+  ],
+
+  // ── 現貨商城設定 ──
+  SHOP: {
+    lowStock: 3,                 // 庫存 ≤ 此值顯示「僅剩 N」徽章
+    shipping: [                  // 取貨方式（value 對後端；fee 前台試算）
+      { id:"home",  label:"宅配到府",        fee:0  },
+      { id:"store", label:"店到店（超商取貨）", fee:60 },
+      { id:"self",  label:"店長自送／面交（龍潭—中壢）", fee:0 }
+    ],
+    payment: [                   // 付款方式（enabled=false → 前台灰態「即將開放」）
+      { id:"transfer", label:"銀行匯款",       enabled:true  },
+      { id:"line",     label:"LINE 轉帳",       enabled:true  },
+      { id:"card",     label:"信用卡",          enabled:false },
+      { id:"mobile",   label:"行動支付",        enabled:false }
+    ]
+  },
+
+  // 聯絡通道（空字串＝前台自動隱藏該通道鈕）
+  CONTACT: { line:"17singasong", ig:"IGSINGASONG", shopee:"" },
+
+  // 追蹤碼空槽：後台填入 ID 後前台才動態注入（預設空＝不載入任何外部腳本）
+  GA4_ID: "",
+  PIXEL_ID: "",
+
+  // 現貨商品示例（後端 pps2-products 抓不到時的退化資料；【示例】前綴方便辨識）
+  // 照片取自 photos/，價格取自 PRICE 矩陣合理值，庫存 3–5。
+  PRODUCTS: [
+    { id:"P-CL02", name:"【示例】晴空湖光・淺色五行", layout:"五行相生搭配法", aesthetic:"自由共振",
+      price:699, stock:4, spec:"8mm・約 18cm・彈力線", imgs:["photos/w2.jpg","photos/w3.jpg"],
+      desc:"淺色系五行相生排列，晴空與湖光交織。日常好搭，適合想要清透層次的你。" },
+    { id:"P-ST08", name:"【示例】礦紋深藍・沉靜磐石", layout:"大小一致無主珠", aesthetic:"內斂磐石",
+      price:846, stock:3, spec:"10mm・約 18cm・彈力線", imgs:["photos/works/w08.jpg","photos/works/w09.jpg"],
+      desc:"藍黑金棕的礦石紋理，大小一致、無主珠設計。腕間低調沉穩，收得住情緒。" },
+    { id:"P-LT13", name:"【示例】指尖流光・剔透白晶", layout:"大小一致無主珠", aesthetic:"輕盈流光",
+      price:612, stock:5, spec:"8mm・約 17cm・彈力線", imgs:["photos/works/w13.jpg","photos/works/w12.jpg"],
+      desc:"通透白水晶，冰花點點。指尖一轉就有流光，適合喜歡素淨光感的人。" },
+    { id:"P-IN02", name:"【示例】墨綠粉紫・間隔成串", layout:"間隔排列法", aesthetic:"內斂磐石",
+      price:767, stock:4, spec:"10mm・約 17cm・彈力線", imgs:["photos/works/w02.jpg","photos/works/w03.jpg"],
+      desc:"墨綠與粉紫規律間隔，圓潤交替。安靜裡帶一點溫度，耐看不張揚。" },
+    { id:"P-BK14", name:"【示例】淺藍煙灰・塊面清雅", layout:"區塊排列法", aesthetic:"輕盈流光",
+      price:743, stock:3, spec:"8mm・約 16cm・彈力線", imgs:["photos/works/w14.jpg","photos/works/w15.jpg"],
+      desc:"淺藍與煙灰分塊排列，塊面分明。清雅乾淨，通勤或約會都合適。" },
+    { id:"P-MN16", name:"【示例】素雅亮點・主角配角", layout:"主角配角法", aesthetic:"輕盈流光",
+      price:673, stock:5, spec:"9mm・約 16cm・彈力線", imgs:["photos/works/w16.jpg"],
+      desc:"白灰為底、一顆亮點作主角。素雅中留一處焦點，簡單但有記憶點。" }
   ]
 };
 
-// 五行色（Hero 手串環、珠數計算器示意圖共用）
-const ELEM = { colors:{金:"#C9B37E",木:"#7FA98F",水:"#5C7A99",火:"#C98A92",土:"#C2A063"}, order:["金","木","水","火","土"] };
+// 五行色（Hero 手串環、珠數計算器示意圖共用）— 礦物取樣：青金石/綠幽靈/石榴石/虎眼石/鈦晶，明度階梯 水<木<土<火<金
+const ELEM = { colors:{金:"#D4A63C",木:"#2D6A4F",水:"#1B4165",火:"#9B3D46",土:"#96683A"}, order:["金","木","水","火","土"] };
