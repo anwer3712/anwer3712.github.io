@@ -19,6 +19,8 @@
 <meta name="twitter:title" content="拍拍深五行水晶設計研究所">
 <meta name="twitter:description" content="八字文化 × 心理學的個人化手串。量化、透明、可追溯。">
 <meta name="twitter:image" content="https://anwer3712.github.io/paipaishen-shop/photos/w2.jpg">
+<!-- 全站唯一容許把 LINE／IG 帳號抄第二份的地方：結構化資料要讓爬蟲直接讀到，
+     不能等 JS 填。改 config.js 的 CONTACT 時，這裡的 sameAs 要手動跟著改。 -->
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"LocalBusiness","name":"拍拍深五行水晶設計研究所","description":"以八字文化符號結合心理學的個人化五行水晶手串訂製，量化配珠、五派裁決、白名單選石、透明可追溯。","image":"https://anwer3712.github.io/paipaishen-shop/photos/w2.jpg","url":"https://anwer3712.github.io/paipaishen-shop/","areaServed":["桃園","龍潭","中壢"],"sameAs":["https://line.me/ti/p/~17singasong","https://instagram.com/IGSINGASONG"],"priceRange":"NT$300–NT$1500"}
 </script>
@@ -942,7 +944,7 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
           <h2 style="font-size:24px;margin:10px 0" id="doneMsg">問卷已送出！</h2>
           <div class="orderbox hide" id="orderNoBox" style="display:none">訂單編號<br><b id="orderNoTxt"></b><br><small style="color:var(--muted)">可到「訂單查詢」用此編號＋聯絡末四碼追進度</small></div>
           <div class="hide" id="fallback" style="display:none">
-            <p style="color:var(--muted);margin-bottom:12px">系統忙碌中，已為你整理好訂單內容。請複製後傳給 LINE <b>17singasong</b> 完成下單。</p>
+            <p style="color:var(--muted);margin-bottom:12px">系統忙碌中，已為你整理好訂單內容。請複製後傳給 LINE <b data-line></b> 完成下單。</p>
             <pre class="ord" id="orderText"></pre>
             <button class="btn2" id="copyBtn" type="button" style="margin-top:12px">複製訂單內容</button>
           </div>
@@ -1265,6 +1267,9 @@ function observeReveals(){
 $('#newsList').innerHTML = CONFIG.NEWS.map(n=>`<div class="item"><time>${esc(n.d)}</time><span class="chip">${esc(n.tag)}</span><p>${esc(n.t)}</p></div>`).join('');
 
 /* ═══════════ 聯絡通道 ═══════════ */
+// 靜態 HTML 裡要印 LINE 帳號的地方一律標 data-line，由這裡從 config.js 填；
+// 不要把帳號字串抄進 HTML——換帳號時抄過的那幾處一定會被漏掉。
+document.querySelectorAll('[data-line]').forEach(e=>{ e.textContent = (CONFIG.CONTACT||{}).line || ''; });
 (function contacts(){
   const c = CONFIG.CONTACT||{}; const out=[];
   if(c.line) out.push(`<a class="btn2" href="https://line.me/ti/p/~${esc(c.line)}" target="_blank" rel="noopener">LINE：${esc(c.line)}</a>`);

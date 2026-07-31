@@ -120,7 +120,7 @@ footer{padding:26px 20px 96px;text-align:center;}
 
 <main class="wrap cf-main">
   <div id="loadingBox" class="msg ok">讀取訂單資料中…</div>
-  <div id="demoBadge" class="msg warn hide">目前顯示示範資料（正式訂單資料 API 尚未接通），僅供介面預覽用；實際頁面會依你的訂單即時呈現。</div>
+  <div id="demoBadge" class="msg warn hide">目前顯示的是示範資料——我們沒讀到你的訂單，可能是連結過期或系統忙線。實際頁面會依你的訂單呈現；請加 LINE <b data-line></b> 讓店長幫你確認。</div>
 
   <section class="cf-card" id="planSection" style="display:none">
     <div class="sec-head2 sm"><span class="chapter-mark">一</span><div><h2>選擇你的方案</h2></div></div>
@@ -165,6 +165,10 @@ footer{padding:26px 20px 96px;text-align:center;}
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// LINE 帳號只有 config.js 一份。頁面上要印帳號的地方一律取這個變數或標 data-line，
+// 不要再把帳號字串抄進 HTML——換帳號時抄過的那幾處一定會被漏掉。
+const LINE_ID = (CONFIG.CONTACT||{}).line || '';
+document.querySelectorAll('[data-line]').forEach(e=>{ e.textContent = LINE_ID; });
 
 const params = new URLSearchParams(location.search);
 const orderToken = params.get('token') || '';
@@ -200,7 +204,8 @@ async function loadOrder(){
   try{
     if(!CONFIG.N8N_BASE || !orderToken) throw new Error('no-token-or-offline');
     const ctl = new AbortController(); const t = setTimeout(()=>ctl.abort(), CONFIG.timeoutMs);
-    // TODO: P2 契約定案後接線——此 endpoint（CONFIRM_LOOKUP）目前尚不存在
+    // CONFIRM_LOOKUP 已於 P2a 接線（CONFIRM_訂單確認頁查詢 workflow），路徑與回應鍵名見 config.js。
+    // 抓不到就退化成 demoOrder() 的示範資料，不是「還沒接」——別再照舊註解判斷狀態。
     const r = await fetch(CONFIG.N8N_BASE + CONFIG.PATHS.CONFIRM_LOOKUP, {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ token: CONFIG.SITE_TOKEN, order_token: orderToken }), signal: ctl.signal
@@ -262,7 +267,7 @@ function updateTotal(){
 
 $('#confirmBtn').addEventListener('click', async ()=>{
   const btn = $('#confirmBtn'); btn.disabled = true; btn.textContent = '送出中…';
-  // TODO: P2 契約定案後接線——欄位鍵名（plan/upgrade/note）暫定，實際以 P2 契約為準
+  // 欄位鍵名已於 P2a 定案（CONFIRM_訂單確認頁送出 workflow）＝{token,order_token,plan,upgrade,note,confirm}，見 config.js。
   const payload = { order_token: orderToken, plan: selectedPlan && selectedPlan.id, upgrade: selectedUpgrade, note: $('#cfNote').value.trim(), confirm: true };
   let ok = false;
   try{
@@ -277,7 +282,7 @@ $('#confirmBtn').addEventListener('click', async ()=>{
   $('#doneBox').classList.remove('hide');
   $('#doneBox').textContent = ok
     ? '已送出你的選擇！我們會依此安排製作，謝謝你。'
-    : `線上通道目前尚未接通——你的選擇是「${esc(selectedPlan&&selectedPlan.label||'')}${selectedUpgrade?'＋升級':''}」。請加 LINE 17singasong 告知店長，效力相同。`;
+    : `這次沒送出去，可能是連結過期或系統忙線——你的選擇是「${esc(selectedPlan&&selectedPlan.label||'')}${selectedUpgrade?'＋升級':''}」。請加 LINE ${esc(LINE_ID)} 告知店長，效力相同。`;
   btn.textContent = '已送出';
   window.scrollTo({top:$('#doneBox').getBoundingClientRect().top+scrollY-90,behavior:'smooth'});
 });
@@ -293,7 +298,7 @@ $('#discussBtn').addEventListener('click', async ()=>{
     }
   }catch(_){}
   $('#doneBox').classList.remove('hide');
-  $('#doneBox').textContent = '已記錄你想先討論——也歡迎直接加 LINE 17singasong，店長會盡快回覆你。';
+  $('#doneBox').textContent = `已記錄你想先討論——也歡迎直接加 LINE ${LINE_ID}，店長會盡快回覆你。`;
   window.scrollTo({top:$('#doneBox').getBoundingClientRect().top+scrollY-90,behavior:'smooth'});
 });
 

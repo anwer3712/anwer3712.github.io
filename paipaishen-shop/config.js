@@ -1,9 +1,9 @@
 /* ═══════════════════════════════════════════════════════════════
    拍拍深五行水晶設計研究所 — 全站共用設定
    換 webhook／價格／作品集連結，只改這一個檔案。
-   index.html 與 confirm.html 都用 <script src="config.js"> 載入這份。
-   （admin.html 後台目前仍是獨立 PRICE 常數，未接這份共用檔——
-    後台改版不在本次 P3 UI 重設計範圍內，見交付報告 TODO。）
+   index.html、confirm.html、admin.html 三支都用 <script src="config.js"> 載入這份。
+   後台已接：PRICE／STATUS 由 CONFIG 衍生（admin.html 第 500–501 行），
+   關係階段標籤也從 CONFIG.COUPLE_STAGES 覆蓋過去，不另抄一份。
    ═══════════════════════════════════════════════════════════════ */
 const CONFIG = {
   // n8n 公網基底；留空 = 純離線模式（前台自動退化：複製訂單內容→LINE 人工下單）
