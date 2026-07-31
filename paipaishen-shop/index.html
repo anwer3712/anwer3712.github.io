@@ -789,7 +789,7 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
           <div class="reveal" style="--i:1">
             <h3 style="font-size:22px;margin-bottom:10px">兩個人的盤，不是各算各的</h3>
             <p style="color:var(--muted)">先各自算出需求向量，再合成一份雙人向量：<b style="color:var(--ink)">RV = 0.4×你 ＋ 0.4×對方 ＋ 0.2×橋接元素</b>。</p>
-            <p style="color:var(--muted);margin-top:10px">但這只是第一步。合成完還要乘上關係階段的修正係數——熱戀期加重火、育兒期加重土、分居加重水——再重新正規化，才得到真正拿去挑石頭的那份配比。</p>
+            <p style="color:var(--muted);margin-top:10px">但這只是第一步。合成完還要乘上關係階段的修正係數——熱戀期加重木（先把話說開）、育兒期加重火（撐住日常的熱度）、分居加重水（先把信任接回來；單純地理上的遠距是另一組係數，主次剛好相反）——再重新正規化，才得到真正拿去挑石頭的那份配比。</p>
             <p style="color:var(--muted);margin-top:10px">最後只從你們的<b style="color:var(--ink)">共同喜神</b>取石，不是各挑各的。所以就算配比相同，兩條串也可能長得不一樣：主珠取各自最高的那個五行，<b style="color:var(--ink)">各自置中</b>。</p>
           </div>
         </div>
@@ -915,9 +915,10 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
             <div class="fcol"><label>你希望 TA 調整的部分（可空，最多三項）</label><textarea name="b_pain" maxlength="300" placeholder="例：想要更沉穩、想要對方多一點行動力……"></textarea></div>
             <div class="fcol"><label>TA 的視覺體感（擇一）</label><div class="opts" id="visB"></div></div>
             <div class="frow">
-              <div><label>目前的關係階段</label><select name="stage"></select></div>
+              <div><label>目前的關係階段</label><select name="stage"></select><p id="stageNote" style="font-size:13px;color:var(--muted);margin-top:6px"></p></div>
               <div><label class="opt" style="margin-top:22px"><input type="checkbox" name="b_deep"><span><b>TA 這串加購深度報告</b>（+300）<span class="d">十二節報告本來就有；這份多的是推導過程</span></span></label></div>
             </div>
+            <div class="fcol"><label class="opt"><input type="checkbox" name="stage_open"><span><b>我們是 1 對多開放式關係</b><span class="d">這一項是疊加，不是取代——上面的階段照你們現在的狀況照選，這裡再勾起來就好。每一段關係各出一組對串，我們不會把三個人以上併成一組設計。</span></span></label></div>
           </fieldset>
 
           <fieldset class="fieldset">
@@ -1573,7 +1574,13 @@ radios($('#coreB'),'b_core',CONFIG.CORE); radios($('#visB'),'b_vis',CONFIG.VIS);
 const wrists = Object.keys(CONFIG.PRICE.rows);
 function fillSel(sel,arr){ sel.innerHTML = '<option value="">選擇</option>' + arr.map(v=>`<option>${v}</option>`).join(''); }
 ['a','b'].forEach(p=>{ fillSel(F[p+'_wrist'],wrists); fillSel(F[p+'_bead'],CONFIG.PRICE.beads); });
-F.stage.innerHTML = CONFIG.COUPLE_STAGES.map(v=>`<option>${esc(v)}</option>`).join('');
+// 關係階段：option 的 value 送內部階段代號（引擎對照用，客戶報告不會出現），畫面顯示客戶看得懂的字。
+// note 是選中後才浮出來的提示，用途是讓客戶確認自己有沒有選錯格——一格只對應一種狀況，不合併。
+const stageLabel = c => ((CONFIG.COUPLE_STAGES||[]).find(s=>s.code===c)||{}).label || c;
+// 開頭那個空選項是刻意的：沒選就是沒選，不能讓沒碰過這一格的人被預設成第一個階段送出去。
+F.stage.innerHTML = '<option value="">請選擇</option>' + CONFIG.COUPLE_STAGES.map(s=>`<option value="${esc(s.code)}">${esc(s.label)}</option>`).join('');
+function syncStageNote(){ const s=(CONFIG.COUPLE_STAGES||[]).find(x=>x.code===F.stage.value); $('#stageNote').textContent = (s&&s.note)||''; }
+F.stage.addEventListener('change',syncStageNote); syncStageNote();
 F.addEventListener('change',est); F.addEventListener('input',est);
 
 // 模式切換：個人 / 情侶
@@ -1587,7 +1594,7 @@ $('#modeSeg').addEventListener('click',e=>{
   $('#stepB').style.display = couple?'':'none';
   $('#qtyWrap').style.display = couple?'none':'';
   $('#legendA').textContent = couple ? '你的資料（下單人）' : '你的資料';
-  ['b_name','b_birth','b_wrist','b_bead'].forEach(n=>F[n].required = couple);
+  ['b_name','b_birth','b_wrist','b_bead','stage'].forEach(n=>F[n].required = couple);
   est(); observeReveals();
 });
 
@@ -1614,7 +1621,9 @@ function collect(){
     A:{ name:g('a_name'),gender:g('a_gender'),birth:g('a_birth'),btime:g('a_btime')||'無時辰',wrist:g('a_wrist'),bead:g('a_bead'),core:rv('a_core'),pain:g('a_pain'),vis:rv('a_vis'),deep:g('a_deep') },
     ship: F.ship.value==='store'?'店到店':'中壢–龍潭面交', contact:g('contact'), email:g('email'), est: $('#pAmt').textContent };
   if(mode==='single') o.qty=+F.qty.value||1;
-  else o.B={ name:g('b_name'),gender:g('b_gender'),birth:g('b_birth'),btime:g('b_btime')||'無時辰',wrist:g('b_wrist'),bead:g('b_bead'),core:rv('b_core'),pain:g('b_pain'),vis:rv('b_vis'),deep:g('b_deep'), stage:g('stage') };
+  // stage 送的是內部階段代號（不會有兩種狀況共用一格的歧義），stage_label 另外帶人看得懂的字；
+  // stage_overlay 是疊加欄，勾了才有值，跟 stage 併存、衝突時以它為準。
+  else o.B={ name:g('b_name'),gender:g('b_gender'),birth:g('b_birth'),btime:g('b_btime')||'無時辰',wrist:g('b_wrist'),bead:g('b_bead'),core:rv('b_core'),pain:g('b_pain'),vis:rv('b_vis'),deep:g('b_deep'), stage:g('stage'), stage_label:stageLabel(g('stage')), stage_overlay:g('stage_open')?(CONFIG.COUPLE_STAGE_OVERLAY||{}).code||'S9':'' };
   return o;
 }
 function orderText(o){
@@ -1624,7 +1633,8 @@ function orderText(o){
   const coreLabel = v => ((CONFIG.CORE||[]).find(o=>(o[3]||o[0])===v)||[v])[0];
   const per=(t,x)=>{ L.push(`━ ${t} ━`); L.push(`姓名：${x.name}｜性別：${x.gender}`); L.push(`國曆生日＋時間：${x.birth} ${x.btime}`); L.push(`手圍：${x.wrist}cm｜珠徑：${x.bead||'未選'}mm`); L.push(`核心功能：${coreLabel(x.core)}`); if(x.pain) L.push(`痛點／希望調整：${x.pain}`); L.push(`視覺體感：${x.vis}`); L.push(`加購：${x.deep?'✔深度報告':'無'}`); };
   per(o.type==='couple'?'客戶A（下單人）':'客戶',o.A);
-  if(o.B){ per('客戶B（伴侶）',o.B); L.push(`關係階段：${o.B.stage}`); }
+  // 訂單文字是離線退化時直接複製到 LINE 的那份，所以階段這裡印客戶看得懂的字、不印內部代號。
+  if(o.B){ per('客戶B（伴侶）',o.B); L.push(`關係階段：${o.B.stage_label||stageLabel(o.B.stage)}`); if(o.B.stage_overlay) L.push(`關係疊加：${(CONFIG.COUPLE_STAGE_OVERLAY||{}).label||'1 對多開放式關係'}（每段關係各出一組對串）`); }
   if(o.qty) L.push(`訂製數量：${o.qty} 條`);
   L.push(`物流：${o.ship}｜聯絡：${o.contact}｜Email：${o.email||'未填'}`); L.push(`前台試算：${o.est}`);
   return L.join('\n');
@@ -1805,7 +1815,7 @@ const FAQ = [
   {g:'售後',q:'怎麼付款？',a:'報價確認後，收款資訊會放在你的專屬報價單上。可以銀行匯款、電子支付掃碼，或面交現金。先付款、後製作，匯款完回傳帳號末五碼就能對帳。信用卡之後開放。'},
   {g:'情侶',q:'情侶對串跟買兩條個人款差在哪？',a:'兩條個人款是各算各的，各自補各自的缺。情侶對串是先合成再拆開：兩人的需求向量合成一份雙人向量（0.4×你 ＋ 0.4×對方 ＋ 0.2×橋接元素），再乘上關係階段的修正係數、重新正規化，最後只從你們的共同喜神取石。所以對串處理的是「你們之間」的缺口，不是「你」和「他」各自的缺口相加。主珠仍取各自最高的五行，各自置中——是一組，不是一對複製品。',t:`<div class="mt-wrap"><table class="mt"><tr><th>面向</th><th>兩條個人款</th><th>情侶對串</th></tr><tr><td>處理方式</td><td>各算各的，各自補各自的缺</td><td>先合成再拆開：兩人的需求向量合成一份雙人向量（0.4×你 ＋ 0.4×對方 ＋ 0.2×橋接元素），再乘上關係階段的修正係數、重新正規化，最後只從你們的共同喜神取石</td></tr><tr><td>處理的缺口</td><td>「你」和「他」各自的缺口相加</td><td>「你們之間」的缺口</td></tr></table></div><p>主珠仍取各自最高的五行，各自置中——是一組，不是一對複製品。</p>`},
   {g:'情侶',q:'我們兩個八字相沖，怎麼辦？',a:'相沖是互動摩擦大一點，不是不合。舉例水火沖：熱情高、但安全感低。系統會放一個橋接元素當「關係翻譯官」，像木——水生木、木生火，把對撞轉成流動，提醒你們摩擦時先開口溝通，而不是硬碰。'},
-  {g:'情侶',q:'關係階段會影響設計嗎？',a:'會。生命週期修正係數會動態調配比。曖昧熱戀偏火（熱情）；穩定同居偏木土（溝通加穩定）；新婚偏土（安全感共識）；育兒期偏土金（責任與承諾）。階段資料只給設計師參考，不進報告。',t:`<p>會。生命週期修正係數會動態調配比。</p><div class="mt-wrap"><table class="mt"><tr><th>關係階段</th><th>配比偏重</th></tr><tr><td>曖昧熱戀</td><td>偏火（熱情）</td></tr><tr><td>穩定同居</td><td>偏木土（溝通加穩定）</td></tr><tr><td>新婚</td><td>偏土（安全感共識）</td></tr><tr><td>育兒期</td><td>偏土金（責任與承諾）</td></tr></table></div><p>階段資料只給設計師參考，不進報告。</p>`},
+  {g:'情侶',q:'關係階段會影響設計嗎？',a:'會。生命週期修正係數會動態調配比。曖昧熱戀偏木、火為輔（先把話說開）；交往中未同居偏木土（溝通加穩定）；同居（未婚）偏土金（穩定加承諾）；新婚偏土（安全感共識）；育兒期偏火土（撐住日常的熱度與支撐）——這一段刻意不補金，因為那時候的承諾通常已經是滿的，我們補的是缺口不是盈餘；遠距偏木、分居偏水，同樣兩個五行主次相反，因為一個是距離問題、一個是信任問題。問卷上每一格只對應一種狀況，不會把兩種併成一格；真的對不上就選「無法歸類」，我們直接問你，不會挑一個相近的套上去。階段資料只給設計師參考，不進報告。',t:`<p>會。生命週期修正係數會動態調配比。</p><div class="mt-wrap"><table class="mt"><tr><th>關係階段</th><th>配比偏重</th></tr><tr><td>曖昧期／熱戀期</td><td>偏木、火為輔（先把話說開）</td></tr><tr><td>交往中（已確立排他、未同居）</td><td>偏木土（溝通加穩定）</td></tr><tr><td>同居（未婚）</td><td>偏土金（穩定加承諾）</td></tr><tr><td>婚姻（新婚 0–2 年）</td><td>偏土（安全感共識）</td></tr><tr><td>育兒期（子女未成年）</td><td>偏火土（撐住日常的熱度與支撐）。刻意不補金——那時候的承諾通常已經是滿的，我們補缺口不補盈餘</td></tr><tr><td>遠距（地理因素）</td><td>偏木、水為輔（先把話接上）</td></tr><tr><td>分居（關係緊張／試分居）</td><td>偏水、木為輔（先把信任接回來）</td></tr></table></div><p>遠距與分居用的是同兩個五行、主次剛好相反：一個是距離問題，一個是信任問題，所以問卷上是兩個選項，不會併成一格。真的對不上就選「無法歸類」，我們直接問你，不會挑一個相近的套上去。</p><p>階段資料只給設計師參考，不進報告。</p>`},
   {g:'情侶',q:'情侶款價格怎麼算？',a:'（底價 A ＋底價 B）＋水晶升等（每串 +300）＋深度關係報告（+300）＋運費。硬體計價跟個人一樣；多付的是雙人融合運算，加上那份關係報告的價值。',t:`<div class="mt-wrap"><table class="mt"><tr><th>項目</th><th>金額／說明</th></tr><tr><td>底價 A ＋ 底價 B</td><td>硬體計價跟個人一樣</td></tr><tr><td>水晶升等</td><td>每串 +300</td></tr><tr><td>深度關係報告</td><td>+300</td></tr><tr><td colspan="2">運費</td></tr></table></div><p>多付的是雙人融合運算，加上那份關係報告的價值。</p>`},
   {g:'情侶',q:'可以偷偷幫另一半訂個驚喜嗎？',a:'可以，一個人代填就好。必備：對方的國曆生日（缺時辰走三柱、誠實標註）、手圍（拿對方的手錶或飾品估也行），還有你對這段關係的痛點與願望——那會映射成 8% 的意圖權重。',t:`<p>可以，一個人代填就好。必備：</p><div class="mt-wrap"><table class="mt"><tr><th>必備資料</th><th>備註</th></tr><tr><td>對方的國曆生日</td><td>缺時辰走三柱、誠實標註</td></tr><tr><td>手圍</td><td>拿對方的手錶或飾品估也行</td></tr><tr><td>你對這段關係的痛點與願望</td><td>會映射成 8% 的意圖權重</td></tr></table></div>`},
   {g:'情侶',q:'Gottman 七維是什麼？',a:'把關係拆成七個面向對照五行：信任（水／降低猜忌）、溝通（木／不批判傾聽）、熱情（火／創造正向互動）、安全感（土／穩定支持）、成長（木／支持彼此理想）、承諾（金／守護初衷）、自由（水／親密中保留獨立）。哪一維偏低，就往對應五行補；衝突指標太低，會插一顆修復珠當緊急提醒。',t:`<p>把關係拆成七個面向對照五行：</p><div class="mt-wrap"><table class="mt"><tr><th>維度</th><th>對應五行</th><th>白話說</th></tr><tr><td>信任</td><td>水</td><td>降低猜忌</td></tr><tr><td>溝通</td><td>木</td><td>不批判傾聽</td></tr><tr><td>熱情</td><td>火</td><td>創造正向互動</td></tr><tr><td>安全感</td><td>土</td><td>穩定支持</td></tr><tr><td>成長</td><td>木</td><td>支持彼此理想</td></tr><tr><td>承諾</td><td>金</td><td>守護初衷</td></tr><tr><td>自由</td><td>水</td><td>親密中保留獨立</td></tr></table></div><p>哪一維偏低，就往對應五行補；衝突指標太低，會插一顆修復珠當緊急提醒。</p>`},
