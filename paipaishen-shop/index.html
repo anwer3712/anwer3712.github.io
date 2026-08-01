@@ -39,13 +39,13 @@
   --t:.26s cubic-bezier(.22,.61,.36,1);
 
   /* 情緒弧線漸層 — 只組合既有色票，不新增顏色（沿用「不自創色」）。
-     深淵 abyss → 生長 mu（木綠）→ 光 glow-soft（米黃）→ jin（金黃）。
-     綠與米黃-金黃的過渡是使用者指定的主色調，這裡把它綁在敘事方向上：
-     往下捲＝從被困住走到鬆開。 */
-  --grad-arc:linear-gradient(168deg,var(--abyss) 0%,#1C3A34 26%,var(--mu) 52%,#9DB08C 74%,var(--glow-soft) 100%);
+     往下捲＝從被困住走到鬆開，這個方向綁在敘事上，不只是裝飾。
+     2026-08-01：原本還有 --grad-arc（整條深→亮漸層）與 --arc-lit（給 ScrollTrigger 的
+     0→1 進度值），兩個都只有定義、全檔零引用。弧線最後是用 .tab section.block 的
+     nth-last-of-type 紙色階做的——規格§3.2 要求純 CSS，也明講「不要做成整頁一個大漸層」，
+     那條整頁漸層與那個 JS 進度值都用不上，故刪除，不留待用的死變數。 */
   --grad-gold:linear-gradient(100deg,var(--glow-soft),var(--jin));
-  --grad-jade:linear-gradient(120deg,var(--mu),#4E8C6A 55%,var(--glow-soft));
-  --arc-lit:0;   /* 0=深淵端 1=光端；由 ScrollTrigger 逐區塊推進 */
+  --grad-jade:linear-gradient(120deg,var(--mu),#4E8C6A 55%,var(--glow-soft));   /* 註：本輪之前就無引用，非本輪造成，未動 */
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
@@ -108,8 +108,29 @@ main{min-height:70vh}
 .tab{display:none;animation:tabIn .4s ease both}
 .tab.active{display:block}
 @keyframes tabIn{from{opacity:0;transform:translateY(10px);filter:saturate(.8)}to{opacity:1;transform:none;filter:none}}
-section.block{padding:clamp(46px,7vw,84px) 0}
-.block.alt{background:linear-gradient(180deg,#F6F1E6,#FBF9F4)}
+section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
+
+/* ═══ 情緒弧線：逐區塊由深到亮（純 CSS，不動結構）═══
+   從 .opener（深淵端）起，往下每一段紙色階遞亮，最後一段最亮並帶底部光暈。
+   用 nth-last-of-type 從底部數而不是從頂端數：各分頁區塊數不同（首頁／關於 4 段、
+   其餘 1 段），從底部數才能讓「最下方永遠是最亮那段」成立，不必逐頁調參數。
+   四條規則涵蓋全部情形（倒數 1／2／3／其餘），所以下面 .block.alt 的舊底色一定被蓋掉，
+   已改為只留內距語意、不再自己設背景。色階全部落在既有 --paper 的暖白家族，不新增色相。 */
+.tab section.block:nth-last-of-type(n+4){background:#F0E9DA}
+.tab section.block:nth-last-of-type(3){background:#F4EEE1}
+.tab section.block:nth-last-of-type(2){background:#F8F3E9}
+.tab section.block:nth-last-of-type(1){
+  background:radial-gradient(78% 62% at 50% 118%,rgba(232,201,122,.20),transparent 72%),var(--paper)}
+
+/* ── 開場區塊：每頁的深淵端。先說中處境，最後一句才給出路 ── */
+.opener{position:relative;overflow:hidden;color:#EDE7DA;padding:clamp(38px,6vw,62px) 0;
+  background:linear-gradient(172deg,var(--abyss) 0%,var(--abyss-2) 100%)}
+.opener::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(58% 46% at 50% 128%,rgba(232,201,122,.13),transparent 70%)}
+.opener .wrap{max-width:720px;position:relative;z-index:1}
+.opener p{font-size:clamp(15.5px,2.2vw,17.5px);line-height:1.9;color:#E4DECF}
+.opener p+p{margin-top:9px}
+.opener p:last-child{color:var(--glow-soft)}
 .head{text-align:center;max-width:660px;margin:0 auto clamp(28px,5vw,48px)}
 .head h2{font-size:clamp(25px,4.4vw,36px);margin:8px 0 12px;position:relative;display:inline-block}
 .head p{color:var(--muted);font-size:16px}
@@ -389,9 +410,13 @@ table.mt tr th:first-child{background:#EFE9DC}
    容器變高＝往下露出更多，而下面就是禁詞。要調只能往更短的方向調。 */
 @media(max-width:620px){ .wsteps{grid-template-columns:1fr} }
 @media(prefers-reduced-motion:reduce){ .wshot img,.wshot .wz,.wstep{transition:none} }
-.est{position:sticky;bottom:12px;margin-top:20px;background:linear-gradient(120deg,var(--abyss),var(--abyss-2));color:#EDE7DA;border-radius:14px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;box-shadow:var(--shadow)}
-.est .amt{font-family:var(--serif);font-size:26px;color:var(--glow-soft)}
-.est .dt{font-size:12.5px;color:#AAB2C2}
+/* 這條在送出鈕正上方，是全站最下游的 CTA 區。原本用 --abyss 深色，與「最下方最亮」
+   的情緒弧線方向相反（愈接近成交愈暗），2026-08-01 改為金色光端，文字改深墨確保對比。 */
+.est{position:sticky;bottom:12px;margin-top:20px;background:var(--grad-gold);color:var(--abyss);border:1px solid rgba(201,162,75,.5);border-radius:14px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;box-shadow:var(--shadow)}
+.est .amt{font-family:var(--serif);font-size:26px;color:var(--abyss)}
+/* #5C4A22 對金色漸層暗端(--jin)只有 3.79，未達 AA 正文 4.5。改深棕 #3A2E12＝5.80，
+   仍與上方金額的 --abyss 藍黑有色相差，層級不會糊掉。 */
+.est .dt{font-size:12.5px;color:#3A2E12}
 .done{text-align:center;padding:30px}
 .done .big{font-size:44px}
 .orderbox{background:var(--glow-soft);border-radius:12px;padding:16px;margin:16px auto;max-width:420px}
@@ -668,13 +693,21 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
           <li><b>心理導航</b>　它點亮的是你內心原本就具備、卻被暫時遺忘的潛能。</li>
         </ul>
         <div class="hero-cta">
-          <a class="btn" href="#custom">開始訂製 →</a>
-          <a class="btn-ghost" href="#shop">逛現貨</a>
+          <a class="btn" href="#custom">說說你的狀況 →</a>
+          <a class="btn-ghost" href="#shop">先看看現貨</a>
         </div>
       </div>
       <div class="hero-art">
         <svg id="heroRing" viewBox="0 0 420 420" role="img" aria-label="五行環示意：金木水火土交錯排列的手串"></svg>
       </div>
+    </div>
+  </section>
+
+  <section class="opener">
+    <div class="wrap">
+      <p>事情做完了，也做好了。沒有人特別說什麼，你自己也沒停下來看一眼。</p>
+      <p>久了會忘記，那些撐住的日子是誰撐過來的。</p>
+      <p>這裡不打算再給你一個目標。先把你已經走過的，算清楚給你看。</p>
     </div>
   </section>
 
@@ -713,8 +746,8 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
     <div class="wrap">
       <div class="head reveal"><h2>兩條路，都通往同一件事</h2><p>把注意力，帶回最初的自己。</p></div>
       <div class="grid g2">
-        <div class="card lift reveal" style="text-align:center;--i:0"><div class="ic" style="margin:0 auto 14px">🛍️</div><h3>現貨商品</h3><p>設計好的成品，看得到、直接帶走。適合想快一點、或先體驗看看的你。</p><br><a class="btn2" href="#shop">看現貨 →</a></div>
-        <div class="card lift reveal" style="text-align:center;--i:1"><div class="ic" style="margin:0 auto 14px">✨</div><h3>個人化訂製</h3><p>從你的八字開始算，個人款修身、情侶對串治平。專屬報告與排珠設計。</p><br><a class="btn" href="#custom">開始訂製 →</a></div>
+        <div class="card lift reveal" style="text-align:center;--i:0"><div class="ic" style="margin:0 auto 14px">🛍️</div><h3>現貨商品</h3><p>設計好的成品，看得到、直接帶走。適合想快一點、或先體驗看看的你。</p><br><a class="btn2" href="#shop">先看看現貨 →</a></div>
+        <div class="card lift reveal" style="text-align:center;--i:1"><div class="ic" style="margin:0 auto 14px">✨</div><h3>個人化訂製</h3><p>從你的八字開始算，個人款修身、情侶對串治平。專屬報告與排珠設計。</p><br><a class="btn" href="#custom">說說你的狀況 →</a></div>
       </div>
     </div>
   </section>
@@ -722,9 +755,17 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
 
 <!-- ═══════════ 現貨商品 ═══════════ -->
 <div class="tab" id="tab-shop">
+  <section class="opener">
+    <div class="wrap">
+      <p>有時候只是想手上有個東西可以摸，還不想解釋為什麼。</p>
+      <p>這一區不用填表，不用交生辰。</p>
+      <p>挑一件看得順眼的，就可以了。</p>
+    </div>
+  </section>
+
   <section class="block">
     <div class="wrap">
-      <div class="head reveal"><p class="tag-eyebrow">現貨商品</p><h2>設計好的，直接帶走</h2><p>每一件都依排珠法與體感美學設計完成。庫存有限，看到喜歡的別猶豫。</p></div>
+      <div class="head reveal"><p class="tag-eyebrow">現貨商品</p><h2>設計好的，直接帶走</h2><p>每一件都依排珠法與體感美學設計完成。數量不多，慢慢看。</p></div>
       <div class="grid prods" id="prodGrid" aria-live="polite"></div>
       <p class="persona" id="shopNote" style="margin-top:26px">下單走匯款或 LINE 轉帳；信用卡與行動支付之後開放。若系統忙碌，會自動整理訂單讓你複製給 LINE 真人下單。</p>
     </div>
@@ -733,6 +774,14 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
 
 <!-- ═══════════ 訂製服務 ═══════════ -->
 <div class="tab" id="tab-custom">
+  <section class="opener">
+    <div class="wrap">
+      <p>願意把狀況講清楚的人，多半已經自己想過很多遍了。</p>
+      <p>你要的不是被安慰，是有人真的把它算一遍。</p>
+      <p>下面的問卷問得比較細。問得細，是為了對得起你講出來的東西。</p>
+    </div>
+  </section>
+
   <section class="block">
     <div class="wrap">
       <div class="head reveal"><p class="tag-eyebrow">個人化訂製</p><h2>從你的八字，長出一串專屬</h2></div>
@@ -935,7 +984,7 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
 
           <div class="est">
             <div><div class="amt" id="pAmt">—</div><div class="dt" id="pDetail">選手圍與珠徑後顯示</div></div>
-            <button class="btn" id="submitBtn" type="submit">送 出 問 卷</button>
+            <button class="btn" id="submitBtn" type="submit">填好了，送出</button>
           </div>
         </form>
 
@@ -957,6 +1006,14 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
 
 <!-- ═══════════ 作品集 ═══════════ -->
 <div class="tab" id="tab-works">
+  <section class="opener">
+    <div class="wrap">
+      <p>決定之前先看看別人手上的樣子，是合理的。</p>
+      <p>每一串背後是一組不一樣的數據，和一個不一樣的人。</p>
+      <p>不用急著挑。看看哪一種排法會讓你停下來。</p>
+    </div>
+  </section>
+
   <section class="block">
     <div class="wrap">
       <div class="head reveal"><p class="tag-eyebrow">作品集</p><h2>看看別人戴上的樣子</h2><p>用兩個維度篩：排珠方式 × 體感美學。點一下照片看大圖。</p></div>
@@ -981,6 +1038,14 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
         <h2 style="font-size:clamp(26px,5vw,40px);color:#fff">我們不販售改變命運的承諾</h2>
         <p class="lead" style="margin-left:auto;margin-right:auto">我們販售的，是可追溯的文化推論。這是我們對你，最基本的誠實。</p>
       </div>
+    </div>
+  </section>
+
+  <section class="opener">
+    <div class="wrap">
+      <p>這件事不是從一個很大的理想開始的。</p>
+      <p>起點是一個問題：命理講的那些，能不能算得出來、驗得回去。</p>
+      <p>兩年疊代成現在這套。做不到的部分，下面也寫了。</p>
     </div>
   </section>
 
@@ -1049,6 +1114,14 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
 
 <!-- ═══════════ 常見問題 ═══════════ -->
 <div class="tab" id="tab-faq">
+  <section class="opener">
+    <div class="wrap">
+      <p>會猶豫是正常的，這個領域誇大的說法太多。</p>
+      <p>最常被問、也最尖銳的幾題都放在下面，包括「這到底有沒有用」。</p>
+      <p>看完還是有疑慮，那就先別買。</p>
+    </div>
+  </section>
+
   <section class="block">
     <div class="wrap" style="max-width:800px">
       <div class="head reveal"><p class="tag-eyebrow">常見問題</p><h2>你可能想問的</h2><p>找不到答案？右下角問「小串」，或加 LINE 找真人。</p></div>
@@ -1059,6 +1132,14 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
 
 <!-- ═══════════ 訂單查詢 ═══════════ -->
 <div class="tab" id="tab-track">
+  <section class="opener">
+    <div class="wrap">
+      <p>東西交出去之後，最難熬的是不知道現在到哪。</p>
+      <p>手工的部分沒辦法快，但進度可以隨時查。</p>
+      <p>輸入編號，就會看到它走到哪一站。</p>
+    </div>
+  </section>
+
   <section class="block">
     <div class="wrap">
       <div class="head reveal"><p class="tag-eyebrow">訂單查詢</p><h2>你的手串，走到哪了</h2><p>輸入訂單編號＋聯絡方式末四碼，看光路走到哪一站。</p></div>
@@ -1067,7 +1148,7 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
         <div class="track-form">
           <input id="tNo" placeholder="訂單編號（例 S20260725-001）" maxlength="40">
           <input id="tVf" placeholder="聯絡末四碼" maxlength="10">
-          <button class="btn" id="tGo" type="button">查詢</button>
+          <button class="btn" id="tGo" type="button">看進度</button>
         </div>
         <div id="tOut"></div>
       </div>
@@ -1669,7 +1750,7 @@ $('#copyBtn').addEventListener('click',async e=>{
   try{ await navigator.clipboard.writeText($('#orderText').textContent); e.target.textContent='已複製 ✔'; }
   catch(_){ const r=document.createRange(); r.selectNode($('#orderText')); getSelection().removeAllRanges(); getSelection().addRange(r); document.execCommand('copy'); e.target.textContent='已複製 ✔'; }
 });
-$('#againBtn').addEventListener('click',()=>{ $('#done').style.display='none'; F.style.display='block'; F.reset(); $('#submitBtn').disabled=false; $('#submitBtn').classList.remove('busy'); $('#submitBtn').textContent='送 出 問 卷'; est(); });
+$('#againBtn').addEventListener('click',()=>{ $('#done').style.display='none'; F.style.display='block'; F.reset(); $('#submitBtn').disabled=false; $('#submitBtn').classList.remove('busy'); $('#submitBtn').textContent='填好了，送出'; est(); });
 est();
 
 /* ═══════════ 作品集：雙軸 chip 過濾（FLIP）＋ lightbox ═══════════ */
