@@ -644,6 +644,73 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
 }
 /* 觸控目標 */
 @media(pointer:coarse){ .nav-links a,.seg button,.chip-f,.pg-btn{min-height:44px;display:inline-flex;align-items:center} }
+
+/* ═══════════ 觸控裝置動效（回應「手機版沒有動態效果」）═══════════
+   根因不是手機少寫了效果，是既有四個圖框效果（四角括號／描邊繞行／光帶斜掃／推近）
+   連同 .gitem:hover img 全部只掛在 @media(hover:hover) 上。手機是 hover:none，
+   一個都不會觸發，所以整站在手機上看起來是靜的。
+   解法不是另寫一組手機專用特效（那會變成兩套語彙要各自維護），
+   是把同一組效果改由「捲進視窗」驅動：桌機 hover → 觸控 .inview，視覺結果一致。
+   .inview 由 JS 的 mo（motion observer）掛上，只在 hover:none 裝置啟用。 */
+@media(hover:none){
+  .gitem:not(.filler).inview::before,.gitem:not(.filler).inview::after,
+  .prod.inview .ph::before,.prod.inview .ph::after{opacity:1;width:26px;height:26px}
+  .gitem:not(.filler).inview .ring,.prod.inview .ph .ring{outline-color:var(--glow-deep)}
+  .gitem:not(.filler).inview .ring::after,.prod.inview .ph .ring::after{left:150%}
+  .gitem:not(.filler).inview{box-shadow:0 14px 34px rgba(16,24,40,.19)}
+  .gitem:not(.filler).inview .cap{opacity:1}
+
+  /* 圖檔的「內容」也要動（使用者原話：做圖的內容圖檔也要用動態＝做動畫）。
+     緩慢推近＋上移，進入視窗跑一次就停（both 收在定稿），不循環——
+     循環在手機上是背景噪音又吃電。object-fit:contain/cover 之下不會裁掉珠子，
+     且不改檔案，符合「禁動使用者照片畫面內容」那條（這是呈現層，不是轉檔）。 */
+  .gitem.kb img,.prod.kb .ph img,.aes-card.kb img,#wristIllus.kb img{
+    animation:kenburns 6s cubic-bezier(.33,.02,.3,1) both}
+  .aes-card.kb img{animation-duration:7.5s}
+}
+@keyframes kenburns{from{transform:scale(1) translate3d(0,0,0)}to{transform:scale(1.075) translate3d(0,-1.4%,0)}}
+
+/* ═══════════ 訂製入口醒目化（回應「很難找哪裡下單」）═══════════
+   原本個人／情侶只是一顆 15px 的灰字膠囊，下面接一大段說明才到問卷，
+   等於把下單入口埋在文字牆底下。這裡做三件事：把切換器放大成兩張可點的卡、
+   在切換器正下方給一個直接跳問卷的入口、把問卷卡本身做成看得出是終點的樣子。 */
+.mode-pick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;max-width:620px;margin:0 auto 18px}
+.mode-pick button{position:relative;display:block;width:100%;text-align:left;cursor:pointer;
+  background:#fff;border:2px solid var(--line);border-radius:var(--r);padding:16px 18px;
+  transition:border-color var(--t),box-shadow var(--t),transform var(--t)}
+.mode-pick button .mk{display:block;height:4px;border-radius:3px;margin-bottom:10px}
+.mode-pick button[data-mode="single"] .mk{width:44px;background:linear-gradient(90deg,var(--jin),var(--tu))}
+.mode-pick button[data-mode="couple"] .mk{width:56px;background:linear-gradient(90deg,var(--shui) 0 42%,transparent 42% 58%,var(--huo) 58% 100%)}
+.mode-pick button .t{display:block;font-family:var(--serif);font-size:19px;font-weight:700;color:var(--ink)}
+.mode-pick button .d{display:block;font-size:13.5px;color:var(--muted);margin-top:4px;line-height:1.6}
+.mode-pick button.on{border-color:var(--glow);box-shadow:0 10px 26px rgba(212,166,60,.22)}
+.mode-pick button.on::after{content:"已選";position:absolute;top:10px;right:12px;font-size:11px;letter-spacing:.1em;
+  color:var(--abyss);background:var(--grad-gold);padding:3px 9px;border-radius:999px}
+@media(hover:hover){ .mode-pick button:hover{transform:translateY(-3px);border-color:var(--glow-deep)} }
+@media(max-width:520px){ .mode-pick{grid-template-columns:1fr} }
+.jump-order{text-align:center;margin:0 auto 34px}
+.jump-order .hint{font-size:13px;color:var(--muted);margin-top:8px}
+/* 問卷卡＝終點：金色頂邊＋比一般卡更重的陰影，被跳轉命中時閃一次 */
+#order{border-top:4px solid transparent;border-image:var(--grad-gold) 1;box-shadow:0 18px 44px rgba(16,24,40,.14)}
+#order .order-h{text-align:center;margin-bottom:6px}
+#order .order-h h2{font-size:clamp(24px,4vw,30px)}
+#order .order-h .tag-eyebrow{margin-bottom:4px}
+/* 關鍵影格一律 from/to 寫法，別改回百分比語法——理由見合規掃描器規則表。 */
+@keyframes orderPing{from{box-shadow:0 18px 44px rgba(16,24,40,.14),0 0 0 0 rgba(212,166,60,.55)}
+  to{box-shadow:0 18px 44px rgba(16,24,40,.14),0 0 0 18px rgba(212,166,60,0)}}
+#order.ping{animation:orderPing .9s ease-out 2}
+
+/* ═══════════ 後台文案鏡像：編輯模式外觀（僅 ?edit=1 時掛 body.cms-on）═══════════
+   正常訪客完全吃不到這段——沒有 body.cms-on 就沒有任何一條規則會命中。 */
+body.cms-on [data-cms-hit]{outline:1.5px dashed rgba(212,166,60,.85);outline-offset:3px;cursor:text;border-radius:3px;transition:background .2s ease,outline-color .2s ease}
+body.cms-on [data-cms-hit]:hover{background:rgba(212,166,60,.12);outline-color:var(--glow-deep)}
+body.cms-on [data-cms-hit][data-cms-dirty]{background:rgba(255,214,102,.34);outline-color:#B8860B;outline-style:solid}
+body.cms-on [data-cms-hit]:focus{outline:2px solid var(--glow-deep);background:#fff}
+body.cms-on [data-cms-hit].cms-flash{animation:cmsFlash 1.1s ease-out 2}
+@keyframes cmsFlash{from{background:rgba(212,166,60,.65);outline-color:#B8860B}to{background:transparent}}
+body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:10px;z-index:9999;
+  background:var(--abyss);color:var(--glow-soft);font-size:12px;padding:5px 11px;border-radius:999px;pointer-events:none}
+
 /* 尊重減少動態偏好 */
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;transition-delay:0ms!important;scroll-behavior:auto!important}
@@ -785,10 +852,24 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
   <section class="block">
     <div class="wrap">
       <div class="head reveal"><p class="tag-eyebrow">個人化訂製</p><h2>從你的八字，長出一串專屬</h2></div>
-      <div style="text-align:center;margin-bottom:30px"><div class="seg" id="modeSeg" role="tablist" aria-label="訂製類型">
-        <button class="on" data-mode="single" role="tab" aria-selected="true"><span class="mode-mark"></span>個人手串</button>
-        <button data-mode="couple" role="tab" aria-selected="false"><span class="mode-mark"></span>情侶對串</button>
-      </div></div>
+      <!-- 訂製入口：原本是一顆 15px 灰字膠囊，使用者反映「很難找哪裡下單」。
+           改成兩張說得出差別的可點卡片，並在正下方直接給進入問卷的入口。
+           id/data-mode 一字不動——JS 用 closest('button') 與 dataset.mode 綁定，改名會斷。 -->
+      <p class="reveal" style="text-align:center;color:var(--muted);font-size:14px;margin-bottom:12px">先選一種，下面的說明與問卷會跟著換</p>
+      <div class="mode-pick reveal" id="modeSeg" role="tablist" aria-label="訂製類型">
+        <button class="on" data-mode="single" role="tab" aria-selected="true">
+          <span class="mk"></span><span class="t">個人手串</span>
+          <span class="d">一個人的八字，一條專屬配比。含九節報告。</span>
+        </button>
+        <button data-mode="couple" role="tab" aria-selected="false">
+          <span class="mk"></span><span class="t">情侶對串</span>
+          <span class="d">兩個人各一條，共用一份配比與關係解析。含十二節報告。</span>
+        </button>
+      </div>
+      <div class="jump-order reveal">
+        <button type="button" class="btn" onclick="goOrder()">直接填問卷 ↓</button>
+        <p class="hint">約 3 分鐘。不用先想好要什麼，問卷會一步一步問。</p>
+      </div>
 
       <!-- 個人資訊區 -->
       <div id="soloInfo">
@@ -920,7 +1001,10 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
 
       <!-- 問卷（payload 契約與現版逐欄位一致） -->
       <div class="form-card reveal" id="order">
-        <h2 style="text-align:center;font-size:24px;margin-bottom:6px">訂製問卷</h2>
+        <div class="order-h">
+          <p class="tag-eyebrow">就是這裡下單</p>
+          <h2 id="orderTitle">訂製問卷・個人手串</h2>
+        </div>
         <p style="text-align:center;color:var(--muted);font-size:14px;margin-bottom:24px">約 3 分鐘填完。送出後我們在 1 個工作天內聯繫你確認設計。</p>
         <form id="f" autocomplete="off" novalidate>
           <div class="hp-field" aria-hidden="true"><label>此欄請留空<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
@@ -1281,7 +1365,7 @@ function route(){
   $('#burger').classList.remove('open'); $('#navLinks').classList.remove('open');
   scrollTo({top:0,behavior:reduce?'auto':'smooth'});
   // 進場動畫重掛
-  requestAnimationFrame(()=>observeReveals());
+  requestAnimationFrame(()=>{ observeReveals(); observeMotion(); });
 }
 addEventListener('hashchange',route);
 addEventListener('resize',()=>{ const on=$('#navLinks a.on'); if(on) moveUnder(on); });
@@ -1294,6 +1378,99 @@ let io;
 function observeReveals(){
   if(!io) io = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} }),{threshold:.08});
   $$('.tab.active .reveal:not(.in)').forEach(el=>io.observe(el));
+}
+
+/* ═══ 觸控裝置動效驅動（見 CSS「觸控裝置動效」段）═══
+   桌機不掛：桌機的同一組效果本來就由 hover 觸發，掛上去只會兩套互打。
+   .inview 隨捲動來回切換（圖框效果會呼吸），.kb 只加不拿（圖片內容的推近只跑一次）。 */
+let mo;
+function observeMotion(){
+  if(reduce || !matchMedia('(hover:none)').matches) return;
+  if(!mo) mo = new IntersectionObserver(es=>es.forEach(e=>{
+    e.target.classList.toggle('inview', e.isIntersecting);
+    if(e.isIntersecting) e.target.classList.add('kb');
+  }),{rootMargin:'-15% 0px -15% 0px',threshold:0});
+  $$('.tab.active .gitem:not(.filler), .tab.active .prod, .tab.active .aes-card, .tab.active #wristIllus').forEach(el=>mo.observe(el));
+}
+
+/* ═══════════ 前台文案覆寫（後台鏡像編輯器的前台這一半）═══════════
+   設計取捨：不在 HTML 上手工掛 data-cms="key"。鍵由「分頁 + 標籤名 + 原文雜湊」在執行期算出，
+   好處是①不用改動四十處標記②原文一旦在程式碼裡被改寫，舊覆寫會自動失效並退回新原文，
+   不會出現「改了程式碼卻被舊覆寫蓋掉」這種查不出來的鬼。
+   覆寫來源優先序：window.__COPY__（靜態內嵌）→ copy.json（同源靜態檔）→ localStorage（編輯預覽）。
+   三者都沒有就用內建原文，站台行為零變化——沿用 gallery/products 的 fail-safe 模式。 */
+const CMS_SEL='.opener p,.head .tag-eyebrow,.head h2,.head p,.hero h1,.hero .lead,.order-h h2,.jump-order .hint,.brand-desc,.mode-pick .t,.mode-pick .d';
+const CMS_LS='pps_site_copy_draft';
+let CMS_NODES=[];
+function cmsHash(s){ let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))>>>0; return h.toString(36); }
+function cmsScan(){
+  CMS_NODES=[];
+  $$('.tab').forEach(tab=>{
+    tab.querySelectorAll(CMS_SEL).forEach(el=>{
+      if(el.querySelector('[data-cms-hit]')) return;              // 巢狀時只取最內層，避免父子重複
+      const orig = el.dataset.cmsOrig !== undefined ? el.dataset.cmsOrig : el.textContent.trim();
+      if(!orig || orig.length>600) return;
+      el.dataset.cmsOrig = orig;
+      const key = tab.id.replace('tab-','')+'.'+el.tagName.toLowerCase()+'.'+cmsHash(orig);
+      el.setAttribute('data-cms-hit', key);
+      CMS_NODES.push({key, tab:tab.id.replace('tab-',''), orig, el});
+    });
+  });
+  return CMS_NODES;
+}
+function cmsApply(map){
+  if(!map) return;
+  CMS_NODES.forEach(n=>{
+    const v = map[n.key];
+    if(typeof v==='string' && v.trim() && v!==n.orig){ n.el.textContent=v; n.el.setAttribute('data-cms-dirty',''); }
+    else { n.el.textContent=n.orig; n.el.removeAttribute('data-cms-dirty'); }
+  });
+}
+async function cmsBoot(){
+  cmsScan();
+  let map = window.__COPY__ || null;
+  if(!map){
+    try{ const r=await fetch('copy.json',{cache:'no-cache'}); if(r.ok) map=await r.json(); }catch(_){}
+  }
+  const edit = new URLSearchParams(location.search).get('edit')==='1';
+  if(edit){
+    try{ const d=JSON.parse(localStorage.getItem(CMS_LS)||'null'); if(d) map=Object.assign({},map,d); }catch(_){}
+  }
+  cmsApply(map);
+  if(edit) cmsEditMode();
+}
+/* 編輯模式：只有 ?edit=1 才進來。被 admin.html 以 iframe 載入，兩邊同源。 */
+function cmsEditMode(){
+  document.body.classList.add('cms-on');
+  const post=(m)=>{ try{ parent.postMessage(Object.assign({__pps:1},m),location.origin); }catch(_){} };
+  document.addEventListener('click',e=>{
+    const el=e.target.closest('[data-cms-hit]'); if(!el) return;
+    e.preventDefault(); e.stopPropagation();
+    if(el.isContentEditable) return;
+    el.contentEditable='true'; el.focus();
+    post({type:'cms:focus',key:el.getAttribute('data-cms-hit')});
+  },true);
+  document.addEventListener('blur',e=>{
+    const el=e.target.closest && e.target.closest('[data-cms-hit]'); if(!el||!el.isContentEditable) return;
+    el.contentEditable='false';
+    const text=el.textContent.trim(), key=el.getAttribute('data-cms-hit');
+    el.toggleAttribute('data-cms-dirty', text!==el.dataset.cmsOrig);
+    post({type:'cms:set',key,text,orig:el.dataset.cmsOrig});
+  },true);
+  addEventListener('message',e=>{
+    if(e.origin!==location.origin || !e.data || e.data.__pps!==1) return;   // 同源才收
+    const d=e.data;
+    if(d.type==='cms:goto'){
+      const el=document.querySelector('[data-cms-hit="'+CSS.escape(d.key)+'"]'); if(!el) return;
+      const tab=el.closest('.tab'); if(tab && !tab.classList.contains('active')) location.hash=tab.id.replace('tab-','');
+      setTimeout(()=>{ el.scrollIntoView({behavior:'smooth',block:'center'});
+        el.classList.remove('cms-flash'); void el.offsetWidth; el.classList.add('cms-flash'); },60);
+    }
+    else if(d.type==='cms:route'){ location.hash=d.tab; }
+    else if(d.type==='cms:apply'){ cmsApply(d.map); }
+    else if(d.type==='cms:list'){ post({type:'cms:nodes',nodes:cmsScan().map(n=>({key:n.key,tab:n.tab,orig:n.orig}))}); }
+  });
+  post({type:'cms:ready',nodes:CMS_NODES.map(n=>({key:n.key,tab:n.tab,orig:n.orig}))});
 }
 
 /* ═══════════ Hero 五行環 ═══════════ */
@@ -1502,6 +1679,7 @@ function renderProducts(list){
         <div class="price">NT$ ${Number(p.price).toLocaleString()} <small>／ ${esc(p.spec)}</small></div>
       </div>
     </article>`).join('');
+  observeMotion();   // 商品卡同樣是動態產生，見 renderGallery 末尾同一條註解
 }
 let PRODUCTS = [];
 // n8n 回傳鍵名（photos/active）與前台契約（imgs/spec）不同源，統一在這裡歸一化；
@@ -1680,9 +1858,20 @@ $('#modeSeg').addEventListener('click',e=>{
   $('#stepB').style.display = couple?'':'none';
   $('#qtyWrap').style.display = couple?'none':'';
   $('#legendA').textContent = couple ? '你的資料（下單人）' : '你的資料';
+  const ot=$('#orderTitle'); if(ot) ot.textContent = couple ? '訂製問卷・情侶對串' : '訂製問卷・個人手串';
   ['b_name','b_birth','b_wrist','b_bead','stage'].forEach(n=>F[n].required = couple);
-  est(); observeReveals();
+  est(); observeReveals(); observeMotion();
 });
+
+/* 直接跳到問卷。SPA 是 hash 路由，href="#order" 會被 route() 判成無效 tab 彈回首頁，
+   所以一律 scrollIntoView（既有雷區）。落點閃兩下，讓「下單在這」這件事沒有懸念。 */
+function goOrder(){
+  const el=$('#order'); if(!el) return;
+  el.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
+  el.classList.remove('ping'); void el.offsetWidth; if(!reduce) el.classList.add('ping');
+  const first=el.querySelector('input[name="a_name"]');
+  if(first) setTimeout(()=>first.focus({preventScroll:true}), reduce?0:650);
+}
 
 function est(){
   const P=CONFIG.PRICE; let t=0, ok=true, parts=[];
@@ -1827,6 +2016,7 @@ function renderGallery(){
   gal.classList.remove('fade-in');
   if(!reduce){ void gal.offsetWidth; gal.classList.add('fade-in'); }
   renderPager(idx.length,totalPages);
+  observeMotion();   // 作品卡是這裡才生出來的，route() 那次掛不到（換頁／篩選後同理）
 }
 function applyFilter(){ galPage=1; renderGallery(); }
 function updPersona(){ const p=$('#persona'); p.style.opacity='0'; setTimeout(()=>{ p.textContent = fLayout==='all'?'':(PERSONA[fLayout]||''); p.style.opacity='1'; },reduce?0:160); }
@@ -2039,7 +2229,7 @@ $('#chatInput').addEventListener('keydown',e=>{ if(e.key==='Enter') chatSend(); 
 })();
 
 /* ═══════════ 啟動 ═══════════ */
-route(); observeReveals();
+route(); observeReveals(); observeMotion(); cmsBoot();
 </script>
 </body>
 </html>
