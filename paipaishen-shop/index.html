@@ -17,7 +17,7 @@
 <meta property="og:locale" content="zh_TW">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="拍拍深五行水晶設計研究所">
-<meta name="twitter:description" content="八字文化 × 心理學的個人化手串。量化、透明、可追溯。">
+<meta name="twitter:description" content="把焦慮交給數據，把平靜還給自己。用你的生日排出一份配比，再照配比挑石頭。">
 <meta name="twitter:image" content="https://anwer3712.github.io/paipaishen-shop/photos/w2.jpg">
 <!-- 全站唯一容許把 LINE／IG 帳號抄第二份的地方：結構化資料要讓爬蟲直接讀到，
      不能等 JS 填。改 config.js 的 CONTACT 時，這裡的 sameAs 要手動跟著改。 -->
@@ -121,6 +121,39 @@ section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
 .tab section.block:nth-last-of-type(2){background:#F8F3E9}
 .tab section.block:nth-last-of-type(1){
   background:radial-gradient(78% 62% at 50% 118%,rgba(232,201,122,.20),transparent 72%),var(--paper)}
+
+/* ── 情緒弧線第二層：連續推進（原工單 M03／M04）──
+   上面那四階紙色梯是「在頁面裡的位置」，它承載敘事（愈下面愈亮），必須留著。
+   這一層加的是「隨捲動連續變亮」，規格 §3.2 要的是連續、不是二值切換。
+   用原生 CSS 捲動驅動動畫（animation-timeline: view()），**不引入 GSAP／ScrollTrigger**：
+   同樣的 scrub 效果、0 KB、零建置、零 CDN，也不必維護 vendor/ 與授權檔。
+   @supports 包住 → 不支援的瀏覽器只是少了這層漸亮，四階梯與其餘動效完全不受影響。
+   放在 prefers-reduced-motion: no-preference 內，reduce 時整層不存在（不是停在暗的，
+   因為底下的四階梯本來就是定稿亮度）。 */
+@supports (animation-timeline:view()){
+  @media(prefers-reduced-motion:no-preference){
+    .tab section.block{position:relative}
+    .tab section.block>*{position:relative;z-index:1}
+    .tab section.block::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+      background:radial-gradient(122% 78% at 50% 122%,rgba(232,201,122,.17),transparent 68%);
+      opacity:0;animation:blockGlow linear both;
+      animation-timeline:view();animation-range:entry 10% cover 58%}
+    @keyframes blockGlow{from{opacity:0}to{opacity:1}}
+    /* M04 視差：只動 hero 的光暈層。::before 已被 heroLight 佔用 transform，
+       兩個動畫掛同一個屬性會互蓋，所以分層做。 */
+    #tab-home .hero::after{animation:heroPara linear both;
+      animation-timeline:view();animation-range:cover}
+    @keyframes heroPara{from{translate:0 0}to{translate:0 14%}}
+  }
+}
+
+/* ── 書封小卡（關於我們）── 只露出封面上緣，裁切邊的實測依據見 HTML 端註解 */
+.bookcard{margin:0;transform:rotate(-1.6deg)}
+.bookcard .win{aspect-ratio:410/185;overflow:hidden;border-radius:var(--r-sm);
+  box-shadow:0 10px 26px rgba(16,24,40,.16),0 0 0 1px rgba(232,201,122,.55) inset;background:#EFE7D6}
+.bookcard .win img{width:100%;height:auto;display:block;object-fit:cover;object-position:50% 0%}
+.bookcard figcaption{margin-top:10px;font-family:var(--serif);font-size:14.5px;color:var(--ink);text-align:center;transform:rotate(1.6deg)}
+@media(max-width:900px){ .bookcard{transform:none} .bookcard figcaption{transform:none} }
 
 /* ── 開場區塊：每頁的深淵端。先說中處境，最後一句才給出路 ── */
 .opener{position:relative;overflow:hidden;color:#EDE7DA;padding:clamp(38px,6vw,62px) 0;
@@ -1141,8 +1174,17 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
         <div class="t lift reveal" style="--i:1"><p class="n">在旁</p><h3>陪伴提醒</h3><p style="color:var(--muted);font-size:14.5px">物理性的陪伴，目光觸及時校準步調。</p></div>
         <div class="t lift reveal" style="--i:2"><p class="n">光芒</p><h3>心理導航</h3><p style="color:var(--muted);font-size:14.5px">點亮你原本具備、卻被遺忘的潛能。</p></div>
       </div>
-      <div class="reveal" style="max-width:320px;margin:36px auto 0">
+      <div class="reveal duo" style="max-width:660px;margin:36px auto 0;gap:22px;align-items:center">
         <img src="photos/brand/danny.webp" alt="拍拍深訂製五行水晶手串作品" width="1080" height="1120" loading="lazy" style="border-radius:var(--r);box-shadow:var(--shadow-sm)">
+        <!-- 書封小卡。⚠ 原圖中段有一個玄學物理類禁詞（不在此重複書寫——註解不會被剝除，
+             會出現在公開站原始碼裡），使用者要求「不用修改字樣」，所以檔案一個位元都不動，
+             改用 CSS 視窗只露出上緣。裁切邊實測：原圖 410×512，禁詞所在文字塊由 y≈205 起，
+             這裡的視窗高 185px（0.361×512），**下緣落在 y=185，離禁詞起點還有 20px**。
+             要調整 aspect-ratio 前先重量一次，別憑感覺加高。 -->
+        <figure class="bookcard">
+          <div class="win"><img src="photos/brand/S__8962095.jpg" alt="拍拍深五行水晶設計研究所出版品封面上緣" width="410" height="512" loading="lazy"></div>
+          <figcaption>把焦慮交給數據，把平靜還給自己。</figcaption>
+        </figure>
       </div>
     </div>
   </section>
@@ -1248,7 +1290,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
     <div class="cols">
       <div>
         <div class="brand-f"><img src="photos/brand/emblem-light.png" alt="拍拍深五行水晶設計研究所 商標" width="32" height="56" loading="lazy"> 拍拍深五行水晶設計研究所</div>
-        <p style="font-size:14px;max-width:38ch">基於傳統八字文化符號的個人化儀式配置服務。量化、透明、可追溯。</p>
+        <p style="font-size:14px;max-width:38ch">把焦慮交給數據，把平靜還給自己。<br><span style="color:var(--muted)">用你的生日排出一份配比，再照配比挑石頭。算得出來的部分，我們全部寫給你看。</span></p>
       </div>
       <div>
         <h4>逛逛</h4>
