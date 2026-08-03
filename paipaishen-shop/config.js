@@ -79,8 +79,12 @@ const CONFIG = {
 
   // 核心功能（五選一，個人／情侶共用）
   // 欄位＝[顯示標題, 一句話, 這是在調什麼（適合誰＋配比方向）, 送單用的值]
-  // ⚠ 第 4 欄是「送給 n8n／引擎的字串」，必須與引擎既有對照表一字不差，
-  //    所以即使顯示改了也不能動它。第 5 項顯示「全面校準」但送出仍是舊值。
+  // ⚠ 第 4 欄是「送給 n8n／引擎的字串」。2026-08-03 以前這裡放的是引擎對照表的舊名，
+  //    因為 WF1 的比對鏈只認得那個字串；舊名帶合規禁詞，而 config.js 是原封不動發上公開站的
+  //    （零建置、無 minify）＝禁詞公開可見。現在 n8n 進件入口（SALES_前台進件／驗證正規化）
+  //    已加映射層，送顯示名進去會被翻回引擎認得的舊名，所以四欄可以跟顯示名一致了。
+  //    ⚠️ 動這欄前先確認那個映射層還在——沒有它，WF1 的 includes 鏈對不上就會靜靜落到
+  //    預設值「守護淨化」，不報錯也沒有 log。查法：export ppsSalesIntake01 找 CORE_TO_ENGINE。
   // 配比方向出自正典 `個人五行手串_AI一條龍包.md` §A4「核心功能 → 主五行候選」。
   CORE: [
     ["⛩️ 守護淨化","減法：先把消耗你的拿掉",
@@ -95,9 +99,9 @@ const CONFIG = {
     ["🌟 內在力量","向內：把自己修回來",
      "適合已經撐很久、對自己沒把握，或想找回原本的節奏與熱情的人。配比方向偏火與土。",
      "🌟 內在力量"],
-    ["🏵️ 全面校準","不偏任何方向，照命盤補齊",
-     "說不上特別想調哪一塊，或就是想把五行補整齊。這一項不加任何偏壓，完全依命盤計算。",
-     "🏵️ 全方位補運"]
+    ["🏵️ 全面校準","不偏任何方向，照命盤與當年流年補齊",
+     "說不上特別想調哪一塊，或就是想把五行補整齊。這一項不加任何偏壓：除了五派命格校準，還會把你下單當年的流年拉進來加重比對，完全依命盤計算。",
+     "🏵️ 全面校準"]
   ],
 
   // 視覺體感（三選一）
@@ -164,22 +168,22 @@ const CONFIG = {
   // 照片取自 photos/，價格取自 PRICE 矩陣合理值，庫存 3–5。
   PRODUCTS: [
     { id:"P-CL02", name:"【示例】晴空湖光・淺色五行", layout:"五行相生搭配法", aesthetic:"自由共振",
-      price:699, stock:4, spec:"8mm・約 18cm・彈力線", imgs:["photos/w2.jpg","photos/w3.jpg"],
+      price:699, stock:4, spec:"8mm・約 18cm・蠶絲線", imgs:["photos/w2.jpg","photos/w3.jpg"],
       desc:"淺色系五行相生排列，晴空與湖光交織。日常好搭，適合想要清透層次的你。" },
     { id:"P-ST08", name:"【示例】礦紋深藍・沉靜磐石", layout:"大小一致無主珠", aesthetic:"內斂磐石",
-      price:846, stock:3, spec:"10mm・約 18cm・彈力線", imgs:["photos/works/w08.jpg","photos/works/w09.jpg"],
+      price:846, stock:3, spec:"10mm・約 18cm・蠶絲線", imgs:["photos/works/w08.jpg","photos/works/w09.jpg"],
       desc:"藍黑金棕的礦石紋理，大小一致、無主珠設計。腕間低調沉穩，收得住情緒。" },
     { id:"P-LT13", name:"【示例】指尖流光・剔透白晶", layout:"大小一致無主珠", aesthetic:"輕盈流光",
-      price:612, stock:5, spec:"8mm・約 17cm・彈力線", imgs:["photos/works/w13.jpg","photos/works/w12.jpg"],
+      price:612, stock:5, spec:"8mm・約 17cm・蠶絲線", imgs:["photos/works/w13.jpg","photos/works/w12.jpg"],
       desc:"通透白水晶，冰花點點。指尖一轉就有流光，適合喜歡素淨光感的人。" },
     { id:"P-IN02", name:"【示例】墨綠粉紫・間隔成串", layout:"間隔排列法", aesthetic:"內斂磐石",
-      price:767, stock:4, spec:"10mm・約 17cm・彈力線", imgs:["photos/works/w02.jpg","photos/works/w03.jpg"],
+      price:767, stock:4, spec:"10mm・約 17cm・蠶絲線", imgs:["photos/works/w02.jpg","photos/works/w03.jpg"],
       desc:"墨綠與粉紫規律間隔，圓潤交替。安靜裡帶一點溫度，耐看不張揚。" },
     { id:"P-BK14", name:"【示例】淺藍煙灰・塊面清雅", layout:"區塊排列法", aesthetic:"輕盈流光",
-      price:743, stock:3, spec:"8mm・約 16cm・彈力線", imgs:["photos/works/w14.jpg","photos/works/w15.jpg"],
+      price:743, stock:3, spec:"8mm・約 16cm・蠶絲線", imgs:["photos/works/w14.jpg","photos/works/w15.jpg"],
       desc:"淺藍與煙灰分塊排列，塊面分明。清雅乾淨，通勤或約會都合適。" },
     { id:"P-MN16", name:"【示例】素雅亮點・主角配角", layout:"主角配角法", aesthetic:"輕盈流光",
-      price:673, stock:5, spec:"9mm・約 16cm・彈力線", imgs:["photos/works/w16.jpg"],
+      price:673, stock:5, spec:"9mm・約 16cm・蠶絲線", imgs:["photos/works/w16.jpg"],
       desc:"白灰為底、一顆亮點作主角。素雅中留一處焦點，簡單但有記憶點。" }
   ]
 };

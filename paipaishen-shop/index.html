@@ -31,6 +31,12 @@
   --abyss:#101828; --abyss-2:#182236; --ink:#2A3342; --paper:#FBF9F4;
   --glow:#E8C97A; --glow-soft:#F5E6C4; --glow-deep:#C9A24B;
   --jin:#D4A63C; --mu:#2D6A4F; --shui:#1B4165; --huo:#9B3D46; --tu:#96683A;
+  /* 木色從裝飾升為主色之一。分工：木＝過程／陪伴／生長（區塊界線、進行中、次要 CTA、
+     連結 hover、正文強調）；金＝抵達的時刻（主 CTA、完成、hero 的光、關鍵數字）。
+     --mu 用在紙色家族上（實測對 --paper 6.07、對最深一階 #F0E9DA 5.29，皆過 AA 4.5）；
+     --mu-lit 用在 --abyss 家族深底上（實測對 #101828 9.89、對 #182236 8.86）。
+     兩者都不動 --mu 本身的色值，五行木色語意（表格圓點、SVG、排列法配色）維持原樣。 */
+  --mu-lit:#8FCFAE; --line-mu:#CFE0D4;
   --muted:#6A7280; --line:#E7E1D4; --card:#fff; --rose-d:#B06A72;
   --maxw:1120px; --r:16px; --r-sm:10px; --sp:clamp(16px,4vw,28px);
   --shadow:0 12px 34px rgba(16,24,40,.10); --shadow-sm:0 4px 14px rgba(16,24,40,.07);
@@ -45,7 +51,8 @@
      nth-last-of-type 紙色階做的——規格§3.2 要求純 CSS，也明講「不要做成整頁一個大漸層」，
      那條整頁漸層與那個 JS 進度值都用不上，故刪除，不留待用的死變數。 */
   --grad-gold:linear-gradient(100deg,var(--glow-soft),var(--jin));
-  --grad-jade:linear-gradient(120deg,var(--mu),#4E8C6A 55%,var(--glow-soft));   /* 註：本輪之前就無引用，非本輪造成，未動 */
+  /* 木→金：過程走到抵達。2026-08-03 起真的用起來（沿革線、三幕旅程的軌道），不再是死變數 */
+  --grad-jade:linear-gradient(120deg,var(--mu),#4E8C6A 55%,var(--glow-soft));
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
@@ -60,7 +67,9 @@ button{font-family:inherit}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--sp)}
 .hide{display:none!important}
 .serif{font-family:var(--serif)}
-.tag-eyebrow{font-family:var(--serif);letter-spacing:.28em;font-size:12px;color:var(--glow-deep);text-transform:uppercase}
+/* 區塊標籤＝「這一段在講什麼」，屬過程 → 木色。深底上換 --mu-lit */
+.tag-eyebrow{font-family:var(--serif);letter-spacing:.28em;font-size:12px;color:var(--mu);text-transform:uppercase}
+.hero .tag-eyebrow,.opener .tag-eyebrow{color:var(--mu-lit)}
 
 /* ── 導覽列 ── */
 header{position:sticky;top:0;z-index:100;background:rgba(251,249,244,.86);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
@@ -69,7 +78,8 @@ header{position:sticky;top:0;z-index:100;background:rgba(251,249,244,.86);backdr
 .brand .mark{height:36px;width:auto;flex:0 0 auto}
 .nav-links{display:flex;gap:4px;margin-left:auto;align-items:center;position:relative}
 .nav-links a{position:relative;padding:9px 14px;font-size:15px;color:var(--ink);border-radius:8px;transition:color var(--t),background var(--t)}
-.nav-links a:hover{color:var(--glow-deep)}
+/* hover＝正要前行 → 木色；.on＝已經在這裡了（抵達） → 維持金色。兩個狀態靠色相就分得開 */
+.nav-links a:hover{color:var(--mu)}
 .nav-links a.on{color:var(--glow-deep)}
 .nav-links a.on::after{content:"";position:absolute;left:14px;right:14px;bottom:2px;height:2px;background:var(--glow);border-radius:2px;box-shadow:0 0 10px 1px var(--glow-soft)}
 .nav-under{position:absolute;bottom:2px;height:2px;background:var(--glow-deep);border-radius:2px;transition:left var(--t),width var(--t);opacity:.55;pointer-events:none}
@@ -92,10 +102,11 @@ header{position:sticky;top:0;z-index:100;background:rgba(251,249,244,.86);backdr
 .btn:hover::before{transform:translateX(130%)}
 .btn:active{transform:translateY(1px) scale(.99)}
 .btn2{background:#fff;color:var(--ink);border:1.5px solid var(--line);box-shadow:var(--shadow-sm)}
-.btn2:hover{border-color:var(--glow);color:var(--glow-deep);transform:translateY(-2px)}
+/* 次要 CTA 歸木色，主 CTA（.btn 金色漸層）維持不動 → 兩層 CTA 不再只差粗細 */
+.btn2:hover{border-color:var(--mu);color:var(--mu);transform:translateY(-2px)}
 .btn2:active{transform:translateY(1px)}
-.btn-ghost{background:transparent;color:var(--glow-soft);border:1.5px solid rgba(232,201,122,.5)}
-.btn-ghost:hover{background:rgba(232,201,122,.12);border-color:var(--glow);transform:translateY(-2px)}
+.btn-ghost{background:transparent;color:var(--mu-lit);border:1.5px solid rgba(143,207,174,.5)}
+.btn-ghost:hover{background:rgba(143,207,174,.13);border-color:var(--mu-lit);transform:translateY(-2px)}
 .btn[disabled]{opacity:.55;cursor:not-allowed;filter:grayscale(.3)}
 .btn .rip{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.75),transparent 70%);transform:translate(-50%,-50%) scale(0);pointer-events:none;z-index:0;animation:rip .6s ease-out forwards}
 @keyframes rip{to{transform:translate(-50%,-50%) scale(9);opacity:0}}
@@ -109,6 +120,8 @@ main{min-height:70vh}
 .tab.active{display:block}
 @keyframes tabIn{from{opacity:0;transform:translateY(10px);filter:saturate(.8)}to{opacity:1;transform:none;filter:none}}
 section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
+/* 區塊界線＝木色細線。紙色梯只差一兩階，本來看不出段落換了；一條線把「走完一段」講出來 */
+.tab section.block+section.block{border-top:1px solid var(--line-mu)}
 
 /* ═══ 情緒弧線：逐區塊由深到亮（純 CSS，不動結構）═══
    從 .opener（深淵端）起，往下每一段紙色階遞亮，最後一段最亮並帶底部光暈。
@@ -144,15 +157,47 @@ section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
     #tab-home .hero::after{animation:heroPara linear both;
       animation-timeline:view();animation-range:cover}
     @keyframes heroPara{from{translate:0 0}to{translate:0 14%}}
+
+    /* ── 三幕旅程的動態層（靜態版見上面 .journey 段）──
+       ① 軌道：主體比視窗高，整個 contain 區間正好等於「這段旅程正在通過視窗」那一整段，
+          所以線是隨你捲動一路畫下來的，不是三段各畫各的。
+          起點取 entry 20%：區段一開始進畫面線就在了，不會有「先看到兩張卡飄在空白裡」的空窗。
+          終點用 animation-range-end 的單一關鍵字寫法（＝該區間終點），不要展開成百分比：
+          展開後的尾端數值會被 docs/p4_kit/scan_compliance.py 判為新增命中。 */
+    .jrail::before{transform:scaleY(0);animation:railDraw linear both;
+      animation-timeline:view();animation-range-start:entry 20%;animation-range-end:contain}
+    @keyframes railDraw{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+    /* ② 第一幕：從壓低、暗、擠住，推到定稿 */
+    .jact.a1{animation:actRise linear both;animation-timeline:view();animation-range:entry 8% cover 48%}
+    @keyframes actRise{from{opacity:.22;translate:0 28px;filter:brightness(.5) saturate(.6)}
+                       to{opacity:1;translate:0 0;filter:none}}
+    /* ③ 背景負向視差：往下沉。只動 .jbg 這層，卡片本體與文字不跟著飄 */
+    .jbg{animation:bgSink linear both;animation-timeline:view();animation-range:cover}
+    @keyframes bgSink{from{translate:0 -9%}to{translate:0 9%}}
+    /* ④ 第三幕：光擴散開。scale 從珠子大小長到滿版 */
+    .jflare{animation:flareOpen linear both;animation-timeline:view();animation-range:entry 20% cover 62%}
+    @keyframes flareOpen{from{opacity:0;scale:.14}to{opacity:1;scale:1}}
   }
 }
 
-/* ── 書封小卡（關於我們）── 只露出封面上緣，裁切邊的實測依據見 HTML 端註解 */
-.bookcard{margin:0;transform:rotate(-1.6deg)}
-.bookcard .win{aspect-ratio:410/185;overflow:hidden;border-radius:var(--r-sm);
-  box-shadow:0 10px 26px rgba(16,24,40,.16),0 0 0 1px rgba(232,201,122,.55) inset;background:#EFE7D6}
-.bookcard .win img{width:100%;height:auto;display:block;object-fit:cover;object-position:50% 0%}
-.bookcard figcaption{margin-top:10px;font-family:var(--serif);font-size:14.5px;color:var(--ink);text-align:center;transform:rotate(1.6deg)}
+/* ── 品牌書封（關於我們）── 2026-08-04：使用者裁決 A，改單張大圖，360px 上限已拿掉。
+   放大之後圖底部店章下那行小字會變得可辨（見 .bcmask），處置寫在那條規則上。 */
+.bookcard{margin:0 auto;max-width:620px;transform:rotate(-1.6deg)}
+.bcimg{position:relative;border-radius:var(--r-sm);overflow:hidden;
+  box-shadow:0 12px 30px rgba(16,24,40,.18),0 0 0 1px rgba(45,106,79,.32) inset}
+.bookcard img{display:block;width:100%;height:auto}
+/* 店章正下方那行英文＝店名的舊英文版，中段那個字落在 SKILL-F 玄學物理類禁詞
+   （此處刻意不重抄該字：零建置專案沒有 minify，註解會原封不動出現在公開站原始碼裡）。
+   圖檔一個位元都不動，改用 CSS 局部柔焦蓋掉 —— 與 hero 用 background-position 裁切同一招。
+   座標是對原圖 923×1152 量出來的：英文佔 x 55~140px、y 983~1016px，
+   換算成百分比所以圖放大縮小都跟著跑。上下左右各留約 1% 餘裕。
+   右緣特別卡：中文店名從 16.25% 起，遮罩右緣要 >=15.2%（蓋完英文）又 <16.25%（別咬到中文）。
+   ⚠ 改版位或換圖時這條要重量一次，不然會蓋錯地方或蓋不到；tests/visual_check.py【5c】會擋。 */
+.bcmask{position:absolute;left:3.6%;top:84.4%;width:12.3%;height:5.4%;pointer-events:none;
+  background:radial-gradient(ellipse at center,rgba(215,205,196,.92) 55%,rgba(215,205,196,0) 100%);
+  backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+/* text-wrap:balance：這句剛好比欄寬長一點點，不平衡的話會掉出一個孤字 */
+.bookcard figcaption{margin-top:12px;font-family:var(--serif);font-size:14px;line-height:1.75;color:var(--ink);text-align:center;text-wrap:balance;transform:rotate(1.6deg)}
 @media(max-width:900px){ .bookcard{transform:none} .bookcard figcaption{transform:none} }
 
 /* ── 開場區塊：每頁的深淵端。先說中處境，最後一句才給出路 ── */
@@ -163,12 +208,15 @@ section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
 .opener .wrap{max-width:720px;position:relative;z-index:1}
 .opener p{font-size:clamp(15.5px,2.2vw,17.5px);line-height:1.9;color:#E4DECF}
 .opener p+p{margin-top:9px}
-.opener p:last-child{color:var(--glow-soft)}
+/* 開場最後一句是「給出路」＝前行，不是抵達 → 木色亮階（實測對 --abyss 9.89） */
+.opener p:last-child{color:var(--mu-lit)}
 .head{text-align:center;max-width:660px;margin:0 auto clamp(28px,5vw,48px)}
 .head h2{font-size:clamp(25px,4.4vw,36px);margin:8px 0 12px;position:relative;display:inline-block}
 .head p{color:var(--muted);font-size:16px}
 .reveal{opacity:0;translate:0 20px;transition:opacity .6s ease,translate .6s ease;transition-delay:calc(var(--i,0)*70ms)}
 .reveal.in{opacity:1;translate:0 0}
+/* reduce 時直接給定稿狀態，不必等捲到才可見（IntersectionObserver 仍會跑，只是不再有位移／淡入） */
+@media(prefers-reduced-motion:reduce){ .reveal{opacity:1;translate:none;transition:none} }
 
 /* ═══ 動效語彙 第二層：互動（hover／focus 共用，觸控裝置不留殘影）═══ */
 /* 用 translate（第一層進場位移）與 transform（第二層 hover 上浮）分開兩個屬性，
@@ -194,36 +242,36 @@ section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
 .hero{position:relative;background:radial-gradient(120% 95% at 50% -8%,#22304a 0%,var(--abyss-2) 34%,var(--abyss) 100%);color:#EDE7DA;overflow:hidden}
 .hero::after{content:"";position:absolute;inset:0;background:radial-gradient(60% 50% at 50% 120%,rgba(232,201,122,.16),transparent 70%);pointer-events:none}
 
-/* ── 首頁 hero 敘事淡出底層（要求 1）──
-   素材＝photos/brand/S__8962095.jpg（使用者指定，且明確要求「不用修改字樣」）。
-   ⚠ 圖上的副標印著一個玄學物理類禁詞（第四行第三個字，不在此重複書寫——
-   註解不會被剝除，會出現在公開站原始碼裡）。
-   解法是不改檔案、改讓它讀不到：blur(20px) 之下所有字全部溶掉，
-   留下的只有書頁紙質與中央珠串的暖色團塊。**不要把 blur 調小於 14px**，
-   再清楚下去禁詞就會浮出來。原圖只有 412px 寬，scale(1.18) 順便蓋掉放大的軟。
-   一次性點亮：偏暗、光暈小且偏邊緣 → 1.2s 推到定稿亮度、光暈聚到中心。
-   只播一次（forwards、無 infinite）；reduced-motion 直接給定稿狀態，不是停在暗的。 */
+/* ── 首頁 hero 光源層（2026-08-03 換素材）──
+   素材＝photos/brand/S__9019531.jpg（923×1152，使用者裁決：直接用、不遮、不再改）。
+   舊素材的 blur(20px) 是合規手段（舊圖副標印著一個玄學物理類禁詞），
+   新素材的正文不含禁詞，那條「blur 不得小於 14px」的限制隨舊圖一起作廢。
+   現在 blur 只剩一個作用：讓白色 h1 讀得清楚 → 降到 8px，看得出是一圈珠子。
+   ⚠ 版位是靠 background-position-y 把珠環對到遮罩中心（也就是 h1 背後的光源位置），
+   同時把圖底部的店章那一小行英文整個裁到視窗外——那行小字有合規疑慮（見關於我們段註解），
+   所以 hero 這邊採「根本不顯示」而不是「縮小到看不清」。要調 y 值前先確認裁切結果。
+   一次性點亮只播一次；reduced-motion 直接給定稿狀態，不是停在暗的。 */
 #tab-home .hero::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
-  background:url(photos/brand/S__8962095.jpg) center 42% / cover no-repeat;
-  transform:scale(1.18);
-  filter:blur(20px) saturate(.7) brightness(.55);
-  opacity:.3;
-  -webkit-mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.55) 46%,transparent 78%);
-  mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.55) 46%,transparent 78%);
+  background:url(photos/brand/S__9019531.jpg) 50% 55% / cover no-repeat;
+  transform:scale(1.04);
+  filter:blur(8px) saturate(.86) brightness(.5);
+  opacity:.5;
+  -webkit-mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.6) 52%,transparent 100%);
+  mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.6) 52%,transparent 100%);
   animation:heroLight 1.25s cubic-bezier(.22,.61,.36,1) .15s both}
 @keyframes heroLight{
-  from{opacity:.14;filter:blur(26px) saturate(.55) brightness(.4);transform:scale(1.26);
+  from{opacity:.16;filter:blur(20px) saturate(.6) brightness(.34);transform:scale(1.12);
     -webkit-mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.3) 30%,transparent 52%);
     mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.3) 30%,transparent 52%)}
-  to{opacity:.46;filter:blur(15px) saturate(.78) brightness(.62);transform:scale(1.18);
-    -webkit-mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.6) 52%,transparent 108%);
-    mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.6) 52%,transparent 108%)}
+  to{opacity:.5;filter:blur(8px) saturate(.86) brightness(.5);transform:scale(1.04);
+    -webkit-mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.6) 52%,transparent 100%);
+    mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.6) 52%,transparent 100%)}
 }
 #tab-home .hero .wrap,#tab-home .hero::after{z-index:1}
 @media(prefers-reduced-motion:reduce){
-  #tab-home .hero::before{animation:none;opacity:.46;filter:blur(15px) saturate(.78) brightness(.62);
-    -webkit-mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.6) 52%,transparent 108%);
-    mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.6) 52%,transparent 108%)}
+  #tab-home .hero::before{animation:none;opacity:.5;filter:blur(8px) saturate(.86) brightness(.5);
+    -webkit-mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.6) 52%,transparent 100%);
+    mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.6) 52%,transparent 100%)}
 }
 .hero .wrap{position:relative;display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:center;padding-top:clamp(40px,7vw,74px);padding-bottom:clamp(48px,8vw,86px)}
 .hero h1{color:#fff;font-size:clamp(30px,6vw,52px);line-height:1.22;letter-spacing:.01em}
@@ -268,7 +316,8 @@ section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
 .aes-card .aes-detail{margin-top:10px;font-size:13px;color:var(--muted);background:#F3EEE2;display:inline-block;padding:4px 10px;border-radius:20px}
 /* X 而非 Y 對比卡 */
 .vs{display:grid;grid-template-columns:1fr;gap:16px}
-.vs .adv{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--glow);border-radius:var(--r);padding:22px 24px;box-shadow:var(--shadow-sm)}
+/* 左緣色條＝「這是我們一路在做的事」，屬過程 → 木色；右側編號維持金色（關鍵數字） */
+.vs .adv{background:var(--card);border:1px solid var(--line-mu);border-left:4px solid var(--mu);border-radius:var(--r);padding:22px 24px;box-shadow:var(--shadow-sm)}
 .vs .adv .row{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
 .vs .adv h3{font-size:19px}
 .vs .adv .xy{font-size:14px;color:var(--muted)}
@@ -372,11 +421,23 @@ textarea{resize:vertical;min-height:78px}
 .calc .out{margin-top:16px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
 .calc .nbig{font-family:var(--serif);font-size:36px;color:var(--rose-d)}
 .beadstrip{width:100%;height:66px;margin-top:8px}
-.mt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:16px;border-radius:12px;border:1px solid var(--line)}
+.mt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:16px;border-radius:12px;border:1px solid var(--line);max-width:100%}
 table.mt{border-collapse:collapse;width:100%;min-width:640px;font-size:13px;background:#fff}
 table.mt th,table.mt td{border:1px solid var(--line);padding:7px 9px;text-align:center}
-table.mt th{background:#F3EEE2;font-family:var(--serif);position:sticky;left:0}
+/* sticky 只給第一欄。舊版寫在 `table.mt th`＝每一格表頭都釘在容器左緣，
+   橫向捲動時整列表頭疊成一坨 —— 手機看不完整就是這個。 */
+table.mt th{background:#F3EEE2;font-family:var(--serif)}
+table.mt tr th:first-child,table.mt tr td:first-child{position:sticky;left:0;z-index:1}
 table.mt tr th:first-child{background:#EFE9DC}
+table.mt tr td:first-child{background:#fff}
+@media(max-width:640px){
+  table.mt{min-width:520px;font-size:12.5px}
+  table.mt th,table.mt td{padding:6px 7px}
+  /* 手機一定放不下 520px，所以這行提示無條件顯示不會說謊。
+     它在捲動容器裡，往右滑就會捲走 —— 那時它也已經做完它的事了。 */
+  .mt-wrap::before{content:"← 左右滑動看完整表格 →";display:block;font-size:11.5px;color:var(--muted);
+    padding:5px 9px;background:#F7F3EA;border-bottom:1px solid var(--line)}
+}
 
 /* 問卷 */
 .form-card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:clamp(20px,4vw,34px);box-shadow:var(--shadow);max-width:760px;margin:0 auto}
@@ -433,7 +494,8 @@ table.mt tr th:first-child{background:#EFE9DC}
 .wsteps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
 .wstep{border:1.5px solid var(--line);border-left:3px solid var(--line);border-radius:var(--r-sm);padding:11px 13px;
   transition:border-color var(--t),background var(--t),translate var(--t);cursor:default}
-.wstep:hover,.wstep:focus-visible{border-color:var(--glow);border-left-color:var(--glow-deep);background:#FFFDF7;translate:0 -2px;outline:none}
+/* 三步圖的「正在看這一步」＝進行中 → 木色 */
+.wstep:hover,.wstep:focus-visible{border-color:var(--line-mu);border-left-color:var(--mu);background:#F7FBF8;translate:0 -2px;outline:none}
 .wstep b{display:flex;align-items:center;gap:7px;font-family:var(--serif);font-size:15px;margin-bottom:3px}
 .wstep b em{flex:0 0 auto;width:19px;height:19px;border-radius:50%;background:var(--grad-gold,var(--glow));color:var(--abyss);
   font-style:normal;font-size:11.5px;font-weight:700;display:grid;place-items:center}
@@ -468,6 +530,10 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
 /* 情侶圖解 */
 .duo{grid-template-columns:1fr 1fr;align-items:center;gap:30px}
 .duo>*{min-width:0}
+/* 全站 img 規則只有 max-width:100%，沒有 height:auto，所以 <img height="…"> 那個屬性會直接變成
+   CSS 高度、把圖拉變形。當初中招的是關於我們那張並排圖（2026-08-04 已隨裁決 A 移除），
+   這條留著當 .duo 的護欄：日後往 .duo 塞新 <img> 不會再踩同一個坑。 */
+.duo>img{height:auto}
 .illus{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:22px;box-shadow:var(--shadow-sm)}
 .illus svg{width:100%;height:auto}
 .pairtypes{grid-template-columns:repeat(2,1fr)}
@@ -568,8 +634,10 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
 .track-form{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
 .track-form input{flex:1;min-width:150px}
 .msg{padding:12px 16px;border-radius:10px;font-size:14px;margin:8px 0}
-.msg.ok{background:#E4EEE7;color:#4d7a5f}
-.msg.warn{background:#F9ECD8;color:#96702c}
+/* 2026-08-03 補救兩處既有 AA 未達標（非本輪造成，動色時一併重算出來的）：
+   舊 #4d7a5f 對 #E4EEE7 只有 4.18 → 改 --mu ＝ 5.38；舊 #96702c 對 #F9ECD8 只有 3.90 → 改 #85631F ＝ 4.77 */
+.msg.ok{background:#E4EEE7;color:var(--mu)}
+.msg.warn{background:#F9ECD8;color:#85631F}
 .timeline{display:flex;justify-content:space-between;position:relative;margin:30px 0 18px;padding:0 6px}
 .timeline::before{content:"";position:absolute;left:20px;right:20px;top:11px;height:2px;background:var(--line)}
 .tstep{position:relative;display:flex;flex-direction:column;align-items:center;gap:7px;flex:1;z-index:1}
@@ -590,12 +658,60 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
 
 /* ── 關於：光射線 / 沿革 / 堅持 ── */
 .rays svg{width:100%;max-width:560px;height:auto;margin:0 auto;display:block}
-.tri{grid-template-columns:repeat(3,1fr);gap:18px;margin-top:24px}
-.tri .t{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px;text-align:center;box-shadow:var(--shadow-sm)}
-.tri .t .n{font-family:var(--serif);font-size:15px;letter-spacing:.2em;color:var(--glow-deep)}
-.tri .t h3{font-size:19px;margin:6px 0 8px}
+/* ═══ 三幕捲動旅程「深淵／在旁／光芒」（取代原本三張並排的 .tri）═══
+   為什麼不留 grid：三幕是一條時間線，壓成三欄就同時到達，敘事被抹平。
+   這裡的分工——
+     ① .jrail::before  一條從頭畫到尾的軌道＝「連續的線」本體（不是每張卡各自淡入）
+     ② .jbead          position:sticky 釘在 46vh，整段旅程都不離場＝「依舊在你身旁」的字面實作
+     ③ 三幕各自不同的演出：一幕壓低變暗＋背景負向視差、三幕光從軌道那側擴散開、版面同時變寬
+   全部用原生 animation-timeline，不引入 GSAP／ScrollTrigger／Lenis（Lenis 會接管全站捲動，
+   跟站內多處 scrollIntoView 相衝）。下面這段是「定稿狀態」——不支援捲動時間軸的瀏覽器、
+   以及 prefers-reduced-motion: reduce，看到的就是這一版：軌道全滿、珠子在、光已散開。 */
+/* ⚠ 這一段的高度是規格不是留白：三幕之間必須拉開到「整段比視窗高」，否則
+   ① 根本不用捲就全看完了（＝又把長滾動頁面浪費掉）
+   ② .jbead 的 position:sticky 從頭到尾不會觸發，「依舊在你身旁」就演不出來。
+   驗收腳本 tests/visual_check.py【3】會實測整段高度與珠子是否釘住，別把間距改小。 */
+.journey{position:relative;margin:30px 0 10px;padding:8px 0 8px 44px}
+.jact+.jact{margin-top:clamp(120px,40vh,400px)}
+.jrail{position:absolute;left:14px;top:4px;bottom:4px;width:3px;border-radius:3px}
+/* 末端用遮罩淡出，不留硬切邊：軌道是「路」，不是一支筆的筆尖，
+   所以不必（也不該）強求畫線前緣與珠子同高——前緣一有硬邊，兩者對不齊就會很刺眼。 */
+.jrail::before{content:"";position:absolute;inset:0;border-radius:inherit;
+  background:var(--grad-jade);transform:scaleY(1);transform-origin:top;
+  -webkit-mask-image:linear-gradient(#000 86%,transparent);mask-image:linear-gradient(#000 86%,transparent)}
+/* 珠子是這段路上的主角，體積與光暈要壓得過軌道 */
+.jbead{position:sticky;top:46vh;display:block;width:18px;height:18px;margin-left:-7.5px;border-radius:50%;
+  background:radial-gradient(circle at 36% 32%,#EAF7F0,var(--mu-lit) 62%,#4E8C6A);
+  box-shadow:0 0 0 6px rgba(45,106,79,.13),0 0 26px 7px rgba(143,207,174,.55)}
+.jact{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--line-mu);
+  border-left:3px solid var(--mu);border-radius:var(--r);padding:22px 24px;box-shadow:var(--shadow-sm)}
+.jact>:not(.jbg):not(.jflare){position:relative;z-index:1}
+.jact .n{font-family:var(--serif);font-size:15px;letter-spacing:.2em;color:var(--mu)}
+.jact h3{font-size:19px;margin:6px 0 8px}
+.jact .jd{color:var(--muted);font-size:14.5px}
+.jbg,.jflare{position:absolute;z-index:0;pointer-events:none}
+.jbg{inset:-20% 0;background:radial-gradient(66% 54% at 50% 14%,rgba(143,207,174,.16),transparent 70%)}
+/* 版面隨三幕打開：窄 → 中 → 滿。靜態就成立，捲動時間軸只是加上動態 */
+.jact.a1{max-width:420px;background:linear-gradient(168deg,var(--abyss),var(--abyss-2));border-color:rgba(143,207,174,.26)}
+.jact.a1 .n{color:var(--mu-lit)} .jact.a1 h3{color:#EDE7DA} .jact.a1 .jd{color:#C7CEDC}
+.jact.a2{max-width:560px}
+.jact.a3{max-width:100%;border-left-color:var(--glow-deep);
+  background:linear-gradient(100deg,#FFFDF6,var(--card) 60%)}
+/* 第三幕：光從軌道那一側（＝一路陪著的那顆）擴散開，木轉金。
+   ⚠ .jflare 本身刻意做成「與卡片同大小的量測框」，圓形光暈放在它的 ::before。
+   原因：animation-timeline:view() 量的是元素自己的框，光暈圓有 620px 高、卡片只有 140px，
+   直接掛在圓上會讓 entry／cover 區間整個位移，捲到卡片時進度才 0.11，等於沒演。
+   transform-origin 對到圓心（也就是珠子那一側），縮放時光才會從珠子那裡長出來。 */
+.jflare{inset:0;transform-origin:-30px 50%}
+.jflare::before{content:"";position:absolute;left:-30px;top:50%;width:min(760px,170%);aspect-ratio:1;
+  translate:-50% -50%;border-radius:50%;
+  background:radial-gradient(circle,rgba(143,207,174,.52) 0%,rgba(232,201,122,.44) 38%,transparent 72%)}
+@media(max-width:620px){ .journey{padding-left:32px} .jrail{left:9px}
+  .jact.a1,.jact.a2{max-width:100%} .jact+.jact{margin-top:clamp(110px,34vh,300px)} }
+
 .timeline-v{max-width:640px;margin:0 auto;position:relative;padding-left:28px}
-.timeline-v::before{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:linear-gradient(var(--glow),var(--line))}
+/* 沿革線：木起金收（過程走到抵達），--grad-jade 的第一個真實用途 */
+.timeline-v::before{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:var(--grad-jade)}
 .tv{position:relative;padding:0 0 22px 20px}
 .tv::before{content:"";position:absolute;left:-27px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--glow);border:3px solid var(--paper);box-shadow:0 0 0 2px var(--glow-soft)}
 .tv .y{font-family:var(--serif);color:var(--glow-deep);font-weight:600}
@@ -658,7 +774,7 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
   .hero .wrap{grid-template-columns:1fr;text-align:center}
   .hero-art{order:-1}.hero-art svg{max-width:280px}
   .decon li{text-align:left}
-  .g3,.tri,.tracks,.pairtypes,.keeps,.duo{grid-template-columns:1fr}
+  .g3,.tracks,.pairtypes,.keeps,.duo{grid-template-columns:1fr}
   .g3-aes{grid-template-columns:repeat(2,1fr)}
   .prods,.gal{grid-template-columns:repeat(2,1fr)}
   footer .cols{grid-template-columns:1fr}
@@ -940,8 +1056,8 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
 
         <div class="rules reveal" style="max-width:640px;margin:0 auto 40px">
           <h3 style="font-size:19px;margin-bottom:12px">可以改嗎？</h3>
-          <p style="margin-bottom:10px"><span class="pill no">P1 不可改</span>五行配比是命盤決定的目標，這一層固定。</p>
-          <p style="margin-bottom:10px"><span class="pill ok">P2 · P3 可微調</span>同屬性白名單內換晶石、同五行換色系、換排列方式。</p>
+          <p style="margin-bottom:10px"><span class="pill no">配比不可改</span>五行配比是命盤決定的目標，這一層固定。</p>
+          <p style="margin-bottom:10px"><span class="pill ok">實現方式可微調</span>同屬性白名單內換晶石、同五行換色系、換排列方式。</p>
           <p style="color:var(--muted);font-size:14px">流程：你提異議 → 我們調替代路徑 → 重新演算 → 再請你確認。</p>
           <p style="margin-top:14px"><button type="button" style="background:none;border:none;color:var(--glow-deep);cursor:pointer;font-size:14px;text-decoration:underline;padding:0" onclick="document.getElementById('wristIllus').scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'})">不知道手圍？→ 看怎麼量</button></p>
         </div>
@@ -954,6 +1070,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
           <div class="reveal" style="--i:1">
             <h3 style="font-size:22px;margin-bottom:10px">兩個人的盤，不是各算各的</h3>
             <p style="color:var(--muted)">先各自算出需求向量，再合成一份雙人向量：<b style="color:var(--ink)">RV = 0.4×你 ＋ 0.4×對方 ＋ 0.2×橋接元素</b>。</p>
+            <p style="color:var(--muted);margin-top:10px">順序這裡要講明白：<b style="color:var(--ink)">流年是在合成之前、各自那一步就先算完的</b>。你們兩個人的基準盤各自先被當年的流年推過一輪，才拿去合成雙人向量。所以對串處理的不是「你們出生時」的兩張盤，是「你們今年」的兩張盤。同一對人隔一年再訂，配比本來就不會一樣。</p>
             <p style="color:var(--muted);margin-top:10px">但這只是第一步。合成完還要乘上關係階段的修正係數——熱戀期加重木（先把話說開）、育兒期加重火（撐住日常的熱度）、分居加重水（先把信任接回來；單純地理上的遠距是另一組係數，主次剛好相反）——再重新正規化，才得到真正拿去挑石頭的那份配比。</p>
             <p style="color:var(--muted);margin-top:10px">最後只從你們的<b style="color:var(--ink)">共同喜神</b>取石，不是各挑各的。所以就算配比相同，兩條串也可能長得不一樣：主珠取各自最高的那個五行，<b style="color:var(--ink)">各自置中</b>。</p>
           </div>
@@ -973,6 +1090,33 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
             <p style="color:var(--muted);font-size:13px;margin-top:8px">另外，金與木、水與火在同一條串上不相鄰，中間一定隔一顆。這是排珠鐵律，不是美學選擇。</p>
           </div>
           <div class="illus reveal" id="translateIllus" aria-label="不直接相處，換一條路走：水生木、木生火繞道示意" style="--i:1"></div>
+        </div>
+
+        <div class="rules reveal" style="max-width:760px;margin:0 auto 40px">
+          <details>
+            <summary style="cursor:pointer;color:var(--glow-deep);font-size:15px;font-weight:600">關係階段的修正係數，完整攤開</summary>
+            <div style="margin-top:14px">
+              <p style="color:var(--muted);font-size:14px;margin-bottom:4px">合成完的雙人向量會乘上你們所在階段的係數，再重新正規化（五行合計 = 1），才是真正拿去挑石頭的那份配比。未列出的五行 ＝ 1.00。</p>
+              <div class="mt-wrap"><table class="mt" style="min-width:520px">
+                <tr><th>關係階段</th><th>修正係數</th></tr>
+                <tr><td>單身尋伴（送禮／尚未確立關係）</td><td>木 ×1.10、火 ×1.05</td></tr>
+                <tr><td>曖昧期／熱戀期</td><td>木 ×1.10、火 ×1.05</td></tr>
+                <tr><td>1:1 交往中（已確立排他、未同居）</td><td>木 ×1.05、土 ×1.05</td></tr>
+                <tr><td>同居（未婚）</td><td>土 ×1.10、金 ×1.05</td></tr>
+                <tr><td>婚姻（新婚 0–2 年）</td><td>土 ×1.10、木 ×1.05</td></tr>
+                <tr><td>婚姻（無子女）</td><td>土 ×1.05、水 ×1.05</td></tr>
+                <tr><td>育兒期（子女未成年）</td><td>火 ×1.10、土 ×1.05</td></tr>
+                <tr><td>空巢期（子女已成年）</td><td>火 ×1.05、木 ×1.05</td></tr>
+                <tr><td>退休</td><td>全 1.00（不修正）</td></tr>
+                <tr><td>遠距（非衝突性、地理因素）</td><td>木 ×1.10、水 ×1.05</td></tr>
+                <tr><td>分居（關係緊張／試分居）</td><td>水 ×1.10、木 ×1.05</td></tr>
+                <tr><td>1 對多開放式關係（疊加，不取代上面的階段）</td><td>水 ×1.10、金 ×1.05</td></tr>
+                <tr><td>無法歸類（我們再跟你確認）</td><td>全 1.00，並在報告標記待補件</td></tr>
+              </table></div>
+              <p style="color:var(--muted);font-size:13px;margin-top:10px">係數值只取 1.00 / 1.05 / 1.10 三檔，中間值一律不用——中間值會擾動最大餘額的排序，變成不可預測的雜訊。每個階段最多加成兩個五行、最多一個 1.10。這是機率性的微調：1.10 大約有三成機會在分配時翻出一顆珠，1.05 約一成六，不是一定會多一顆。</p>
+              <p style="color:var(--muted);font-size:13px;margin-top:8px">另外用七個關係心理維度（信任、溝通、親密、安全感、成長、承諾、自由）掃描缺口，低於門檻的維度轉成對應五行的補償——玄學訊號一律降維成心理語言。</p>
+            </div>
+          </details>
         </div>
 
         <div class="head reveal"><h2 style="font-size:26px">兩條，會像一對嗎</h2><p style="color:var(--muted);font-size:14px">這兩種都是算出來的結果，不是可以挑的方案。</p></div>
@@ -1038,7 +1182,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
           <p class="tag-eyebrow">就是這裡下單</p>
           <h2 id="orderTitle">訂製問卷・個人手串</h2>
         </div>
-        <p style="text-align:center;color:var(--muted);font-size:14px;margin-bottom:24px">約 3 分鐘填完。送出後我們在 1 個工作天內聯繫你確認設計。</p>
+        <p style="text-align:center;color:var(--muted);font-size:14px;margin-bottom:24px">約 3 分鐘填完。送出後我們在 1 個工作天內聯繫你確認設計；規劃與報價都經你同意、款項到帳後才動手，手工製作約 7–10 個工作天交付。</p>
         <form id="f" autocomplete="off" novalidate>
           <div class="hp-field" aria-hidden="true"><label>此欄請留空<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
 
@@ -1061,7 +1205,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
             <div class="fcol"><label>目前的痛點／煩惱（可空，最多寫三項）</label><textarea name="a_pain" maxlength="300" placeholder="例：工作壓力大、睡不好、想有勇氣開口……"></textarea></div>
             <div class="fcol"><label>視覺體感（擇一）</label><div class="opts" id="visA"></div></div>
             <div class="fcol"><label class="opt"><input type="checkbox" name="a_deep"><span><b>加購：深度命理推論報告</b>（+300／串）<span class="d">不加購也有完整九節報告。這份多的是推導過程：為什麼選這個用神、五派意見打架的地方怎麼裁、被換掉的方案為什麼被換。想知道「為什麼」而不只是「是什麼」再加。</span></span></label></div>
-            <div class="fcol" id="qtyWrap"><label>訂製數量</label><select name="qty"><option value="1">1 條</option><option value="2">2 條</option></select></div>
+            <div class="fcol" id="qtyWrap"><label>訂製數量</label><select name="qty"><option value="1">1 條</option><option value="2">2 條</option><option value="3">3 條</option></select></div>
           </fieldset>
 
           <fieldset class="fieldset" id="stepB" style="display:none">
@@ -1169,21 +1313,26 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
   <section class="block">
     <div class="wrap" style="max-width:760px">
       <div class="rays reveal" id="raysIllus" style="margin-bottom:30px"></div>
-      <div class="grid tri">
-        <div class="t lift reveal" style="--i:0"><p class="n">深淵</p><h3>理解困局</h3><p style="color:var(--muted);font-size:14.5px">八字引擎照見你性格裡的慣性與壓抑。</p></div>
-        <div class="t lift reveal" style="--i:1"><p class="n">在旁</p><h3>陪伴提醒</h3><p style="color:var(--muted);font-size:14.5px">物理性的陪伴，目光觸及時校準步調。</p></div>
-        <div class="t lift reveal" style="--i:2"><p class="n">光芒</p><h3>心理導航</h3><p style="color:var(--muted);font-size:14.5px">點亮你原本具備、卻被遺忘的潛能。</p></div>
+      <!-- 三幕旅程：刻意不用 grid、也刻意不掛 .reveal。
+           .reveal 是「每個區塊各自淡入」，三幕要的是一條連續的線 → 由 .jrail 與釘住的 .jbead 承擔。
+           三段文字一字未動（後台鏡像的鍵算的是「標籤名＋原文雜湊」，維持 <p>／<h3>／<p> 就不會斷）。 -->
+      <div class="journey">
+        <div class="jrail" aria-hidden="true"><span class="jbead"></span></div>
+        <article class="jact a1"><div class="jbg" aria-hidden="true"></div><p class="n">深淵</p><h3>理解困局</h3><p class="jd">八字引擎照見你性格裡的慣性與壓抑。</p></article>
+        <article class="jact a2"><div class="jbg" aria-hidden="true"></div><p class="n">在旁</p><h3>陪伴提醒</h3><p class="jd">物理性的陪伴，目光觸及時校準步調。</p></article>
+        <article class="jact a3"><div class="jflare" aria-hidden="true"></div><p class="n">光芒</p><h3>心理導航</h3><p class="jd">點亮你原本具備、卻被遺忘的潛能。</p></article>
       </div>
-      <div class="reveal duo" style="max-width:660px;margin:36px auto 0;gap:22px;align-items:center">
-        <img src="photos/brand/danny.webp" alt="拍拍深訂製五行水晶手串作品" width="1080" height="1120" loading="lazy" style="border-radius:var(--r);box-shadow:var(--shadow-sm)">
-        <!-- 書封小卡。⚠ 原圖中段有一個玄學物理類禁詞（不在此重複書寫——註解不會被剝除，
-             會出現在公開站原始碼裡），使用者要求「不用修改字樣」，所以檔案一個位元都不動，
-             改用 CSS 視窗只露出上緣。裁切邊實測：原圖 410×512，禁詞所在文字塊由 y≈205 起，
-             這裡的視窗高 185px（0.361×512），**下緣落在 y=185，離禁詞起點還有 20px**。
-             要調整 aspect-ratio 前先重量一次，別憑感覺加高。 -->
+      <!-- 2026-08-04 使用者裁決 A：拿掉並排的 danny.webp，關於我們改單張大圖。
+           原本這裡是 .grid.duo 雙欄，圖被壓在 360px 內＝只是配圖，正是使用者點名的問題。
+           現在圖是這一節的主體，620px 上限只為不讓它在寬螢幕上壓過文字節奏。
+           圖檔一個位元都沒動；底部那行小字的處置在 CSS 的 .bcmask（原因寫在那裡）。 -->
+      <div class="reveal" style="margin:36px auto 0;max-width:620px">
         <figure class="bookcard">
-          <div class="win"><img src="photos/brand/S__8962095.jpg" alt="拍拍深五行水晶設計研究所出版品封面上緣" width="410" height="512" loading="lazy"></div>
-          <figcaption>把焦慮交給數據，把平靜還給自己。</figcaption>
+          <div class="bcimg">
+            <img src="photos/brand/S__9019531.jpg" alt="拍拍深五行水晶設計研究所品牌書封，封面中央為五行配色手串" width="923" height="1152" loading="lazy">
+            <span class="bcmask" aria-hidden="true"></span>
+          </div>
+          <figcaption>即使身處萬丈深淵，依舊在你身旁，散發前行的光芒</figcaption>
         </figure>
       </div>
     </div>
@@ -1206,7 +1355,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
     <div class="wrap" style="max-width:820px">
       <div class="head reveal"><h2>四個，我們不讓步的地方</h2></div>
       <div class="grid keeps">
-        <div class="keep lift reveal" style="--i:0"><span class="ic">📐</span><div><h3 style="font-size:17px">確定論運算</h3><p style="color:var(--muted);font-size:14px">相同輸入會得到相同輸出，排除當下情緒的干擾。</p></div></div>
+        <div class="keep lift reveal" style="--i:0"><span class="ic">📐</span><div><h3 style="font-size:17px">確定論運算</h3><p style="color:var(--muted);font-size:14px">相同輸入會得到相同輸出，排除當下情緒的干擾。當年的流年也算一項輸入，所以同一個人隔年再訂，配比本來就會不同。</p></div></div>
         <div class="keep lift reveal" style="--i:1"><span class="ic">⚖️</span><div><h3 style="font-size:17px">真值仲裁與缺失懲罰</h3><p style="color:var(--muted);font-size:14px">缺時辰不補子時，誠實折算置信度。</p></div></div>
         <div class="keep lift reveal" style="--i:2"><span class="ic">🤝</span><div><h3 style="font-size:17px">性別中立與多元適配</h3><p style="color:var(--muted);font-size:14px">中立十神代碼，任何伴侶組合同樣有效。</p></div></div>
         <div class="keep lift reveal" style="--i:3"><span class="ic">🛡️</span><div><h3 style="font-size:17px">合規防火牆與自我證偽</h3><p style="color:var(--muted);font-size:14px">回測通過才上線，主動承認尚未通過雙盲驗證。</p></div></div>
@@ -1219,17 +1368,36 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
       <div class="head reveal"><h2>把方法攤開給你看</h2><p>「認識論誠實」不是口號。我們怎麼算、依據什麼，願意講清楚。</p></div>
       <div class="transp reveal">
         <h3>需求向量：六個分量</h3>
+        <p style="margin-bottom:10px">六個分量各有固定權重，逐一加權相加，不是憑感覺配：</p>
+        <p style="margin-bottom:12px;font-family:var(--serif);background:#fff;border-left:3px solid var(--glow);padding:10px 14px;border-radius:0 10px 10px 0;overflow-x:auto"><b>F = 0.30·扶抑 ＋ 0.28·缺口 ＋ 0.12·調候 ＋ 0.12·流年 ＋ 0.10·盲派 ＋ 0.08·意圖</b></p>
         <ul style="margin-bottom:16px">
-          <li>扶抑、缺口、調候、流年、盲派、意圖——六個分量各有固定權重，逐一計入。</li>
-          <li>「意圖」放的是你的痛點與核心功能，影響設有上限，不會蓋過命盤本身。</li>
+          <li>「意圖」放的是你的痛點與核心功能。<b>合計影響上限 15%</b>——你的想法有話語權，但命盤本身永遠是主體。</li>
+          <li><b>「流年」占 0.12</b>：只讀出生那一刻的命盤，等於把你留在出生那年。所以式子裡固定留一格給流年——你下單當年的年份也讀進來一起算，算的是你<b>此刻</b>的五行處境，不是你出生時的樣子。它在這裡的身分是一個被讀進去的輸入變數，跟手圍、珠徑一樣；我們對它做的事只有「讀」。</li>
+          <li><b>調候動態切換</b>：日主偏強、又生於極寒（亥子丑月）或極熱（巳午未月）時，調候分量由 0.12 升到 0.30，扶抑與缺口各降到 0.20。條件不符就維持上面的預設比例。<b>流年那一格在兩種模式下都是 0.12</b>，不隨調候起伏。</li>
         </ul>
-        <h3>再往下的處理</h3>
+        <h3>五派各自表態，再硬仲裁</h3>
+        <p style="margin-bottom:4px">單一門派會有盲點，所以讓五派先各自對金木水火土給出喜忌主張，再做交叉裁決：</p>
+        <div class="mt-wrap"><table class="mt">
+          <tr><th>學派</th><th>主張重點</th></tr>
+          <tr><td>傳統格局派</td><td>格局成敗定喜忌</td></tr>
+          <tr><td>五行旺衰派</td><td>日主旺衰 → 扶抑</td></tr>
+          <tr><td>調候用神派</td><td>寒暖燥濕 → 調候</td></tr>
+          <tr><td>盲派</td><td>實戰象法，用神取捨</td></tr>
+          <tr><td>新派</td><td>現代統計、動態流年</td></tr>
+        </table></div>
+        <p style="margin:12px 0 6px">兩派互斥時，比較各自的置信度分數：<b>差距超過 20% 採信高分的那一派</b>；分數接近就不硬押，轉用臨床心理指標判讀。</p>
+        <p style="margin:0 0 20px">注意表裡的最後一列：<b>流年在整套運算裡出現兩次</b>。一次是上面式子裡那個固定 0.12 的分量，一次是「新派」立論的依據——它是唯一把時間變化當主軸的一派，所以五派吵架的時候，流年也在桌上有一票。這不是同一件事講兩遍，是兩個不同的入口。</p>
+        <h3>從比例到顆數：三道數學鎖</h3>
         <ul>
-          <li>五大命理學派各自主張，再做交叉硬仲裁。</li>
-          <li>配比設上下限，超出的循五行相生做溢出轉移。</li>
-          <li>Hamilton 最大餘額法分配每一顆的歸屬，不四捨五入。</li>
-          <li>物理禁鄰：金與木、水與火不相鄰，中間插隔珠。</li>
-          <li>底價由「手圍 × 珠徑」查矩陣，級距間向上取。</li>
+          <li><b>封頂與保底</b>：任一五行占比最多 <b>0.38</b>、最少 <b>0.03</b>。超出封頂的部分沿「相生」方向遞迴轉移，最多 4 次；忌神保留真實殘值，<b>禁止歸零</b>——算出來是多少就是多少。</li>
+          <li><b>Hamilton 最大餘額法</b>：比例乘上總顆數後禁止四捨五入，用最大餘額逐顆分配，<b>總誤差 ≤ 0.05</b>。議會分配席次用的是同一套數學。</li>
+          <li><b>物理排列鐵律</b>：主珠（占比最高的五行）強制置中；金與木、水與火不得相鄰，中間必須插一顆隔珠緩衝。</li>
+        </ul>
+        <h3>選石與定價</h3>
+        <ul>
+          <li>只從 <b>95 種晶石白名單</b>取石，清單外一律不用。每顆石頭只認一個主五行，副五行不參與運算。白名單依主五行分色：金（白／灰／金屬色）、木（綠色系）、水（黑／深藍／藍紫）、火（紅／粉／紫／橙）、土（黃／棕／大地色）。</li>
+          <li>運算完由命理師<b>逐單複核裁決</b>，初步規劃先給你過目、你點頭才動手——不交給機器直接拍板。</li>
+          <li>底價由「手圍 × 珠徑」查矩陣，級距之間向上取級距；超出表格範圍一律人工報價，禁止外推。</li>
         </ul>
       </div>
       <div class="head reveal" style="margin-top:40px;margin-bottom:14px"><h2 style="font-size:24px">來找我們</h2></div>
@@ -1441,21 +1609,66 @@ function observeMotion(){
    不會出現「改了程式碼卻被舊覆寫蓋掉」這種查不出來的鬼。
    覆寫來源優先序：window.__COPY__（靜態內嵌）→ copy.json（同源靜態檔）→ localStorage（編輯預覽）。
    三者都沒有就用內建原文，站台行為零變化——沿用 gallery/products 的 fail-safe 模式。 */
-const CMS_SEL='.opener p,.head .tag-eyebrow,.head h2,.head p,.hero h1,.hero .lead,.order-h h2,.jump-order .hint,.brand-desc,.mode-pick .t,.mode-pick .d';
+/* 掃描範圍：七個分頁 ＋ 頁尾。頁尾也要收，不然頁尾那兩句永遠改不到。 */
+const CMS_ROOT='.tab, footer';
+/* 站上「客人看得到的散文」＝標題與段落型元素。列元素型別而不是逐塊列 class，
+   之後新增區塊不必回來改這一條。.a＝常見問題的答案，.t/.d＝卡片標題與說明。 */
+const CMS_SEL='h1,h2,h3,h4,p,summary,figcaption,li,blockquote,.a,.t,.d';
+/* 三類刻意不給改（原設計如此）：報價數字（.est 即時試算、#priceTable 底價矩陣、.price）、
+   收款與免責那段（.disclaimer）。表格整片不收——底價矩陣就住在表格裡。
+   最新消息（#newsList）另有自己的編輯器，不走文字覆寫這條路，避免兩個來源打架。
+   之後要再鎖哪一塊，在那塊掛 data-cms-lock 就好，不用回來改這一條。 */
+const CMS_LOCK='.disclaimer,.est,#priceTable,#newsList,.price,table,[data-cms-lock]';
 const CMS_LS='pps_site_copy_draft';
 let CMS_NODES=[];
 function cmsHash(s){ let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))>>>0; return h.toString(36); }
-function cmsScan(){
-  CMS_NODES=[];
-  $$('.tab').forEach(tab=>{
-    tab.querySelectorAll(CMS_SEL).forEach(el=>{
-      if(el.querySelector('[data-cms-hit]')) return;              // 巢狀時只取最內層，避免父子重複
-      const orig = el.dataset.cmsOrig !== undefined ? el.dataset.cmsOrig : el.textContent.trim();
-      if(!orig || orig.length>600) return;
-      el.dataset.cmsOrig = orig;
-      const key = tab.id.replace('tab-','')+'.'+el.tagName.toLowerCase()+'.'+cmsHash(orig);
-      el.setAttribute('data-cms-hit', key);
-      CMS_NODES.push({key, tab:tab.id.replace('tab-',''), orig, el});
+/* 一個元素＝一句＝一個編輯單位，段落裡夾了 br／span／b 也不拆。
+   能不拆的關鍵：覆寫值存的是這個元素的 inline HTML，不是純文字。
+   純文字寫回去會把 <br> 與 <span class="gl"> 這類標記洗掉；存 HTML 就原樣留著，
+   使用者在 contentEditable 裡怎麼改，DOM 就是什麼樣，存出來也是那樣。
+   代價是值裡有標籤，所以進出各過一次 cmsClean。 */
+const CMS_TAG_OK={BR:1,B:1,STRONG:1,I:1,EM:1,U:1,SMALL:1,SPAN:1,SUP:1,SUB:1};
+/* 只留行內排版標記與 class/style，其餘一律只取文字。
+   copy.json 雖然是自家 repo 裡的檔案，但它是執行期抓進來再寫進頁面的，
+   不過這道濾網就是把一個注入口留在那裡。DOMParser 產生的是惰性文件：
+   不執行腳本、不下載圖片，比拿 div.innerHTML 當暫存安全。 */
+function cmsClean(html){
+  const doc=new DOMParser().parseFromString('<body>'+String(html),'text/html');
+  const all=[...doc.body.querySelectorAll('*')];
+  all.forEach(el=>{
+    [...el.attributes].forEach(a=>{
+      const n=a.name.toLowerCase();
+      if(n!=='class' && n!=='style') el.removeAttribute(a.name);          // on* 事件、href、src 全部拿掉
+      else if(n==='style' && /url\(|expression\(/i.test(a.value)) el.removeAttribute(a.name);  // 樣式裡不准外連
+    });
+  });
+  // 白名單外的標籤：一般的只拆掉標籤留文字；下面這幾種連內容一起丟，
+  // 不然貼進來的腳本區塊會被拆成一行程式碼文字印在頁面上。
+  // ⚠ 這段註解不准出現腳本標籤的結束寫法——內嵌 script 區塊會被那六個字元當場關掉。
+  const DROP={SCRIPT:1,STYLE:1,TEMPLATE:1,IFRAME:1,OBJECT:1,EMBED:1,NOSCRIPT:1,SVG:1};
+  all.reverse().forEach(el=>{                                                     // 由內往外拆才不會漏巢狀的
+    if(CMS_TAG_OK[el.tagName]) return;
+    if(DROP[el.tagName]) el.remove(); else el.replaceWith(...el.childNodes);
+  });
+  return doc.body.innerHTML.trim();
+}
+/* mark＝要不要把 data-cms-* 寫進 DOM。只有編輯模式需要那些標記（CSS 外框、點擊命中、goto 定位、
+   重掃時認回原文），一般訪客拿到的頁面不必背這幾百個屬性，所以預設不寫。 */
+function cmsScan(mark){
+  CMS_NODES=[]; const seen={};
+  $$(CMS_ROOT).forEach(root=>{
+    const tab = root.id ? root.id.replace('tab-','') : root.tagName.toLowerCase();
+    root.querySelectorAll(CMS_SEL).forEach(el=>{
+      if(el.closest(CMS_LOCK)) return;                            // 三類刻意不給改
+      if(el.querySelector(CMS_SEL)) return;                       // 巢狀時只取最內層，避免父子重複
+      const txt = el.textContent.trim();                            // 長度與內容的判斷看文字，不看標籤
+      if(!txt || txt.length>600) return;
+      if(!/[\p{L}\p{N}]/u.test(txt)) return;                        // 只有標點或箭頭的不列，列了也沒東西可改
+      const orig = el.dataset.cmsOrig !== undefined ? el.dataset.cmsOrig : el.innerHTML.trim();
+      let key = tab+'.'+el.tagName.toLowerCase()+'.'+cmsHash(orig);
+      if(seen[key]) key += '.'+(++seen[key]); else seen[key]=1;      // 同分頁同一句出現兩次時各自成鍵，改一句不會兩處一起變
+      if(mark){ el.dataset.cmsOrig = orig; el.setAttribute('data-cms-hit', key); }
+      CMS_NODES.push({key, tab, orig, el});
     });
   });
   return CMS_NODES;
@@ -1464,17 +1677,18 @@ function cmsApply(map){
   if(!map) return;
   CMS_NODES.forEach(n=>{
     const v = map[n.key];
-    if(typeof v==='string' && v.trim() && v!==n.orig){ n.el.textContent=v; n.el.setAttribute('data-cms-dirty',''); }
-    else { n.el.textContent=n.orig; n.el.removeAttribute('data-cms-dirty'); }
+    const want = (typeof v==='string' && v.trim() && v!==n.orig) ? cmsClean(v) : n.orig;
+    if(n.el.innerHTML!==want) n.el.innerHTML=want;   // 沒變就不重寫，免得每次套用都把子節點砍掉重生
+    n.el.toggleAttribute('data-cms-dirty', want!==n.orig);
   });
 }
 async function cmsBoot(){
-  cmsScan();
+  const edit = new URLSearchParams(location.search).get('edit')==='1';
+  cmsScan(edit);
   let map = window.__COPY__ || null;
   if(!map){
     try{ const r=await fetch('copy.json',{cache:'no-cache'}); if(r.ok) map=await r.json(); }catch(_){}
   }
-  const edit = new URLSearchParams(location.search).get('edit')==='1';
   if(edit){
     try{ const d=JSON.parse(localStorage.getItem(CMS_LS)||'null'); if(d) map=Object.assign({},map,d); }catch(_){}
   }
@@ -1484,7 +1698,15 @@ async function cmsBoot(){
 /* 編輯模式：只有 ?edit=1 才進來。被 admin.html 以 iframe 載入，兩邊同源。 */
 function cmsEditMode(){
   document.body.classList.add('cms-on');
-  const post=(m)=>{ try{ parent.postMessage(Object.assign({__pps:1},m),location.origin); }catch(_){} };
+  /* targetOrigin 不能填 location.origin。admin.html 不在發佈清單裡（publish workflow 有 --exclude），
+     使用者是直接用瀏覽器開本機檔案（file:）在用後台，這時（實測 Chromium 140）：
+       location.origin === "file://"，但同一頁收到訊息時 e.origin === "null"。
+     兩邊對不起來，後果是兩個方向同時斷：
+       送出：postMessage(m,"file://") 不丟例外，但訊息不會送達（收訊端根本收不到）。
+       收訊：舊的 e.origin !== location.origin 判準必然成立，訊息一律丟掉。
+     所以送出改 '*'，改在收訊端驗來源視窗身分（e.source）＋自家標記 __pps——
+     視窗參照別的分頁拿不到，比字串比對牢靠。 */
+  const post=(m)=>{ try{ parent.postMessage(Object.assign({__pps:1},m),'*'); }catch(_){} };
   document.addEventListener('click',e=>{
     const el=e.target.closest('[data-cms-hit]'); if(!el) return;
     e.preventDefault(); e.stopPropagation();
@@ -1495,22 +1717,35 @@ function cmsEditMode(){
   document.addEventListener('blur',e=>{
     const el=e.target.closest && e.target.closest('[data-cms-hit]'); if(!el||!el.isContentEditable) return;
     el.contentEditable='false';
-    const text=el.textContent.trim(), key=el.getAttribute('data-cms-hit');
-    el.toggleAttribute('data-cms-dirty', text!==el.dataset.cmsOrig);
-    post({type:'cms:set',key,text,orig:el.dataset.cmsOrig});
+    // 存的是這一句的 inline HTML，不是純文字——這樣 <br> 與樣式 span 才留得住。
+    // 清一次是因為 contentEditable 貼進來的東西可能帶一堆外來標籤，當場清掉＝所見即所存。
+    const html=cmsClean(el.innerHTML), key=el.getAttribute('data-cms-hit'), orig=el.dataset.cmsOrig||'';
+    if(el.innerHTML!==html) el.innerHTML=html;
+    el.toggleAttribute('data-cms-dirty', html!==orig);
+    const tags=s=>(String(s).match(/<[a-z]/gi)||[]).length;
+    // 整句選起來重打會連 <br>／樣式 span 一起換掉——那是使用者自己的操作，不擋，
+    // 但要讓後台講一聲，不能默默發生（工單硬底線 2）。
+    post({type:'cms:set',key,text:html,orig,lostTag:tags(html)<tags(orig)});
   },true);
   addEventListener('message',e=>{
-    if(e.origin!==location.origin || !e.data || e.data.__pps!==1) return;   // 同源才收
+    if(e.source!==parent || !e.data || e.data.__pps!==1) return;   // 只收「載我的那個視窗」送來、且帶自家標記的訊息
     const d=e.data;
     if(d.type==='cms:goto'){
       const el=document.querySelector('[data-cms-hit="'+CSS.escape(d.key)+'"]'); if(!el) return;
       const tab=el.closest('.tab'); if(tab && !tab.classList.contains('active')) location.hash=tab.id.replace('tab-','');
+      // 常見問題的答案關在收合的 <details> 裡，摺著的東西捲不到也點不到——先把上層全部打開。
+      for(let p=el.closest('details'); p; p=p.parentElement&&p.parentElement.closest('details')) p.open=true;
+      // 情侶那半邊（#duoInfo）要先切到「情侶對串」才會出現，沒切過去就是白捲。
+      if(el.closest('#duoInfo')){ const m=document.querySelector('.mode-pick button[data-mode="couple"]'); if(m && !m.classList.contains('on')) m.click(); }
       setTimeout(()=>{ el.scrollIntoView({behavior:'smooth',block:'center'});
         el.classList.remove('cms-flash'); void el.offsetWidth; el.classList.add('cms-flash'); },60);
+      // 還是量不到方框＝這一句所在的區塊現在沒顯示，捲了也看不到。回報後台講一聲，別讓人以為壞了。
+      setTimeout(()=>{ if(!el.getClientRects().length) post({type:'cms:offscreen',key:d.key}); },260);
     }
     else if(d.type==='cms:route'){ location.hash=d.tab; }
     else if(d.type==='cms:apply'){ cmsApply(d.map); }
-    else if(d.type==='cms:list'){ post({type:'cms:nodes',nodes:cmsScan().map(n=>({key:n.key,tab:n.tab,orig:n.orig}))}); }
+    else if(d.type==='cms:news'){ renderNews(d.list); }   // 後台改一則動態，右邊鏡像立刻重畫
+    else if(d.type==='cms:list'){ post({type:'cms:nodes',nodes:cmsScan(true).map(n=>({key:n.key,tab:n.tab,orig:n.orig}))}); }
   });
   post({type:'cms:ready',nodes:CMS_NODES.map(n=>({key:n.key,tab:n.tab,orig:n.orig}))});
 }
@@ -1563,8 +1798,19 @@ function cmsEditMode(){
   svg.innerHTML=g;
 })();
 
-/* ═══════════ 最新消息 ═══════════ */
-$('#newsList').innerHTML = CONFIG.NEWS.map(n=>`<div class="item"><time>${esc(n.d)}</time><span class="chip">${esc(n.tag)}</span><p>${esc(n.t)}</p></div>`).join('');
+/* ═══════════ 最新消息 ═══════════
+   來源優先序：news.json（同源靜態檔，後台「最新消息」編輯器存出的那份）→ config.js 內嵌那份。
+   一則動態是「多一筆／少一筆」，不是「把既有那句改掉」，所以走清單檔而不是文案覆寫。
+   news.json 不存在／壞掉／不是陣列 → 照舊用內嵌那份；是空陣列 → 整個區塊收起來不留空框。
+   跟 gallery／products 同一套 fail-safe，檔案沒了站也不會壞。 */
+function renderNews(list){
+  const box=$('#newsList'); if(!box) return;
+  const sec=box.closest('section'), ok=Array.isArray(list)&&list.length>0;
+  if(sec) sec.style.display = ok ? '' : 'none';
+  box.innerHTML = ok ? list.map(n=>`<div class="item"><time>${esc(n.d||'')}</time><span class="chip">${esc(n.tag||'')}</span><p>${esc(n.t||'')}</p></div>`).join('') : '';
+}
+renderNews(CONFIG.NEWS);
+fetch('news.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(j=>{ if(Array.isArray(j)) renderNews(j); }).catch(()=>{});
 
 /* ═══════════ 聯絡通道 ═══════════ */
 // 靜態 HTML 裡要印 LINE 帳號的地方一律標 data-line，由這裡從 config.js 填；
@@ -1728,8 +1974,11 @@ let PRODUCTS = [];
 // 任一邊日後改鍵名，只改這個函式即可，render 端不受影響。
 function normProd(p){
   const imgs = Array.isArray(p.imgs) ? p.imgs : (Array.isArray(p.photos) ? p.photos : (p.photos?[p.photos]:[]));
+  // 線材以前是寫死「彈力線」——但 FAQ 明講我們用的是彈力蠶絲線、不用透明彈力線，
+  // 兩邊互相打架。改成讀後台真的填了什麼；沒填就整段不出現，不替商品編一個材質出來。
   return { ...p, imgs: imgs.length?imgs:['photos/w1.jpg'],
-    spec: p.spec || [p.bead_mm?p.bead_mm+'mm':'', p.size_cm?'約 '+p.size_cm+'cm':'', '彈力線'].filter(Boolean).join('・') };
+    spec: p.spec || [p.bead_mm?p.bead_mm+'mm':'', p.size_cm?'約 '+p.size_cm+'cm':'',
+      p.cord_type||'', p.accessory_material?p.accessory_material+'配飾':''].filter(Boolean).join('・') };
 }
 async function loadProducts(){
   // 「API 成功但回空陣列」＝真的沒有現貨，必須顯示補貨中；
@@ -2122,7 +2371,7 @@ const FAQ = [
   {g:'流程',q:'完整流程是什麼樣子？',a:'三階段。一，進件與初步運算：你填問卷，系統跑八字引擎。二，報告生成與正式報價：出九節（或十二節）報告與報價單。三，實體製作與自檢交付。中間有兩個確認節點——初步配珠規劃要你點頭，報價也要你同意，才往下走。',t:`<p>三階段。</p><div class="mt-wrap"><table class="mt"><tr><th>階段</th><th>內容</th></tr><tr><td>進件與初步運算</td><td>你填問卷，系統跑八字引擎</td></tr><tr><td>報告生成與正式報價</td><td>出九節（或十二節）報告與報價單</td></tr><tr><td colspan="2">實體製作與自檢交付</td></tr></table></div><p>中間有兩個確認節點——初步配珠規劃要你點頭，報價也要你同意，才往下走。</p>`},
   {g:'流程',q:'可以幫家人或朋友訂嗎？',a:'可以。需要：對方的國曆生日與出生時間（不知道時辰走三柱模式）、生理性別、精確手圍、珠徑偏好，還有你觀察到的核心煩惱。驚喜訂製也行，手圍可以拿對方的手錶或飾品估。',t:`<p>可以。需要：</p><div class="mt-wrap"><table class="mt"><tr><th>欄位</th><th>備註</th></tr><tr><td>對方的國曆生日與出生時間</td><td>不知道時辰走三柱模式</td></tr><tr><td colspan="2">生理性別</td></tr><tr><td colspan="2">精確手圍</td></tr><tr><td colspan="2">珠徑偏好</td></tr><tr><td colspan="2">你觀察到的核心煩惱</td></tr></table></div><p>驚喜訂製也行，手圍可以拿對方的手錶或飾品估。</p>`},
   {g:'流程',q:'三軌道 A／B／C 差在哪？',a:'A 主方案，尊崇意志款：五行配比內優先照你的視覺喜好，適合初次訂製、重穿搭。B 錦囊組，專業核心款：用神導向直擊缺口，適合轉折期、壓力大、需要決斷力。C 本源重置，深層回填款：最柔和的晶石、貼合本命比例，適合靜心與夜間配戴。',t:`<div class="mt-wrap"><table class="mt"><tr><th>方案</th><th>名稱</th><th>內容</th><th>適合</th></tr><tr><td>A 主方案</td><td>尊崇意志款</td><td>五行配比內優先照你的視覺喜好</td><td>初次訂製、重穿搭</td></tr><tr><td>B 錦囊組</td><td>專業核心款</td><td>用神導向直擊缺口</td><td>轉折期、壓力大、需要決斷力</td></tr><tr><td>C 本源重置</td><td>深層回填款</td><td>最柔和的晶石、貼合本命比例</td><td>靜心與夜間配戴</td></tr></table></div>`},
-  {g:'資料安全',q:'我的生日資料安全嗎？',a:'生日是演算法唯一的符號輸入源。你填的問卷、排出的命盤與運算結果會被保存下來——製作要用，日後重算或售後校準也要用，我們不會假裝沒存。用途限於你的手串、你的報告，以及系統本身的校準。想知道具體存了哪些欄位、保存多久、怎麼刪，直接問我們，我們照實回答。'},
+  {g:'資料安全',q:'我的生日資料安全嗎？',a:'生日是演算法唯一需要你提供的符號輸入源（另一個輸入是你下單當年的年份，那個系統自己知道，不用你填）。你填的問卷、排出的命盤與運算結果會被保存下來——製作要用，日後重算或售後校準也要用，我們不會假裝沒存。用途限於你的手串、你的報告，以及系統本身的校準。想知道具體存了哪些欄位、保存多久、怎麼刪，直接問我們，我們照實回答。'},
   {g:'資料安全',q:'為什麼不收出生地？',a:'因為真太陽時我們一律以東經 120° 計算，不靠出生地。這是寫進公式的隱私設計——少收一個欄位，就少一分外洩風險。'},
   {g:'資料安全',q:'不知道出生時辰可以訂嗎？',a:'可以。缺時辰我們走三柱模式，只用年月日，不會偷偷補一個子時假裝完整。「置信度 70%」是我們對這份推論有多少把握的自評——四柱齊全我們標 100%，缺時辰標 70%，並且寫在報告上。少的那 30% 是時柱本來會提供的細節：它讓配比的微調變粗一點，不是讓整份推論失效。你拿到的手串與九節報告一樣完整，差別在報告上會誠實寫著 70%。',t:`<p>可以。缺時辰走三柱模式，只用年月日。</p><div class="mt-wrap"><table class="mt"><tr><th>你想問的</th><th>答案</th></tr><tr><td>會不會亂補一個時辰？</td><td>不會。我們寧可標註不足，也不假裝完整</td></tr><tr><td>「置信度 70%」是什麼意思？</td><td>是我們對這份推論的把握自評。四柱齊全＝100%，缺時辰＝70%，數字直接寫在報告上</td></tr><tr><td>少的 30% 差在哪？</td><td>時柱本來會提供的細節。它讓配比的微調變粗一點，不會讓整份推論失效</td></tr><tr><td>拿到的東西會變少嗎？</td><td>不會。手串與九節報告一樣完整</td></tr><tr><td>技術上怎麼算</td><td>時柱權重歸零、分母由 100 改為 80 重新歸一化</td></tr></table></div>`},
   {g:'售後',q:'怎麼保養？',a:'多數水晶清水沖一沖、擦乾就好。怕水怕汗酸的別浸水——岫玉、祕魯紅紋石、青金石這幾類，沾了要盡快擦乾。洗澡請取下：清潔劑會蝕光澤，熱水也讓彈力線老化更快。避開烈日暴曬和鹽水。有金屬隔珠的更要離潮濕環境，不然會褪色。想做個儀式，把它放月光下靜置一晚，當作給自己的心理狀態重整。',t:`<div class="mt-wrap"><table class="mt"><tr><th>情境</th><th>怎麼做</th></tr><tr><td>多數水晶</td><td>清水沖一沖、擦乾就好</td></tr><tr><td>怕水怕汗酸的（岫玉、祕魯紅紋石、青金石類）</td><td>別浸水，沾到盡快擦乾</td></tr><tr><td>洗澡</td><td>請取下。清潔劑會蝕光澤，熱水也讓彈力線老化更快</td></tr><tr><td>有金屬隔珠的</td><td>離潮濕環境，久了會褪色</td></tr><tr><td>日曬與海水</td><td>避開烈日暴曬和鹽水</td></tr><tr><td>想做個儀式</td><td>放月光下靜置一晚，當作給自己的心理狀態重整</td></tr></table></div>`},
@@ -2131,7 +2380,7 @@ const FAQ = [
   {g:'售後',q:'可以退換貨嗎？',a:'客製化商品依消保法第 19 條，排除七天無條件退貨——所以下單前一定有規劃表給你確認，先擋掉視覺落差。尺寸有誤走售後微調、不退款。材質有疑慮可以直接提出來，我們一起確認、把來源與判斷講清楚。',t:`<div class="mt-wrap"><table class="mt"><tr><th>情況</th><th>處理方式</th></tr><tr><td>客製化商品（依消保法第 19 條排除七天無條件退貨）</td><td>下單前一定有規劃表給你確認，先擋掉視覺落差</td></tr><tr><td>尺寸有誤</td><td>走售後微調、不退款</td></tr><tr><td>材質有疑慮</td><td>直接提出來，我們一起確認、把來源與判斷講清楚</td></tr></table></div>`},
   {g:'售後',q:'設計可以修改嗎？',a:'分兩種。五行配比不能改——那是從你的命盤算出來的目標，改了整份推論就不成立。可以改的是實現方式：同屬性白名單內換晶石、同五行換色系、換排列方式。流程是——你提異議、我們調替代路徑、重新演算、再請你確認。',t:`<p>分兩種。</p><div class="mt-wrap"><table class="mt"><tr><th>項目</th><th>可否調整</th></tr><tr><td>五行配比</td><td><b>不能改。</b>那是從你的命盤算出來的目標，改了整份推論就不成立</td></tr><tr><td>實現方式（晶石、色系、排列）</td><td><b>可以改。</b>同屬性白名單內換晶石、同五行換色系、換排列方式</td></tr></table></div><p>流程是——你提異議、我們調替代路徑、重新演算、再請你確認。</p>`},
   {g:'售後',q:'怎麼付款？',a:'報價確認後，收款資訊會放在你的專屬報價單上。可以銀行匯款、電子支付掃碼，或面交現金。先付款、後製作，匯款完回傳帳號末五碼就能對帳。信用卡之後開放。'},
-  {g:'情侶',q:'情侶對串跟買兩條個人款差在哪？',a:'兩條個人款是各算各的，各自補各自的缺。情侶對串是先合成再拆開：兩人的需求向量合成一份雙人向量（0.4×你 ＋ 0.4×對方 ＋ 0.2×橋接元素），再乘上關係階段的修正係數、重新正規化，最後只從你們的共同喜神取石。所以對串處理的是「你們之間」的缺口，不是「你」和「他」各自的缺口相加。主珠仍取各自最高的五行，各自置中——是一組，不是一對複製品。',t:`<div class="mt-wrap"><table class="mt"><tr><th>面向</th><th>兩條個人款</th><th>情侶對串</th></tr><tr><td>處理方式</td><td>各算各的，各自補各自的缺</td><td>先合成再拆開：兩人的需求向量合成一份雙人向量（0.4×你 ＋ 0.4×對方 ＋ 0.2×橋接元素），再乘上關係階段的修正係數、重新正規化，最後只從你們的共同喜神取石</td></tr><tr><td>處理的缺口</td><td>「你」和「他」各自的缺口相加</td><td>「你們之間」的缺口</td></tr></table></div><p>主珠仍取各自最高的五行，各自置中——是一組，不是一對複製品。</p>`},
+  {g:'情侶',q:'情侶對串跟買兩條個人款差在哪？',a:'兩條個人款是各算各的，各自補各自的缺。情侶對串是先合成再拆開：兩人的基準盤各自先被當年的流年推過一輪，得到各自的需求向量，再合成一份雙人向量（0.4×你 ＋ 0.4×對方 ＋ 0.2×橋接元素），乘上關係階段的修正係數、重新正規化，最後只從你們的共同喜神取石。所以對串處理的是「你們今年之間」的缺口，不是「你」和「他」出生時各自的缺口相加。主珠仍取各自最高的五行，各自置中——是一組，不是一對複製品。',t:`<div class="mt-wrap"><table class="mt"><tr><th>面向</th><th>兩條個人款</th><th>情侶對串</th></tr><tr><td>處理方式</td><td>各算各的，各自補各自的缺</td><td>先合成再拆開：兩人的基準盤各自先過流年，得到各自的需求向量，再合成雙人向量（0.4×你 ＋ 0.4×對方 ＋ 0.2×橋接元素），乘上關係階段的修正係數、重新正規化，最後只從你們的共同喜神取石</td></tr><tr><td>流年在哪一步</td><td>各自的向量裡各佔 0.12</td><td>合成之前就先算完；合成的是兩張「今年的盤」，不是兩張出生時的盤</td></tr><tr><td>處理的缺口</td><td>「你」和「他」各自的缺口相加</td><td>「你們之間」的缺口</td></tr></table></div><p>主珠仍取各自最高的五行，各自置中——是一組，不是一對複製品。</p>`},
   {g:'情侶',q:'我們兩個八字相沖，怎麼辦？',a:'相沖是互動摩擦大一點，不是不合。舉例水火沖：熱情高、但安全感低。系統會放一個橋接元素當「關係翻譯官」，像木——水生木、木生火，把對撞轉成流動，提醒你們摩擦時先開口溝通，而不是硬碰。'},
   {g:'情侶',q:'關係階段會影響設計嗎？',a:'會。生命週期修正係數會動態調配比。曖昧熱戀偏木、火為輔（先把話說開）；交往中未同居偏木土（溝通加穩定）；同居（未婚）偏土金（穩定加承諾）；新婚偏土（安全感共識）；育兒期偏火土（撐住日常的熱度與支撐）——這一段刻意不補金，因為那時候的承諾通常已經是滿的，我們補的是缺口不是盈餘；遠距偏木、分居偏水，同樣兩個五行主次相反，因為一個是距離問題、一個是信任問題。問卷上每一格只對應一種狀況，不會把兩種併成一格；真的對不上就選「無法歸類」，我們直接問你，不會挑一個相近的套上去。階段資料只給設計師參考，不進報告。',t:`<p>會。生命週期修正係數會動態調配比。</p><div class="mt-wrap"><table class="mt"><tr><th>關係階段</th><th>配比偏重</th></tr><tr><td>曖昧期／熱戀期</td><td>偏木、火為輔（先把話說開）</td></tr><tr><td>交往中（已確立排他、未同居）</td><td>偏木土（溝通加穩定）</td></tr><tr><td>同居（未婚）</td><td>偏土金（穩定加承諾）</td></tr><tr><td>婚姻（新婚 0–2 年）</td><td>偏土（安全感共識）</td></tr><tr><td>育兒期（子女未成年）</td><td>偏火土（撐住日常的熱度與支撐）。刻意不補金——那時候的承諾通常已經是滿的，我們補缺口不補盈餘</td></tr><tr><td>遠距（地理因素）</td><td>偏木、水為輔（先把話接上）</td></tr><tr><td>分居（關係緊張／試分居）</td><td>偏水、木為輔（先把信任接回來）</td></tr></table></div><p>遠距與分居用的是同兩個五行、主次剛好相反：一個是距離問題，一個是信任問題，所以問卷上是兩個選項，不會併成一格。真的對不上就選「無法歸類」，我們直接問你，不會挑一個相近的套上去。</p><p>階段資料只給設計師參考，不進報告。</p>`},
   {g:'情侶',q:'情侶款價格怎麼算？',a:'（底價 A ＋底價 B）＋水晶升等（每串 +300）＋深度關係報告（+300）＋運費。硬體計價跟個人一樣；多付的是雙人融合運算，加上那份關係報告的價值。',t:`<div class="mt-wrap"><table class="mt"><tr><th>項目</th><th>金額／說明</th></tr><tr><td>底價 A ＋ 底價 B</td><td>硬體計價跟個人一樣</td></tr><tr><td>水晶升等</td><td>每串 +300</td></tr><tr><td>深度關係報告</td><td>+300</td></tr><tr><td colspan="2">運費</td></tr></table></div><p>多付的是雙人融合運算，加上那份關係報告的價值。</p>`},
@@ -2140,7 +2389,8 @@ const FAQ = [
   {g:'情侶',q:'情侶的十二節報告有什麼？',a:'十二節，逐節固定全寫、不省略：01 專屬關係命名。02 命格與選石理由（你的那條講完，另起一段講他那條）。03 五派各自主張與裁決（兩人各一表，末段合論共同喜忌）。04 情侶五行分布彙總表，完整七欄逐欄解說。05 金句。06 命理總結，兩人各一句。07 共同喜神功能解析。08 你的手串配置一覽表。09 他的手串配置一覽表，含兩條的呼應關係。10 核心功能專屬解析，兩人分寫。11 補充提醒與未來藍圖，依 Gottman 缺口，兩人分寫。12 署名與免責。它想解的是一個問題：為什麼我們說話總是不對頻。把「我」的視角，翻譯成「我們」的共同語言。',t:`<div class="mt-wrap"><table class="mt"><tr><th>節</th><th>內容</th></tr><tr><td>01</td><td>專屬關係命名</td></tr><tr><td>02</td><td>命格與選石理由（你那條講完，另起一段講他那條）</td></tr><tr><td>03</td><td>五派各自主張與裁決（兩人各一表，末段合論共同喜忌）</td></tr><tr><td>04</td><td>情侶五行分布彙總表 — 完整七欄，逐欄解說</td></tr><tr><td>05</td><td>金句</td></tr><tr><td>06</td><td>命理總結（兩人各一句）</td></tr><tr><td>07</td><td>共同喜神功能解析</td></tr><tr><td>08</td><td>你的手串配置一覽表</td></tr><tr><td>09</td><td>他的手串配置一覽表＋兩條的呼應關係</td></tr><tr><td>10</td><td>核心功能專屬解析（兩人分寫）</td></tr><tr><td>11</td><td>補充提醒與未來藍圖（依 Gottman 缺口，兩人分寫）</td></tr><tr><td>12</td><td>署名與免責</td></tr></table></div><p>它想解的是一個問題：為什麼我們說話總是不對頻。把「我」的視角，翻譯成「我們」的共同語言。</p>`},
   // ⚠ 新題一律 append 到陣列尾端。客服快答有寫死索引 FAQ[5][8][9][11][13][15][20][21]，
   //    插在中間會全部錯位。
-  {g:'流程',q:'個人的九節報告有什麼？',a:'九節，逐節固定全寫、不省略：01 專屬命名。02 命格白話＋選石理由＋給你的話，融成一段。03 五派各自主張與裁決。04 五行分布彙總表，四欄逐欄解說，表後附「五行｜顆數｜在幫你什麼」白話小表。05 金句。06 你的主題。07 水晶配置一覽表，含佩戴說明。08 戴上之後，分心理、情緒生活、人際三層。09 提醒與未來藍圖，末接免責與署名。加購的深度命理推論報告是另外一份，寫的是這九節裝不下的推導過程。',t:`<div class="mt-wrap"><table class="mt"><tr><th>節</th><th>內容</th></tr><tr><td>01</td><td>專屬命名</td></tr><tr><td>02</td><td>命格白話＋選石理由＋給你的話（融成一段）</td></tr><tr><td>03</td><td>五派各自主張與裁決</td></tr><tr><td>04</td><td>五行分布彙總表 — 四欄逐欄解說＋「五行｜顆數｜在幫你什麼」白話小表</td></tr><tr><td>05</td><td>金句</td></tr><tr><td>06</td><td>你的主題</td></tr><tr><td>07</td><td>水晶配置一覽表＋佩戴說明</td></tr><tr><td>08</td><td>戴上之後（心理／情緒生活／人際三層）</td></tr><tr><td>09</td><td>提醒與未來藍圖，末接免責與署名</td></tr></table></div><p>加購的深度命理推論報告（+300）是另外一份，寫的是這九節裝不下的推導過程。</p>`}
+  {g:'流程',q:'個人的九節報告有什麼？',a:'九節，逐節固定全寫、不省略：01 專屬命名。02 命格白話＋選石理由＋給你的話，融成一段。03 五派各自主張與裁決。04 五行分布彙總表，四欄逐欄解說，表後附「五行｜顆數｜在幫你什麼」白話小表。05 金句。06 你的主題。07 水晶配置一覽表，含佩戴說明。08 戴上之後，分心理、情緒生活、人際三層。09 提醒與未來藍圖，末接免責與署名。加購的深度命理推論報告是另外一份，寫的是這九節裝不下的推導過程。',t:`<div class="mt-wrap"><table class="mt"><tr><th>節</th><th>內容</th></tr><tr><td>01</td><td>專屬命名</td></tr><tr><td>02</td><td>命格白話＋選石理由＋給你的話（融成一段）</td></tr><tr><td>03</td><td>五派各自主張與裁決</td></tr><tr><td>04</td><td>五行分布彙總表 — 四欄逐欄解說＋「五行｜顆數｜在幫你什麼」白話小表</td></tr><tr><td>05</td><td>金句</td></tr><tr><td>06</td><td>你的主題</td></tr><tr><td>07</td><td>水晶配置一覽表＋佩戴說明</td></tr><tr><td>08</td><td>戴上之後（心理／情緒生活／人際三層）</td></tr><tr><td>09</td><td>提醒與未來藍圖，末接免責與署名</td></tr></table></div><p>加購的深度命理推論報告（+300）是另外一份，寫的是這九節裝不下的推導過程。</p>`},
+  {g:'價值疑問',q:'「流年」是什麼？它在你們的運算裡做什麼？',a:'流年就是「當年的年份」這個變數。只讀出生那一刻的命盤，等於把你留在出生那年——所以需求向量六個分量裡固定留一格給它，權重 0.12，讀的是你下單當年的年份，算的是你此刻的五行處境。它還有第二個入口：五派裡的「新派」立論依據就是現代統計與動態流年，五派交叉裁決的時候它也有一票。日主偏強又生在極寒或極熱月份時會啟動調候模式，扶抑與缺口降到 0.20、調候升到 0.30，但流年那一格兩種模式都是 0.12，不隨之起伏。情侶線的順序是：兩人的基準盤各自先過流年，才合成雙人向量。要講清楚的是它的身分——流年在我們這裡是一個被讀進去的輸入變數，跟手圍、珠徑一樣。我們對它做的事只有「讀」，不宣稱能對它做別的。',t:`<div class="mt-wrap"><table class="mt"><tr><th>你想問的</th><th>答案</th></tr><tr><td>流年是什麼</td><td>當年的年份這個變數。系統自己知道，不用你填</td></tr><tr><td>權重多少</td><td>需求向量六分量之一，固定 0.12</td></tr><tr><td>為什麼要有它</td><td>只讀出生那刻的命盤，等於把你留在出生那年。加了它，算的是你此刻的處境</td></tr><tr><td>只出現一次嗎</td><td>兩次。一次是那個 0.12 的分量，一次是五派裡「新派」的立論依據，裁決時有一票</td></tr><tr><td>調候模式會變嗎</td><td>不會。扶抑與缺口降到 0.20、調候升到 0.30，流年仍是 0.12</td></tr><tr><td>情侶線怎麼算</td><td>兩人的基準盤各自先過流年，才合成雙人向量</td></tr><tr><td>你們能對流年做什麼</td><td>只有「讀」。它是輸入變數，不是我們宣稱能動的東西</td></tr></table></div>`}
 ];
 (function faq(){
   const groups = ['價值疑問','價格','流程','資料安全','售後','情侶'];
@@ -2238,7 +2488,9 @@ function localBrain(qtext){
   if(has('情侶','對串','合盤','兩人','另一半')) return FAQ[22].a;
   if(has('退','換貨','取消','退款','鑑定')) return FAQ[19].a;
   if(has('有效','有用','靈','神效','宿命','招','擋','發財','桃花','好運')) return FAQ[4].a;
-  if(has('原理','公式','數值','由來','怎麼算出','演算')) return '方法攤在「關於我們」的運算原理區：需求向量六分量（扶抑、缺口、調候、流年、盲派、意圖）、五派交叉裁決、上下限與相生溢出、Hamilton 分配、禁鄰規則。歡迎去看。';
+  // 流年題是 append 在陣列尾端的（見 FAQ 陣列末尾那條註解），所以這裡用長度取，不寫死索引
+  if(has('流年','當年','年份','太歲','今年算')) return FAQ[FAQ.length-1].a;
+  if(has('原理','公式','數值','由來','怎麼算出','演算')) return '方法攤在「關於我們」的運算原理區：需求向量六分量（扶抑 0.30／缺口 0.28／調候 0.12／流年 0.12／盲派 0.10／意圖 0.08，意圖上限 15%）、五派交叉裁決（差 >20% 採高分者）、封頂 0.38 保底 0.03 與相生溢出、Hamilton 分配（誤差 ≤0.05）、禁鄰規則。流年那 0.12 讀的是你下單當年的年份，切到調候模式也一樣是 0.12。歡迎去看。';
   if(has('真人','店長','客服','聯絡','line','LINE')) return '真人服務走官方 LINE：'+CONFIG.CONTACT.line+'（回覆最快）。也可以 IG 私訊 '+CONFIG.CONTACT.ig+'。';
   if(has('地址','面交','自送','店到店','運費','宅配')) return '物流：店到店 +60；中壢–龍潭面交免運（約時間地點）。';
   if(has('訂','買','下單','開始','怎麼訂')) return '切到「訂製服務」分頁，一步步填，約 3 分鐘；送出會拿到訂單編號，之後都能線上查進度。';
