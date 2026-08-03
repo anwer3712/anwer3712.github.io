@@ -192,10 +192,15 @@ section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
    座標是對原圖 923×1152 量出來的：英文佔 x 55~140px、y 983~1016px，
    換算成百分比所以圖放大縮小都跟著跑。上下左右各留約 1% 餘裕。
    右緣特別卡：中文店名從 16.25% 起，遮罩右緣要 >=15.2%（蓋完英文）又 <16.25%（別咬到中文）。
-   ⚠ 改版位或換圖時這條要重量一次，不然會蓋錯地方或蓋不到；tests/visual_check.py【5c】會擋。 */
-.bcmask{position:absolute;left:3.6%;top:84.4%;width:12.3%;height:5.4%;pointer-events:none;
-  background:radial-gradient(ellipse at center,rgba(215,205,196,.92) 55%,rgba(215,205,196,0) 100%);
-  backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+   ⚠ 改版位或換圖時這條要重量一次，不然會蓋錯地方或蓋不到；tests/visual_check.py【5c】會擋。
+   邊緣靠 mask-image 羽化：backdrop-filter 作用的是這個元素的矩形範圍，只把 background
+   做成漸層不夠，柔焦仍會在紙面上留一個看得出來的長方形；mask 會一起裁掉 backdrop-filter。
+   核心（62% 以內）必須維持不透明，字才不會從邊緣浮回來。 */
+.bcmask{position:absolute;left:3.3%;top:84.6%;width:13.0%;height:5.6%;pointer-events:none;
+  background:rgba(220,211,203,.98);   /* ＝遮罩四周一圈紙色的中位數（逐像素取樣，不是目測配的） */
+  backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);
+  -webkit-mask-image:radial-gradient(ellipse at 50% 50%,#000 62%,rgba(0,0,0,.55) 86%,transparent 100%);
+  mask-image:radial-gradient(ellipse at 50% 50%,#000 62%,rgba(0,0,0,.55) 86%,transparent 100%)}
 /* text-wrap:balance：這句剛好比欄寬長一點點，不平衡的話會掉出一個孤字 */
 .bookcard figcaption{margin-top:12px;font-family:var(--serif);font-size:14px;line-height:1.75;color:var(--ink);text-align:center;text-wrap:balance;transform:rotate(1.6deg)}
 @media(max-width:900px){ .bookcard{transform:none} .bookcard figcaption{transform:none} }

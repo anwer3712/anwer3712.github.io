@@ -249,6 +249,9 @@ def t_browser(keep_shots, pw_exe=""):
             pg = br.new_page(viewport={"width": 1280, "height": 900})
             pg.goto(f"{base}#about", wait_until="load")
             pg.wait_for_timeout(800)
+            # 截圖的 clip 是視窗座標，元素在畫面外會直接丟 "clip is outside viewport"
+            pg.locator(".bookcard").scroll_into_view_if_needed()
+            pg.wait_for_timeout(600)
             # 量的是「元素自身座標」不是螢幕座標：.bookcard 有 rotate(-1.6deg)，
             # getBoundingClientRect 回的是旋轉後的外接矩形，會比實際大一圈、左右各偏幾 px，
             # 拿它比對會得到假的落差。圖與遮罩一起轉，所以在容器本地座標系裡比才精確。
@@ -267,9 +270,25 @@ def t_browser(keep_shots, pw_exe=""):
                 check(f"關於我們是大圖（顯示寬 {geo['imgW']}px > 420）", geo["imgW"] > 420, f"實得 {geo['imgW']}px")
                 en, mk = geo["en"], geo["mask"]
                 covered = mk["l"] <= en["l"] and mk["t"] <= en["t"] and mk["r"] >= en["r"] and mk["b"] >= en["b"]
-                check("遮罩完全蓋住店章下那行英文", covered,
+                check("遮罩矩形涵蓋店章下那行英文", covered,
                       "英文 %s / 遮罩 %s" % ({k: round(v) for k, v in en.items()},
                                              {k: round(v) for k, v in mk.items()}))
+                # 矩形涵蓋還不夠：mask-image 會把邊緣羽化掉，實際不透明的只有核心。
+                # 所以直接截那塊畫面量像素起伏 —— 空白紙面 std ≈ 3~5，有字時 ≈ 22~30。
+                # 這條測的是結果（看不看得到字），不是幾何，換做法也不用改測試。
+                if Image:
+                    scr = pg.evaluate("""()=>{const img=document.querySelector('.bookcard img');
+                      const r=img.getBoundingClientRect(), sx=r.width/923, sy=r.height/1152;
+                      return {x:Math.round(r.left+52*sx), y:Math.round(r.top+980*sy),
+                              width:Math.max(4,Math.round(91*sx)), height:Math.max(4,Math.round(39*sy))};}""")
+                    shot2 = SHOTS / "bookcard_en_zone.png"
+                    pg.screenshot(path=str(shot2), clip=scr)
+                    im2 = Image.open(shot2).convert("L")
+                    vals = list(im2.getdata())
+                    mean = sum(vals) / len(vals)
+                    sd = (sum((v - mean) ** 2 for v in vals) / len(vals)) ** 0.5
+                    check(f"英文區已看不出字（像素起伏 std={sd:.1f} < 8）", sd < 8,
+                          f"取樣 {len(vals)} 像素，底圖 {shot2.name}")
             pg.close()
 
             # ── 【6】hero h1 對新背景的實測對比 ──
