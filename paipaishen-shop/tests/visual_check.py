@@ -122,10 +122,13 @@ def t_images(src):
     check("caption 已換成核心思想", "即使身處萬丈深淵，依舊在你身旁，散發前行的光芒" in src)
     # 2026-08-04 使用者裁決 A：關於我們改單張大圖。
     # 舊斷言是「上限 360px」，那正是使用者點名「圖被縮到只剩配圖」的那條規則，已作廢。
-    # 新的合規手段＝.bcmask 局部柔焦蓋掉店章下那行英文（幾何位置在 t_browser 實測）。
+    # 2026-08-04 使用者裁決「不要動我的圖」：整張完整顯示，不遮不裁（下一條反向釘住）。
     check("danny.webp 已從關於我們移除", "danny.webp" not in src.split("<body")[-1])
     check("bookcard 360px 上限已拿掉", "max-width:360px" not in src)
-    check("店章英文遮罩 .bcmask 存在", ".bcmask" in src and 'class="bcmask"' in src)
+    # 2026-08-04 使用者裁決「不要動我的圖，先直接上」：整張完整顯示。
+    # 這條反向釘住——日後誰再加遮罩／裁切都會先紅，逼他回來看這行註解。
+    check("品牌圖無任何遮罩／裁切（使用者裁決：不要動圖）",
+          'class="bcmask"' not in src and ".bcmask" not in src)
 
 
 # ═══════════ 8. 禁詞掃描（用 repo 現成的，不自造）═══════════
@@ -243,7 +246,7 @@ def t_browser(keep_shots, pw_exe=""):
 
             # ── 【5c】關於我們大圖：遮罩要真的蓋住店章下那行英文 ──
             # 英文在原圖 923×1152 的位置＝x 55~140、y 983~1016（逐列取像素量出來的）。
-            # 這裡把它換算成畫面座標，要求 .bcmask 的矩形完全包住它。
+            # 這裡只確認圖夠大、且沒有任何覆蓋層。
             # 改版位或換圖時這條會先紅，是刻意的：那代表遮罩要重量。
             print("\n【5c】關於我們大圖與店章英文遮罩")
             pg = br.new_page(viewport={"width": 1280, "height": 900})
@@ -252,43 +255,19 @@ def t_browser(keep_shots, pw_exe=""):
             # 截圖的 clip 是視窗座標，元素在畫面外會直接丟 "clip is outside viewport"
             pg.locator(".bookcard").scroll_into_view_if_needed()
             pg.wait_for_timeout(600)
-            # 量的是「元素自身座標」不是螢幕座標：.bookcard 有 rotate(-1.6deg)，
-            # getBoundingClientRect 回的是旋轉後的外接矩形，會比實際大一圈、左右各偏幾 px，
-            # 拿它比對會得到假的落差。圖與遮罩一起轉，所以在容器本地座標系裡比才精確。
+            # 使用者裁決「不要動我的圖」→ 這裡只確認兩件事：圖夠大、上面沒有疊任何遮罩層。
+            # 圖片本身的長寬比守門在【5b】，不重複。
             geo = pg.evaluate("""()=>{const box=document.querySelector('.bcimg');
-              const img=document.querySelector('.bookcard img');
-              const m=document.querySelector('.bcmask');if(!img||!m||!box)return null;
-              const cw=box.offsetWidth, ch=box.offsetHeight, cs=getComputedStyle(m);
-              const px=v=>parseFloat(v)||0;
-              const ml=px(cs.left), mt=px(cs.top), mw=px(cs.width), mh=px(cs.height);
-              return {imgW:Math.round(cw),
-                      en:{l:55/923*cw, t:983/1152*ch, r:140/923*cw, b:1016/1152*ch},
-                      mask:{l:ml, t:mt, r:ml+mw, b:mt+mh}};}""")
+              const img=document.querySelector('.bookcard img');if(!img||!box)return null;
+              const r=img.getBoundingClientRect();
+              const overlays=[...box.children].filter(e=>e.tagName!=='IMG').map(e=>e.className||e.tagName);
+              return {imgW:Math.round(r.width), imgH:Math.round(r.height), overlays};}""")
             if not geo:
-                check("關於我們大圖＋遮罩存在", False, "找不到 .bookcard img 或 .bcmask")
+                check("關於我們大圖存在", False, "找不到 .bookcard img")
             else:
                 check(f"關於我們是大圖（顯示寬 {geo['imgW']}px > 420）", geo["imgW"] > 420, f"實得 {geo['imgW']}px")
-                en, mk = geo["en"], geo["mask"]
-                covered = mk["l"] <= en["l"] and mk["t"] <= en["t"] and mk["r"] >= en["r"] and mk["b"] >= en["b"]
-                check("遮罩矩形涵蓋店章下那行英文", covered,
-                      "英文 %s / 遮罩 %s" % ({k: round(v) for k, v in en.items()},
-                                             {k: round(v) for k, v in mk.items()}))
-                # 矩形涵蓋還不夠：mask-image 會把邊緣羽化掉，實際不透明的只有核心。
-                # 所以直接截那塊畫面量像素起伏 —— 空白紙面 std ≈ 3~5，有字時 ≈ 22~30。
-                # 這條測的是結果（看不看得到字），不是幾何，換做法也不用改測試。
-                if Image:
-                    scr = pg.evaluate("""()=>{const img=document.querySelector('.bookcard img');
-                      const r=img.getBoundingClientRect(), sx=r.width/923, sy=r.height/1152;
-                      return {x:Math.round(r.left+52*sx), y:Math.round(r.top+980*sy),
-                              width:Math.max(4,Math.round(91*sx)), height:Math.max(4,Math.round(39*sy))};}""")
-                    shot2 = SHOTS / "bookcard_en_zone.png"
-                    pg.screenshot(path=str(shot2), clip=scr)
-                    im2 = Image.open(shot2).convert("L")
-                    vals = list(im2.getdata())
-                    mean = sum(vals) / len(vals)
-                    sd = (sum((v - mean) ** 2 for v in vals) / len(vals)) ** 0.5
-                    check(f"英文區已看不出字（像素起伏 std={sd:.1f} < 8）", sd < 8,
-                          f"取樣 {len(vals)} 像素，底圖 {shot2.name}")
+                check("圖上沒有疊任何遮罩層（使用者裁決：不要動圖）",
+                      not geo["overlays"], f"實得 {geo['overlays']}")
             pg.close()
 
             # ── 【6】hero h1 對新背景的實測對比 ──

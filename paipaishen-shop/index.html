@@ -180,27 +180,15 @@ section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
   }
 }
 
-/* ── 品牌書封（關於我們）── 2026-08-04：使用者裁決 A，改單張大圖，360px 上限已拿掉。
-   放大之後圖底部店章下那行小字會變得可辨（見 .bcmask），處置寫在那條規則上。 */
+/* ── 品牌書封（關於我們）── 2026-08-04：使用者裁決 A，改單張大圖，360px 上限已拿掉。 */
 .bookcard{margin:0 auto;max-width:620px;transform:rotate(-1.6deg)}
 .bcimg{position:relative;border-radius:var(--r-sm);overflow:hidden;
   box-shadow:0 12px 30px rgba(16,24,40,.18),0 0 0 1px rgba(45,106,79,.32) inset}
 .bookcard img{display:block;width:100%;height:auto}
-/* 店章正下方那行英文＝店名的舊英文版，中段那個字落在 SKILL-F 玄學物理類禁詞
-   （此處刻意不重抄該字：零建置專案沒有 minify，註解會原封不動出現在公開站原始碼裡）。
-   圖檔一個位元都不動，改用 CSS 局部柔焦蓋掉 —— 與 hero 用 background-position 裁切同一招。
-   座標是對原圖 923×1152 量出來的：英文佔 x 55~140px、y 983~1016px，
-   換算成百分比所以圖放大縮小都跟著跑。上下左右各留約 1% 餘裕。
-   右緣特別卡：中文店名從 16.25% 起，遮罩右緣要 >=15.2%（蓋完英文）又 <16.25%（別咬到中文）。
-   ⚠ 改版位或換圖時這條要重量一次，不然會蓋錯地方或蓋不到；tests/visual_check.py【5c】會擋。
-   邊緣靠 mask-image 羽化：backdrop-filter 作用的是這個元素的矩形範圍，只把 background
-   做成漸層不夠，柔焦仍會在紙面上留一個看得出來的長方形；mask 會一起裁掉 backdrop-filter。
-   核心（62% 以內）必須維持不透明，字才不會從邊緣浮回來。 */
-.bcmask{position:absolute;left:3.3%;top:84.6%;width:13.0%;height:5.6%;pointer-events:none;
-  background:rgba(220,211,203,.98);   /* ＝遮罩四周一圈紙色的中位數（逐像素取樣，不是目測配的） */
-  backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);
-  -webkit-mask-image:radial-gradient(ellipse at 50% 50%,#000 62%,rgba(0,0,0,.55) 86%,transparent 100%);
-  mask-image:radial-gradient(ellipse at 50% 50%,#000 62%,rgba(0,0,0,.55) 86%,transparent 100%)}
+/* 2026-08-04 使用者裁決：「不要動我的圖，先直接上」——整張完整顯示，不遮、不裁、不改。
+   曾做過一版局部柔焦蓋住店章下那行舊版英文，已依裁決移除；
+   那行字的合規判斷是店主的商業決定，不是技術問題。
+   日後若要改回來，做法與量出來的座標在 git 歷史 commit d0078e3。 */
 /* text-wrap:balance：這句剛好比欄寬長一點點，不平衡的話會掉出一個孤字 */
 .bookcard figcaption{margin-top:12px;font-family:var(--serif);font-size:14px;line-height:1.75;color:var(--ink);text-align:center;text-wrap:balance;transform:rotate(1.6deg)}
 @media(max-width:900px){ .bookcard{transform:none} .bookcard figcaption{transform:none} }
@@ -1030,7 +1018,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
         <div class="reveal" style="max-width:700px;margin:0 auto 40px">
           <p style="font-size:19px;text-align:center;margin-bottom:18px"><b>不是挑你喜歡的石頭，是算出你缺的那一個</b></p>
           <p style="color:var(--muted);margin-bottom:14px">先從國曆生日排出四柱，用真太陽時校正（一律以東經 120° 計算，我們不收出生地）。沒有出生時間就走三柱模式：時柱權重歸零、分母由 100 降為 80，報告上的置信度從 100% 標成 70%——那是我們對這份推論的把握自評，少的部分是時柱本來會給的細節，會讓配比的微調變粗一點，但不會讓整份推論失效。我們不偷補一個子時給你。</p>
-          <p style="color:var(--muted);margin-bottom:14px">接著把五行分量量化成一組配比，再從 <b style="color:var(--ink)">95 種晶石白名單</b>裡取石。名單以外一律不用；每顆石頭只認一個主五行，不做「這顆什麼都補」的模糊歸類。</p>
+          <p style="color:var(--muted);margin-bottom:14px">接著把五行分量量化成一組配比，再從 <b style="color:var(--ink)">94 種晶石白名單</b>裡取石。名單以外一律不用；每顆石頭只認一個主五行，不做「這顆什麼都補」的模糊歸類。</p>
           <p style="color:var(--muted)">最後排珠：主珠取你最高的那個五行，強制置中；金與木、水與火不相鄰，中間一定隔一顆。<b style="color:var(--ink)">每一顆的位置都有理由，報告會逐顆說明為什麼放它。</b></p>
         </div>
 
@@ -1330,12 +1318,11 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
       <!-- 2026-08-04 使用者裁決 A：拿掉並排的 danny.webp，關於我們改單張大圖。
            原本這裡是 .grid.duo 雙欄，圖被壓在 360px 內＝只是配圖，正是使用者點名的問題。
            現在圖是這一節的主體，620px 上限只為不讓它在寬螢幕上壓過文字節奏。
-           圖檔一個位元都沒動；底部那行小字的處置在 CSS 的 .bcmask（原因寫在那裡）。 -->
+           圖檔一個位元都沒動，也不遮不裁（2026-08-04 使用者裁決，理由見 CSS .bookcard 那段註解）。 -->
       <div class="reveal" style="margin:36px auto 0;max-width:620px">
         <figure class="bookcard">
           <div class="bcimg">
             <img src="photos/brand/S__9019531.jpg" alt="拍拍深五行水晶設計研究所品牌書封，封面中央為五行配色手串" width="923" height="1152" loading="lazy">
-            <span class="bcmask" aria-hidden="true"></span>
           </div>
           <figcaption>即使身處萬丈深淵，依舊在你身旁，散發前行的光芒</figcaption>
         </figure>
@@ -1400,7 +1387,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
         </ul>
         <h3>選石與定價</h3>
         <ul>
-          <li>只從 <b>95 種晶石白名單</b>取石，清單外一律不用。每顆石頭只認一個主五行，副五行不參與運算。白名單依主五行分色：金（白／灰／金屬色）、木（綠色系）、水（黑／深藍／藍紫）、火（紅／粉／紫／橙）、土（黃／棕／大地色）。</li>
+          <li>只從 <b>94 種晶石白名單</b>取石，清單外一律不用。每顆石頭只認一個主五行，副五行不參與運算。白名單依主五行分色：金（白／灰／金屬色）、木（綠色系）、水（黑／深藍／藍紫）、火（紅／粉／紫／橙）、土（黃／棕／大地色）。</li>
           <li>運算完由命理師<b>逐單複核裁決</b>，初步規劃先給你過目、你點頭才動手——不交給機器直接拍板。</li>
           <li>底價由「手圍 × 珠徑」查矩陣，級距之間向上取級距；超出表格範圍一律人工報價，禁止外推。</li>
         </ul>
