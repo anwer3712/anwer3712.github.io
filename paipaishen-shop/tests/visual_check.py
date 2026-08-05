@@ -257,17 +257,32 @@ def t_browser(keep_shots, pw_exe=""):
             pg.wait_for_timeout(600)
             # 使用者裁決「不要動我的圖」→ 這裡只確認兩件事：圖夠大、上面沒有疊任何遮罩層。
             # 圖片本身的長寬比守門在【5b】，不重複。
-            geo = pg.evaluate("""()=>{const box=document.querySelector('.bcimg');
+            # 2026-08-05：這張圖搬進三幕當捲動疊層（.jveil，要求 7），支援捲動時間軸的
+            # 瀏覽器會把下方靜態那張 .bcimg 收起來。所以這裡改成「不管走哪條路，圖都要夠大
+            # 且沒被裁」——.jveil 走 background-size:contain（整張完整），.bcimg 走原本的 <img>。
+            geo = pg.evaluate("""()=>{const veil=document.querySelector('.jveil');
+              if(veil && getComputedStyle(veil).display!=='none'){
+                const r=veil.getBoundingClientRect(), cs=getComputedStyle(veil);
+                return {mode:'jveil', imgW:Math.round(r.width), imgH:Math.round(r.height),
+                        size:cs.backgroundSize, masked:cs.maskImage!=='none'&&cs.maskImage!=='',
+                        overlays:[]};}
+              const box=document.querySelector('.bcimg');
               const img=document.querySelector('.bookcard img');if(!img||!box)return null;
               const r=img.getBoundingClientRect();
               const overlays=[...box.children].filter(e=>e.tagName!=='IMG').map(e=>e.className||e.tagName);
-              return {imgW:Math.round(r.width), imgH:Math.round(r.height), overlays};}""")
+              return {mode:'bcimg', imgW:Math.round(r.width), imgH:Math.round(r.height),
+                      size:'', masked:false, overlays};}""")
             if not geo:
-                check("關於我們大圖存在", False, "找不到 .bookcard img")
+                check("關於我們大圖存在", False, "找不到 .jveil 也找不到 .bookcard img")
             else:
-                check(f"關於我們是大圖（顯示寬 {geo['imgW']}px > 420）", geo["imgW"] > 420, f"實得 {geo['imgW']}px")
+                check(f"關於我們是大圖（{geo['mode']} 顯示寬 {geo['imgW']}px > 420）",
+                      geo["imgW"] > 420, f"實得 {geo['imgW']}px")
                 check("圖上沒有疊任何遮罩層（使用者裁決：不要動圖）",
-                      not geo["overlays"], f"實得 {geo['overlays']}")
+                      not geo["overlays"] and not geo["masked"],
+                      f"overlays={geo['overlays']} masked={geo['masked']}")
+                if geo["mode"] == "jveil":
+                    check("疊層用 contain 顯示整張、沒有裁切（同一條裁決）",
+                          "contain" in (geo["size"] or ""), f"background-size={geo['size']}")
             pg.close()
 
             # ── 【6】hero h1 對新背景的實測對比 ──

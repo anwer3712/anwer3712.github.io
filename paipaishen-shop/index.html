@@ -56,6 +56,13 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+/* ⚠ 2026-08-05 查證紀錄，留著擋掉下一個人重走一次這條死路：
+   曾懷疑 overflow-x:hidden 讓 body 變成捲動容器（規範上 overflow-y 的計算值確實
+   會由 visible 變 auto），進而害 animation-timeline:view() 的 ViewTimeline 失效。
+   **實測推翻**：headless chromium 跑對照組，clip 與 hidden 兩邊都是 5/5 動畫 active。
+   先前在 Claude 的 Browser pane 量到「16 條全部 inactive」是量測假象——那個 pane
+   隱藏時頁面不 compositing，ViewTimeline 就不更新。量捲動驅動動畫一定要用會
+   compositing 的瀏覽器（tests/ 那幾支 Playwright 腳本），不要用隱藏視窗的 DevTools。 */
 body{font-family:var(--sans);color:var(--ink);background:var(--paper);line-height:1.75;font-size:16px;overflow-x:hidden}
 h1,h2,h3,h4{font-family:var(--serif);font-weight:600;line-height:1.3;color:var(--ink)}
 a{color:inherit;text-decoration:none}
@@ -81,10 +88,10 @@ header{position:sticky;top:0;z-index:100;background:rgba(251,249,244,.86);backdr
 /* hover＝正要前行 → 木色；.on＝已經在這裡了（抵達） → 維持金色。兩個狀態靠色相就分得開 */
 .nav-links a:hover{color:var(--mu)}
 .nav-links a.on{color:var(--glow-deep)}
-.nav-links a.on::after{content:"";position:absolute;left:14px;right:14px;bottom:2px;height:2px;background:var(--glow);border-radius:2px;box-shadow:0 0 10px 1px var(--glow-soft)}
-.nav-under{position:absolute;bottom:2px;height:2px;background:var(--glow-deep);border-radius:2px;transition:left var(--t),width var(--t);opacity:.55;pointer-events:none}
+.nav-links a.on::after{content:"";position:absolute;left:14px;right:14px;bottom:2px;height:2px;background:var(--mu);border-radius:2px;box-shadow:0 0 10px 1px rgba(143,207,174,.6)}
+.nav-under{position:absolute;bottom:2px;height:2px;background:var(--mu);border-radius:2px;transition:left var(--t),width var(--t);opacity:.55;pointer-events:none}
 .cartBtn{position:relative;margin-left:6px;background:none;border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;transition:border-color var(--t),transform var(--t)}
-.cartBtn:hover{border-color:var(--glow);transform:translateY(-1px)}
+.cartBtn:hover{border-color:var(--mu);transform:translateY(-1px)}
 .cartBtn .cnt{position:absolute;top:-7px;right:-7px;background:var(--rose-d);color:#fff;font-size:11px;min-width:18px;height:18px;line-height:18px;text-align:center;border-radius:9px;padding:0 4px}
 .burger{display:none;margin-left:auto;width:42px;height:42px;border:1px solid var(--line);background:none;border-radius:10px;cursor:pointer;flex-direction:column;gap:5px;align-items:center;justify-content:center}
 .burger i{width:20px;height:2px;background:var(--ink);transition:transform var(--t),opacity var(--t)}
@@ -129,9 +136,13 @@ section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
    其餘 1 段），從底部數才能讓「最下方永遠是最亮那段」成立，不必逐頁調參數。
    四條規則涵蓋全部情形（倒數 1／2／3／其餘），所以下面 .block.alt 的舊底色一定被蓋掉，
    已改為只留內距語意、不再自己設背景。色階全部落在既有 --paper 的暖白家族，不新增色相。 */
-.tab section.block:nth-last-of-type(n+4){background:#F0E9DA}
-.tab section.block:nth-last-of-type(3){background:#F4EEE1}
-.tab section.block:nth-last-of-type(2){background:#F8F3E9}
+/* 2026-08-05：色階由暖米改走木色（使用者要求前台約 30% 綠）。
+   方向沒變、語意反而更準了——上游（離深淵近、還在過程中）是木，
+   最下面那一段仍是暖白＋金光暈＝抵達。木起金收，跟沿革線同一套講法。
+   三階都是低彩度綠灰，對 --ink #2A3342 的對比分別 13.4／14.0／14.6，遠高於 AA 4.5。 */
+.tab section.block:nth-last-of-type(n+4){background:#E7EEE8}
+.tab section.block:nth-last-of-type(3){background:#EEF3EE}
+.tab section.block:nth-last-of-type(2){background:#F5F8F4}
 .tab section.block:nth-last-of-type(1){
   background:radial-gradient(78% 62% at 50% 118%,rgba(232,201,122,.20),transparent 72%),var(--paper)}
 
@@ -228,7 +239,7 @@ section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
 #tab-custom .head h2::after{background:var(--huo)}
 #tab-works .head h2::after{background:var(--mu)}
 #tab-about .head h2::after{background:var(--shui)}
-#tab-faq .head h2::after{background:var(--jin)}
+#tab-faq .head h2::after{background:var(--mu)}
 #tab-track .head h2::after{background:var(--tu)}
 
 /* ── Hero ── */
@@ -247,29 +258,37 @@ section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
 #tab-home .hero::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
   background:url(photos/brand/S__9019531.jpg) 50% 55% / cover no-repeat;
   transform:scale(1.04);
-  filter:blur(8px) saturate(.86) brightness(.5);
-  opacity:.5;
+  filter:blur(8px) saturate(.86) brightness(.56);
+  opacity:.58;
   -webkit-mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.6) 52%,transparent 100%);
   mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.6) 52%,transparent 100%);
   /* 兩段接力：heroLight 開頁點亮一次（.15s 起、1.25s 跑完＝1.4s），
-     heroBreath 從 1.4s 接手做持續緩慢推近，剛好無縫。
-     heroBreath 只碰 transform——opacity／filter／mask 留給 heroLight 的 both 保持值，
-     兩個動畫掛同一個屬性會互蓋，分工才不會打架。
-     reduced-motion 由 §尊重減少動態偏好 的 * 規則統一關掉，這裡不必再寫一次。 */
+     heroBreath 從 1.4s 接手做持續推近，剛好無縫。
+     ⚠ 2026-08-05：使用者第三次回報「首頁圖還是不會動」。前兩次都當成秒數問題在調，
+     查下去真正的根因在 §尊重減少動態偏好 那條全域 * 規則——系統開了「減少動態」
+     時全站每個動畫的 duration 會被設成 .001ms，改秒數當然沒有用。那條是無障礙底線，
+     不動。這裡改的是「沒開 reduce 的人也該一眼看得出在動」：
+       22s → 13s、幅度 7% → 12%，並加上位移與亮度脈動。
+     位移比純縮放明顯得多——blur(8px)、opacity .5 的底圖做等比縮放，
+     邊緣沒有參考點，人眼幾乎讀不到變化。
+     filter 這次由 heroBreath 自己寫滿（含 blur／saturate），不再只碰 transform：
+     它 delay 1.4s 才起跑且無 backwards，開場那段仍完全由 heroLight 掌握，不會互蓋。 */
   animation:heroLight 1.25s cubic-bezier(.22,.61,.36,1) .15s both,
-            heroBreath 22s ease-in-out 1.4s infinite}
-@keyframes heroBreath{0%,100%{transform:scale(1.04)}50%{transform:scale(1.11)}}
+            heroBreath 13s ease-in-out 1.4s infinite}
+@keyframes heroBreath{
+  0%,100%{transform:scale(1.04) translate3d(0,0,0);filter:blur(8px) saturate(.86) brightness(.56)}
+  50%    {transform:scale(1.16) translate3d(0,-1.8%,0);filter:blur(6px) saturate(1.02) brightness(.74)}}
 @keyframes heroLight{
   from{opacity:.16;filter:blur(20px) saturate(.6) brightness(.34);transform:scale(1.12);
     -webkit-mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.3) 30%,transparent 52%);
     mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.3) 30%,transparent 52%)}
-  to{opacity:.5;filter:blur(8px) saturate(.86) brightness(.5);transform:scale(1.04);
+  to{opacity:.58;filter:blur(8px) saturate(.86) brightness(.56);transform:scale(1.04);
     -webkit-mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.6) 52%,transparent 100%);
     mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.6) 52%,transparent 100%)}
 }
 #tab-home .hero .wrap,#tab-home .hero::after{z-index:1}
 @media(prefers-reduced-motion:reduce){
-  #tab-home .hero::before{animation:none;opacity:.5;filter:blur(8px) saturate(.86) brightness(.5);
+  #tab-home .hero::before{animation:none;opacity:.58;filter:blur(8px) saturate(.86) brightness(.56);
     -webkit-mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.6) 52%,transparent 100%);
     mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.6) 52%,transparent 100%)}
 }
@@ -286,9 +305,10 @@ section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
 .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
 .hero-art{display:flex;justify-content:center}
 .hero-art svg{width:100%;max-width:400px;height:auto;filter:drop-shadow(0 18px 40px rgba(0,0,0,.4))}
-/* 24s／圈。原本 60s 慢到肉眼看不出在轉（使用者回報「首頁圖不會動」）。
+/* 16s／圈。60s → 24s → 16s：使用者三度回報看不出在轉，同一輪也查到真根因是
+   系統「減少動態」把全站動畫掐成 .001ms（見 hero::before 那段註解）。秒數這邊仍再收一階。
    ⚠ 下面 .bead-tip-spin 的反轉必須用同一個秒數，否則珠子上的說明字會跟著轉歪。 */
-.spin{transform-origin:210px 210px;animation:spin 24s linear infinite}
+.spin{transform-origin:210px 210px;animation:spin 16s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 #heroRing{overflow:visible}
 .bead-el{cursor:pointer}
@@ -298,7 +318,7 @@ section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
 .bead-el:hover .bead-body,.bead-el:focus-visible .bead-body{transform:scale(1.15)}
 .bead-el:hover .bead-hl,.bead-el:focus-visible .bead-hl{opacity:.9}
 .bead-el:hover .bead-tip,.bead-el:focus-visible .bead-tip{opacity:1}
-.bead-tip-spin{transform-box:fill-box;transform-origin:center;animation:spinRev 24s linear infinite}
+.bead-tip-spin{transform-box:fill-box;transform-origin:center;animation:spinRev 16s linear infinite}
 @keyframes spinRev{to{transform:rotate(-360deg)}}
 
 /* ── 卡片 / 格線 ── */
@@ -424,21 +444,32 @@ textarea{resize:vertical;min-height:78px}
 .calc .nbig{font-family:var(--serif);font-size:36px;color:var(--rose-d)}
 .beadstrip{width:100%;height:66px;margin-top:8px}
 .mt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:16px;border-radius:12px;border:1px solid var(--line);max-width:100%}
-table.mt{border-collapse:collapse;width:100%;min-width:640px;font-size:13px;background:#fff}
-table.mt th,table.mt td{border:1px solid var(--line);padding:7px 9px;text-align:center}
+/* table-layout:fixed 是「第一欄固定欄寬」的前提——auto 之下瀏覽器會依內容重算，
+   同一站不同表格的第一欄就會各寬各的（使用者點名的問題）。固定後第一欄吃 --col1，
+   其餘欄平分剩餘寬度，全站所有 .mt 表格的項目欄一致對齊。 */
+table.mt{border-collapse:collapse;width:100%;min-width:640px;font-size:13px;background:#fff;table-layout:fixed}
+table.mt th,table.mt td{border:1px solid var(--line);padding:7px 9px;text-align:center;word-break:break-word}
+/* 表頭底色改白：舊的 #F3EEE2／#EFE9DC 在米色紙底上讀起來就是一片灰，字浮不出來
+   （使用者原話：底色白色，你又用灰色，很難看出字）。改成白底＋木色雙線分隔，
+   層級靠線與字重表達，不靠壓一層灰。 */
+table.mt th{background:#fff;font-family:var(--serif);color:var(--ink);
+  border-bottom:2px solid var(--mu);font-weight:600}
 /* sticky 只給第一欄。舊版寫在 `table.mt th`＝每一格表頭都釘在容器左緣，
-   橫向捲動時整列表頭疊成一坨 —— 手機看不完整就是這個。 */
-table.mt th{background:#F3EEE2;font-family:var(--serif)}
-table.mt tr th:first-child,table.mt tr td:first-child{position:sticky;left:0;z-index:1}
-table.mt tr th:first-child{background:#EFE9DC}
-table.mt tr td:first-child{background:#fff}
+   橫向捲動時整列表頭疊成一坨 —— 手機看不完整就是這個。
+   第一欄底色一律純白（含表頭），否則捲動時第二欄的內容會從有色的第一欄底下透出來。 */
+table.mt tr th:first-child,table.mt tr td:first-child{position:sticky;left:0;z-index:1;
+  width:var(--col1,116px);background:#fff}
+/* 捲動時第一欄右緣給一道陰影，讓「這欄是釘住的、右邊還有東西」看得出來 */
+table.mt tr th:first-child::after,table.mt tr td:first-child::after{content:"";position:absolute;
+  top:0;bottom:0;right:-1px;width:6px;pointer-events:none;
+  background:linear-gradient(90deg,rgba(45,106,79,.10),transparent)}
 @media(max-width:640px){
-  table.mt{min-width:520px;font-size:12.5px}
+  table.mt{min-width:520px;font-size:12.5px;--col1:96px}
   table.mt th,table.mt td{padding:6px 7px}
   /* 手機一定放不下 520px，所以這行提示無條件顯示不會說謊。
      它在捲動容器裡，往右滑就會捲走 —— 那時它也已經做完它的事了。 */
   .mt-wrap::before{content:"← 左右滑動看完整表格 →";display:block;font-size:11.5px;color:var(--muted);
-    padding:5px 9px;background:#F7F3EA;border-bottom:1px solid var(--line)}
+    padding:5px 9px;background:#EFF5F0;border-bottom:1px solid var(--line-mu)}
 }
 
 /* 問卷 */
@@ -499,7 +530,7 @@ table.mt tr td:first-child{background:#fff}
 /* 三步圖的「正在看這一步」＝進行中 → 木色 */
 .wstep:hover,.wstep:focus-visible{border-color:var(--line-mu);border-left-color:var(--mu);background:#F7FBF8;translate:0 -2px;outline:none}
 .wstep b{display:flex;align-items:center;gap:7px;font-family:var(--serif);font-size:15px;margin-bottom:3px}
-.wstep b em{flex:0 0 auto;width:19px;height:19px;border-radius:50%;background:var(--grad-gold,var(--glow));color:var(--abyss);
+.wstep b em{flex:0 0 auto;width:19px;height:19px;border-radius:50%;background:var(--mu);color:#F2FAF5;
   font-style:normal;font-size:11.5px;font-weight:700;display:grid;place-items:center}
 .wstep p{font-size:13px;line-height:1.72;color:var(--muted)}
 .wristfig figcaption{margin-top:13px;text-align:center;font-family:var(--serif);font-size:17px;color:var(--ink)}
@@ -541,15 +572,18 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
 .pairtypes{grid-template-columns:repeat(2,1fr)}
 .gottman-tbl{width:100%;border-collapse:collapse;font-size:14px;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
 .gottman-tbl th,.gottman-tbl td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left}
-.gottman-tbl th{background:#F3EEE2;font-family:var(--serif)}
+/* 與 table.mt 同一決定：表頭不壓灰底，改白底＋木色雙線（見 .mt 那段註解） */
+.gottman-tbl th{background:#fff;font-family:var(--serif);color:var(--ink);
+  border-bottom:2px solid var(--mu);font-weight:600}
+.gottman-tbl tr th:first-child,.gottman-tbl tr td:first-child{width:var(--col1,116px)}
 .dot5{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:middle}
 
 /* ── 作品集 ── */
 .chips{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-bottom:10px}
 .chip-f{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:8px 16px;font-size:14px;cursor:pointer;position:relative;overflow:hidden;transition:all var(--t);color:var(--ink)}
-.chip-f:hover{border-color:var(--glow)}
-.chip-f.on{border-color:transparent;color:#2b2410;font-weight:600}
-.chip-f.on::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--glow-soft);animation:fillin .4s ease}
+.chip-f:hover{border-color:var(--mu)}
+.chip-f.on{border-color:transparent;color:#123A28;font-weight:600}
+.chip-f.on::before{content:"";position:absolute;inset:0;z-index:-1;background:#D9EBE0;animation:fillin .4s ease}
 .chip-f .bead{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle;transition:transform var(--t)}
 .chip-f.on .bead{animation:roll .5s ease}
 @keyframes roll{from{transform:translateX(-8px) rotate(-120deg)}to{transform:none}}
@@ -561,6 +595,12 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
 @keyframes galfade{from{opacity:0}to{opacity:1}}
 .gitem{border-radius:var(--r-sm);overflow:hidden;cursor:pointer;position:relative;aspect-ratio:1/1;background:var(--line);box-shadow:var(--shadow-sm);transition:box-shadow var(--t)}
 .gitem.filler{visibility:hidden;cursor:default;box-shadow:none}
+/* 群組五圖＝1 大 4 小：4 欄 2 列，大圖吃左邊 2×2；容器固定 2/1 比例讓每欄寬度＝每列高度，格子才是正方形 */
+.wgrp{margin-bottom:28px}
+.wgrp:last-child{margin-bottom:0}
+.wgrp-t{font-size:16px;margin-bottom:10px;color:var(--ink)}
+.wgrp-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:10px;aspect-ratio:2/1}
+.wgrp-grid .wbig{grid-column:1/3;grid-row:1/3}
 
 /* ── 圖片外框動態特效（要求 5）——作品照與商品照共用 ──
    四層疊在一起：①四角括號展開 ②金色描邊繞行 ③光帶斜掃 ④主體微推近。
@@ -607,8 +647,8 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
 .galpager{margin-top:20px;text-align:center}
 .pg-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center}
 .pg-btn{border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:7px 12px;font-size:14px;cursor:pointer;color:var(--ink);transition:all var(--t);min-width:38px}
-.pg-btn:hover:not(:disabled){border-color:var(--glow);background:var(--glow-soft)}
-.pg-btn.on{background:var(--glow-soft);border-color:var(--glow);font-weight:600}
+.pg-btn:hover:not(:disabled){border-color:var(--mu);background:#E4F0E9}
+.pg-btn.on{background:#D9EBE0;border-color:var(--mu);font-weight:600}
 .pg-btn:disabled{opacity:.4;cursor:not-allowed}
 .pg-dots{padding:0 4px;color:var(--muted)}
 .pg-info{margin-top:10px;font-size:13px;color:var(--muted)}
@@ -673,8 +713,14 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
    ① 根本不用捲就全看完了（＝又把長滾動頁面浪費掉）
    ② .jbead 的 position:sticky 從頭到尾不會觸發，「依舊在你身旁」就演不出來。
    驗收腳本 tests/visual_check.py【3】會實測整段高度與珠子是否釘住，別把間距改小。 */
-.journey{position:relative;margin:30px 0 10px;padding:8px 0 8px 44px}
-.jact+.jact{margin-top:clamp(120px,40vh,400px)}
+/* view-timeline-name 讓 .jveil 量的是「整段旅程」的框，不是它自己的。
+   .jveil 是 sticky 的，掛 view() 會一直待在視窗內＝進度永遠卡在中段（.jflare 那段
+   踩過同一個坑）。指名時間軸就繞開了。 */
+.journey{position:relative;margin:30px 0 10px;padding:8px 0 8px 44px;view-timeline-name:--journey}
+/* 2026-08-05：使用者說「距離太遠」。40vh→30vh，但不能再低——
+   間距一小整段就矮於視窗，.jbead 的 sticky 不觸發、「依舊在你身旁」直接演不出來
+   （驗收 tests/visual_check.py【3】實測這件事）。30vh×2 ＋ 三張卡仍高於視窗。 */
+.jact+.jact{margin-top:clamp(110px,30vh,300px)}
 .jrail{position:absolute;left:14px;top:4px;bottom:4px;width:3px;border-radius:3px}
 /* 末端用遮罩淡出，不留硬切邊：軌道是「路」，不是一支筆的筆尖，
    所以不必（也不該）強求畫線前緣與珠子同高——前緣一有硬邊，兩者對不齊就會很刺眼。 */
@@ -682,7 +728,7 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
   background:var(--grad-jade);transform:scaleY(1);transform-origin:top;
   -webkit-mask-image:linear-gradient(#000 86%,transparent);mask-image:linear-gradient(#000 86%,transparent)}
 /* 珠子是這段路上的主角，體積與光暈要壓得過軌道 */
-.jbead{position:sticky;top:46vh;display:block;width:18px;height:18px;margin-left:-7.5px;border-radius:50%;
+.jbead{position:sticky;top:46vh;display:block;width:18px;height:18px;margin-left:-7.5px;border-radius:50%;z-index:4;
   background:radial-gradient(circle at 36% 32%,#EAF7F0,var(--mu-lit) 62%,#4E8C6A);
   box-shadow:0 0 0 6px rgba(45,106,79,.13),0 0 26px 7px rgba(143,207,174,.55)}
 .jact{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--line-mu);
@@ -693,10 +739,18 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
 .jact .jd{color:var(--muted);font-size:14.5px}
 .jbg,.jflare{position:absolute;z-index:0;pointer-events:none}
 .jbg{inset:-20% 0;background:radial-gradient(66% 54% at 50% 14%,rgba(143,207,174,.16),transparent 70%)}
-/* 版面隨三幕打開：窄 → 中 → 滿。靜態就成立，捲動時間軸只是加上動態 */
-.jact.a1{max-width:420px;background:linear-gradient(168deg,var(--abyss),var(--abyss-2));border-color:rgba(143,207,174,.26)}
+/* 版面隨三幕打開：窄 → 中 → 滿。靜態就成立，捲動時間軸只是加上動態。
+   2026-08-05：420／560 讓右側留了一大片空白（使用者原話「右邊顯示空白太多」）。
+   放寬到 560／740——漸開的節奏還在（每一幕都比前一幕寬），但不再是三張窄卡貼左邊。
+   剩下的空白由 .jveil 那張品牌圖接手填滿。 */
+.jact.a1{max-width:560px;background:linear-gradient(168deg,var(--abyss),var(--abyss-2));border-color:rgba(143,207,174,.26)}
 .jact.a1 .n{color:var(--mu-lit)} .jact.a1 h3{color:#EDE7DA} .jact.a1 .jd{color:#C7CEDC}
-.jact.a2{max-width:560px}
+.jact.a2{max-width:740px}
+/* 每一幕多一行具體內容（使用者原話「內容匱乏，會讓人覺得空洞沒意義」）。
+   小字、木色左線，跟主文分層但不搶戲。 */
+.jact .jm{margin-top:10px;padding-left:11px;border-left:2px solid rgba(45,106,79,.32);
+  font-size:13px;line-height:1.7;color:var(--muted)}
+.jact.a1 .jm{border-left-color:rgba(143,207,174,.42);color:#AEB8C8}
 .jact.a3{max-width:100%;border-left-color:var(--glow-deep);
   background:linear-gradient(100deg,#FFFDF6,var(--card) 60%)}
 /* 第三幕：光從軌道那一側（＝一路陪著的那顆）擴散開，木轉金。
@@ -708,25 +762,108 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
 .jflare::before{content:"";position:absolute;left:-30px;top:50%;width:min(760px,170%);aspect-ratio:1;
   translate:-50% -50%;border-radius:50%;
   background:radial-gradient(circle,rgba(143,207,174,.52) 0%,rgba(232,201,122,.44) 38%,transparent 72%)}
+/* ═══ 品牌圖與三幕融合（2026-08-05 使用者要求 7）═══
+   原本這張圖只是被放在三幕下方當配圖，使用者原話：「你還是只放上去沒有做效果」。
+   現在它是這段動畫的收束——從深淵走到光芒的過程中，圖由 0 淡到 100，
+   最後把「深淵／在旁／光芒」三個字框整個蓋掉：路走完了，剩下的只有那張畫面。
+   實作要點——
+     ① sticky＋負 margin：釘在視窗中段、且不佔 .journey 一分高度（佔了就會把三幕推開）
+     ② 進度來自 .journey 的 view-timeline（見上方 .journey 註解），不是自己的框
+     ③ 用 background 不用 <img>：零額外 DOM、零額外請求（hero 已載過同一張，直接命中快取）
+     ④ 柔邊 mask：不是一塊硬矩形貼上來，是一團光裡浮出畫面
+   fallback：@supports 沒過或使用者要求減少動態 → .jveil 整個不存在（display:none 是預設值），
+   圖回到下方 .aboutbook 那張靜態大圖照常顯示，資訊一點都不少。 */
+.jveil{display:none}
+@supports (animation-timeline:view()){
+  @media(prefers-reduced-motion:no-preference){
+    /* ⚠ background-size 用 contain 不用 cover，也不掛 mask：
+       2026-08-04 使用者對這張圖的裁決是「不要動我的圖、不遮不裁」，cover 會把
+       923×1152 的直圖裁掉上下、mask 會啃掉四角，兩個都違反那條裁決。
+       contain ＝整張完整顯示；「遮住字框」由底下那層不透明 --paper 負責，
+       用底色遮、不是用圖遮，兩個要求同時成立。 */
+    .jveil{display:block;position:sticky;top:13vh;height:74vh;margin-bottom:-74vh;z-index:3;
+      pointer-events:none;border-radius:var(--r);
+      background:var(--paper) url(photos/brand/S__9019531.jpg) 50% 50%/contain no-repeat;
+      box-shadow:0 24px 60px rgba(16,24,40,.28);
+      opacity:0;animation:veilIn linear both;
+      /* 區間不收在 96%：那個位置整段旅程都快捲出畫面上緣了，圖要到看不見時才滿＝白做。
+         改成 30%→88%，並在 keyframes 裡分三段：淡入 → 滿（蓋住字框）→ 退場前淡掉。
+         ⚠ 最後那段淡出是必要的，不是裝飾：.jveil 有 margin-bottom:-74vh 所以不佔高度，
+         它的視覺框會越過 .journey 底緣壓到下一段「走了九個世代的路」上（截圖實證過）。
+         用 overflow 夾住會連 sticky 一起殺掉，所以改用透明度自己退場。 */
+      animation-timeline:--journey;animation-range:cover 30% cover 88%}
+    /* ⚠ 頭尾一律 from／to，不要改成百分比語法——理由同 orderPing 那條註解
+       （合規掃描器規則表）。中段的 62／82 兩格不受影響，可以留。 */
+    @keyframes veilIn{from{opacity:0}62%{opacity:1}82%{opacity:1}to{opacity:0}}
+    /* 疊層接手之後，下方那張靜態大圖就是重複的同一張圖，收起來。
+       ⚠ 只收圖，不收 figcaption——「即使身處萬丈深淵，依舊在你身旁，散發前行的光芒」
+       正是深淵／在旁／光芒三個詞的出處，它留下來當這段旅程的收束句。
+       圖沒了，那組 ±1.6deg 的歪斜也一起歸零，否則單獨一行字歪著很怪。 */
+    .aboutbook .bcimg{display:none}
+    .aboutbook .bookcard,.aboutbook .bookcard figcaption{transform:none}
+    .aboutbook .bookcard figcaption{margin-top:0;font-size:16px;color:var(--mu)}
+  }
+}
 @media(max-width:620px){ .journey{padding-left:32px} .jrail{left:9px}
-  .jact.a1,.jact.a2{max-width:100%} .jact+.jact{margin-top:clamp(110px,34vh,300px)} }
+  .jact.a1,.jact.a2{max-width:100%} .jact+.jact{margin-top:clamp(110px,26vh,260px)}
+  .jveil{top:16vh;height:62vh;margin-bottom:-62vh} }
 
-.timeline-v{max-width:640px;margin:0 auto;position:relative;padding-left:28px}
-/* 沿革線：木起金收（過程走到抵達），--grad-jade 的第一個真實用途 */
-.timeline-v::before{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:var(--grad-jade)}
-.tv{position:relative;padding:0 0 22px 20px}
-.tv::before{content:"";position:absolute;left:-27px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--glow);border:3px solid var(--paper);box-shadow:0 0 0 2px var(--glow-soft)}
-.tv .y{font-family:var(--serif);color:var(--glow-deep);font-weight:600}
+/* ═══ 沿革線「走了九個世代的路」（2026-08-05 使用者要求 2）═══
+   使用者的判斷：三幕那套軌道＋釘住的珠子，用在「關於我們」不對味，用在這條九個世代的
+   路上才對——這裡本來就是一條時間線，而且它原本一個效果都沒有（原話：太浪費）。
+   所以把 .journey 那三件事整組搬過來，各自對到這裡的語意：
+     ① 底線（.timeline-v::before）＝還沒走到的路，淡
+     ② 進度線（::after）＝已經走過的，隨捲動由上往下畫，木起金收
+     ③ .tvbead ＝ sticky 釘住的珠子，一路陪著走完九個世代
+     ④ 每一格隨捲進視窗浮起變清楚，走到哪亮到哪
+   間距也一併拉開（22px → 12vh）：跟三幕同一個理由，太密就不用捲、sticky 也不觸發。 */
+.timeline-v{max-width:640px;margin:0 auto;position:relative;padding-left:28px;view-timeline-name:--tline}
+.timeline-v::before{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:2px;
+  border-radius:2px;background:var(--line-mu)}
+/* 走過的路：木起金收（過程走到抵達），--grad-jade 的第一個真實用途。
+   靜態＝整條畫滿（不支援捲動時間軸的瀏覽器看到的就是完成態，不是空線）。 */
+.timeline-v::after{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:2px;
+  border-radius:2px;background:var(--grad-jade);transform-origin:top;transform:scaleY(1)}
+.tvbead{position:sticky;top:44vh;z-index:2;display:block;width:15px;height:15px;
+  margin:0 0 -15px -1px;border-radius:50%;
+  background:radial-gradient(circle at 36% 32%,#EAF7F0,var(--mu-lit) 62%,#4E8C6A);
+  box-shadow:0 0 0 5px rgba(45,106,79,.12),0 0 20px 5px rgba(143,207,174,.5)}
+.tv{position:relative;padding:0 0 clamp(40px,12vh,104px) 20px}
+.tv:last-child{padding-bottom:6px}
+/* 圓點：沿革是過程 → 木色；只有最後一格（定版那一刻）收在金色，呼應「木起金收」 */
+.tv::before{content:"";position:absolute;left:-27px;top:4px;width:14px;height:14px;border-radius:50%;
+  background:var(--mu);border:3px solid var(--paper);box-shadow:0 0 0 2px var(--line-mu)}
+.tv:last-child::before{background:var(--glow);box-shadow:0 0 0 2px var(--glow-soft)}
+.tv .y{font-family:var(--serif);color:var(--mu);font-weight:600}
+.tv:last-child .y{color:var(--glow-deep)}
+@supports (animation-timeline:view()){
+  @media(prefers-reduced-motion:no-preference){
+    /* 進度線量的是整條 .timeline-v 的框（指名時間軸），不是自己的——
+       ::after 與容器同高，用 view() 量自己會得到同一個框沒錯，但指名比較不會在
+       日後有人加 padding 時默默偏掉。 */
+    .timeline-v::after{animation:tlineDraw linear both;
+      animation-timeline:--tline;animation-range:cover 8% cover 78%}
+    @keyframes tlineDraw{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+    .tv{animation:tvIn linear both;animation-timeline:view();animation-range:entry 6% cover 40%}
+    @keyframes tvIn{from{opacity:.3;translate:0 16px}to{opacity:1;translate:0 0}}
+  }
+}
 .keeps{grid-template-columns:repeat(2,1fr);gap:16px}
 .keep{display:flex;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow-sm)}
 .keep .ic{font-size:26px;flex:0 0 auto}
 .channels{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:8px}
-.transp{background:var(--abyss);color:#D7DBE4;border-radius:var(--r);padding:26px;font-size:14px}
-.transp h3{color:var(--glow-soft);margin-bottom:12px}
-.transp code{background:rgba(232,201,122,.14);color:var(--glow-soft);padding:2px 7px;border-radius:6px;font-size:13px}
+/* 「把方法攤開給你看」原本用 --abyss(#101828 深藍)。那個藍沒有承載任何語意——
+   深淵在敘事裡是 .opener／hero，這一段講的是方法與運算，屬「過程」＝木。
+   2026-08-05 使用者指定改深綠，明度維持同一階（#0F271B 相對亮度 .0207，
+   原 #101828 是 .0134，同屬最暗階，換色不換層級）。 */
+.transp{background:#0F271B;color:#D9E5DE;border-radius:var(--r);padding:26px;font-size:14px}
+.transp h3{color:var(--mu-lit);margin-bottom:12px}
+.transp code{background:rgba(143,207,174,.16);color:var(--mu-lit);padding:2px 7px;border-radius:6px;font-size:13px}
 .transp ul{list-style:none;display:grid;gap:8px}
 .transp li{padding-left:20px;position:relative}
-.transp li::before{content:"◆";position:absolute;left:0;color:var(--glow-deep);font-size:11px;top:4px}
+.transp li::before{content:"◆";position:absolute;left:0;color:var(--mu-lit);font-size:11px;top:4px}
+/* 深綠底上的表格：白底表格照樣白，只把外框換成木色，讓它看起來是長在這塊上的 */
+.transp .mt-wrap{border-color:rgba(143,207,174,.34)}
 
 /* ── AI 客服「小串」 ── */
 .chatball{position:fixed;right:20px;bottom:20px;z-index:140;width:62px;height:62px;border-radius:50%;border:none;cursor:pointer;background:radial-gradient(circle at 35% 30%,var(--glow),var(--glow-deep));box-shadow:0 8px 24px rgba(201,162,75,.5);display:grid;place-items:center;transition:transform var(--t)}
@@ -759,7 +896,7 @@ footer{background:var(--abyss);color:#AAB2C2;padding:52px 0 30px;margin-top:20px
 footer .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:30px;margin-bottom:30px}
 footer h4{color:#EDE7DA;font-size:15px;margin-bottom:12px}
 footer a{color:#AAB2C2;transition:color var(--t)}
-footer a:hover{color:var(--glow-soft)}
+footer a:hover{color:var(--mu-lit)}
 footer .links{display:grid;gap:7px;font-size:14px}
 footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-family:var(--serif);font-size:18px;margin-bottom:10px}
 .disclaimer{font-size:12.5px;line-height:1.8;color:#7C8494;border-top:1px solid rgba(255,255,255,.09);padding-top:20px}
@@ -1237,10 +1374,15 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
 
           <fieldset class="fieldset">
             <legend>物流與聯絡</legend>
+            <!-- 2026-08-05 使用者要求 9：訂製線補上宅配到府 130、並加付款方式（要有現金）。
+                 運費金額不寫死在這裡，由 JS 從 CONFIG.PRICE 帶入，避免第三份會漂移的真值。 -->
             <div class="fcol"><label>取貨方式</label><div class="opts">
-              <label class="opt"><input type="radio" name="ship" value="store" checked><span><b>店到店</b>（超商取貨，+60）</span></label>
+              <label class="opt"><input type="radio" name="ship" value="home"><span><b>宅配到府</b>（+<span data-fee="home">130</span>）</span></label>
+              <label class="opt"><input type="radio" name="ship" value="store" checked><span><b>店到店</b>（超商取貨，+<span data-fee="store">60</span>）</span></label>
               <label class="opt"><input type="radio" name="ship" value="self"><span><b>中壢–龍潭面交</b>（免運）</span></label>
             </div></div>
+            <div class="fcol"><label>付款方式</label><div class="opts" id="payOpts"></div>
+              <p style="font-size:13px;color:var(--muted);margin-top:6px">訂製是先出報價單再付款，這裡先讓我們知道你打算怎麼付；正式金額以報價單為準。</p></div>
             <div class="fcol"><label>聯絡方式（LINE／電話）<span class="req">必填</span></label><input type="text" name="contact" required maxlength="60" placeholder="方便我們與你確認設計；也用於訂單進度查詢驗證"></div>
             <div class="fcol"><label>Email<span class="req">必填</span></label><input type="email" name="email" required maxlength="120" placeholder="用於接收命盤解析、報價單與出貨通知信"></div>
           </fieldset>
@@ -1274,6 +1416,13 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
       <p>決定之前先看看別人手上的樣子，是合理的。</p>
       <p>每一串背後是一組不一樣的數據，和一個不一樣的人。</p>
       <p>不用急著挑。看看哪一種排法會讓你停下來。</p>
+    </div>
+  </section>
+
+  <section class="block" id="worksGroupsBlock" style="display:none">
+    <div class="wrap">
+      <div class="head reveal"><p class="tag-eyebrow">精選組圖</p><h2>幾套完整的搭配示範</h2><p>每組挑了最能代表這套排法的照片。點一下看大圖。</p></div>
+      <div id="worksGroups"></div>
     </div>
   </section>
 
@@ -1320,15 +1469,18 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
            三段文字一字未動（後台鏡像的鍵算的是「標籤名＋原文雜湊」，維持 <p>／<h3>／<p> 就不會斷）。 -->
       <div class="journey">
         <div class="jrail" aria-hidden="true"><span class="jbead"></span></div>
-        <article class="jact a1"><div class="jbg" aria-hidden="true"></div><p class="n">深淵</p><h3>理解困局</h3><p class="jd">八字引擎照見你性格裡的慣性與壓抑。</p></article>
-        <article class="jact a2"><div class="jbg" aria-hidden="true"></div><p class="n">在旁</p><h3>陪伴提醒</h3><p class="jd">物理性的陪伴，目光觸及時校準步調。</p></article>
-        <article class="jact a3"><div class="jflare" aria-hidden="true"></div><p class="n">光芒</p><h3>心理導航</h3><p class="jd">點亮你原本具備、卻被遺忘的潛能。</p></article>
+        <div class="jveil" aria-hidden="true"></div>
+        <article class="jact a1"><div class="jbg" aria-hidden="true"></div><p class="n">深淵</p><h3>理解困局</h3><p class="jd">八字引擎照見你性格裡的慣性與壓抑。</p><p class="jm">你填的是出生資料與當下的痛點，出來的是一張標了權重的盤：哪個五行過旺、哪裡是缺口、今年的流年又把它推向哪一邊。這一步不給建議，只把現況攤平。</p></article>
+        <article class="jact a2"><div class="jbg" aria-hidden="true"></div><p class="n">在旁</p><h3>陪伴提醒</h3><p class="jd">物理性的陪伴，目光觸及時校準步調。</p><p class="jm">配比換算成顆數之後，變成一串戴得住的東西。它不做任何事，它只是在那裡——低頭看到手腕的那一秒，你想起自己今年打算調的是什麼。</p></article>
+        <article class="jact a3"><div class="jflare" aria-hidden="true"></div><p class="n">光芒</p><h3>心理導航</h3><p class="jd">點亮你原本具備、卻被遺忘的潛能。</p><p class="jm">報告裡九節（情侶十二節）逐節寫清楚：五派各自主張什麼、為什麼這樣裁、行為上可以怎麼調。看得懂、驗得回去，不必相信我們也能自己判斷。</p></article>
       </div>
       <!-- 2026-08-04 使用者裁決 A：拿掉並排的 danny.webp，關於我們改單張大圖。
            原本這裡是 .grid.duo 雙欄，圖被壓在 360px 內＝只是配圖，正是使用者點名的問題。
            現在圖是這一節的主體，620px 上限只為不讓它在寬螢幕上壓過文字節奏。
            圖檔一個位元都沒動，也不遮不裁（2026-08-04 使用者裁決，理由見 CSS .bookcard 那段註解）。 -->
-      <div class="reveal" style="margin:36px auto 0;max-width:620px">
+      <!-- .aboutbook＝這張圖的靜態版。支援捲動時間軸且未要求減少動態時，
+           它會被 CSS 收起來，改由 .jveil 那層在三幕上淡入（2026-08-05 要求 7）。 -->
+      <div class="reveal aboutbook" style="margin:36px auto 0;max-width:620px">
         <figure class="bookcard">
           <div class="bcimg">
             <img src="photos/brand/S__9019531.jpg" alt="拍拍深五行水晶設計研究所品牌書封，封面中央為五行配色手串" width="923" height="1152" loading="lazy">
@@ -1343,6 +1495,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
     <div class="wrap" style="max-width:760px">
       <div class="head reveal"><h2>走了九個世代的路</h2><p>從 2024 到現在，兩年疊代。</p></div>
       <div class="timeline-v reveal">
+        <span class="tvbead" aria-hidden="true"></span>
         <div class="tv"><p class="y">2024</p><p style="color:var(--muted)">系統雛形起步，第一代八字符號配珠邏輯成形。</p></div>
         <div class="tv"><p class="y">2024–2025</p><p style="color:var(--muted)">導入五派硬仲裁與需求向量，配珠從經驗走向量化。</p></div>
         <div class="tv"><p class="y">2025</p><p style="color:var(--muted)">加入心理學降維轉譯與 Gottman 七維，情侶對串成形。</p></div>
@@ -1990,7 +2143,13 @@ async function loadProducts(){
     const r = await api(CONFIG.PATHS.PRODUCTS,{ op:'list' });
     if(r && r.ok && Array.isArray(r.products)){ list = r.products; reached = true; }
   }catch(_){}
-  PRODUCTS = (reached ? list : (CONFIG.PRODUCTS||[])).map(normProd);
+  // 🔴 2026-08-05 修：這裡以前一筆都沒濾，後台按「下架」的商品在正式站照樣賣得到。
+  // 使用者定義的兩種狀態要分開處理，別混成同一件事：
+  //   已下架（status==='下架'）＝前台看不到，這一行擋掉
+  //   已售完（stock<=0）      ＝前台看得到、標「已售完」、不能加購物車（shopBadge／mAdd 本來就有做）
+  // 濾在前台是因為 /pps2-products 是共用端點，後台自己也要讀得到下架品。
+  PRODUCTS = (reached ? list : (CONFIG.PRODUCTS||[])).map(normProd)
+    .filter(p => p.status !== '下架');
   renderProducts(PRODUCTS);
   observeReveals();
   if(typeof prodLd==='function') prodLd();   // JSON-LD 要等真實商品載入後才建，見 prodLd() 註解
@@ -2009,7 +2168,7 @@ function openProd(id){
   const imgs = p.imgs||[]; $('#mMain').src = imgs[0]||''; $('#mMain').alt = p.name;
   $('#mThumbs').innerHTML = imgs.map((s,i)=>`<img src="${esc(s)}" alt="${esc(p.name)} 圖 ${i+1}" class="${i?'':'on'}" width="56" height="56">`).join('');
   $$('#mThumbs img').forEach(t=>t.addEventListener('click',()=>{ $('#mMain').src=t.src; $$('#mThumbs img').forEach(x=>x.classList.remove('on')); t.classList.add('on'); }));
-  const add=$('#mAdd'); add.disabled = p.stock<=0; add.textContent = p.stock<=0?'已售完':'加入購物車';
+  const add=$('#mAdd'); add.style.display=''; add.disabled = p.stock<=0; add.textContent = p.stock<=0?'已售完':'加入購物車';
   add.onclick = ()=>{ addToCart(p); closeModal(); openCart(); };
   $('#mask').classList.add('on'); $('#prodModal').classList.add('on');
 }
@@ -2175,10 +2334,28 @@ function est(){
     add(F.a_wrist.value,F.a_bead.value,F.a_deep.checked,'你');
     add(F.b_wrist.value,F.b_bead.value,F.b_deep.checked,'伴侶');
   }
-  t += (F.ship.value==='store'?P.shipStore:0);
+  // 三種取貨方式的運費集中在這裡（2026-08-05 加宅配到府）。金額來自 CONFIG.PRICE，
+  // HTML 那三顆 radio 只寫 value，看得到的數字由 fillShipFees() 回填，不會兩邊對不上。
+  const fee = shipFee(F.ship.value);
+  t += fee;
   $('#pAmt').textContent = ok? ('NT$ '+t.toLocaleString()) : '—';
-  $('#pDetail').textContent = ok? (parts.join('＋')+(F.ship.value==='store'?'＋運60':'（免運）')) : '選手圍與珠徑後顯示';
+  $('#pDetail').textContent = ok? (parts.join('＋')+(fee?`＋運${fee}`:'（免運）')) : '選手圍與珠徑後顯示';
 }
+// 取貨方式 → 運費／中文名。兩個函式共用同一張表，改一處兩邊同步。
+// ⚠ 讀 CONFIG.PRICE 不讀 P——P 是 est() 內的區域常數，這裡在函式外拿不到它。
+const SHIP_MAP = { home:{fee:()=>CONFIG.PRICE.shipHome, label:'宅配到府'},
+                   store:{fee:()=>CONFIG.PRICE.shipStore, label:'店到店'},
+                   self:{fee:()=>0, label:'中壢–龍潭面交'} };
+function shipFee(v){ return (SHIP_MAP[v]||SHIP_MAP.self).fee()||0; }
+function shipLabel(v){ return (SHIP_MAP[v]||SHIP_MAP.self).label; }
+// 把 config 的運費數字寫回 radio 標籤，並依 CONFIG.CUSTOM_PAY 產生付款方式選項
+function fillShipFees(){
+  document.querySelectorAll('[data-fee]').forEach(el=>{ el.textContent = shipFee(el.dataset.fee); });
+  const box = $('#payOpts'); if(!box) return;
+  const pays = CONFIG.CUSTOM_PAY || [{id:'transfer',label:'銀行匯款'}];
+  box.innerHTML = pays.map((p,i)=>`<label class="opt"><input type="radio" name="pay" value="${p.id}"${i===0?' checked':''}><span><b>${p.label}</b></span></label>`).join('');
+}
+fillShipFees();
 
 function collect(){
   const g=n=>{ const el=F[n]; if(!el) return ''; if(el.type==='checkbox') return el.checked; return (el.value||'').trim(); };
@@ -2186,7 +2363,12 @@ function collect(){
   const d=new Date(), ymd=d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
   const o={ type:mode, ts:d.toISOString(), temp_id:'T'+ymd+'-'+Math.random().toString(36).slice(2,5).toUpperCase(),
     A:{ name:g('a_name'),gender:g('a_gender'),birth:g('a_birth'),btime:g('a_btime')||'無時辰',wrist:g('a_wrist'),bead:g('a_bead'),core:rv('a_core'),pain:g('a_pain'),vis:rv('a_vis'),deep:g('a_deep') },
-    ship: F.ship.value==='store'?'店到店':'中壢–龍潭面交', contact:g('contact'), email:g('email'), est: $('#pAmt').textContent };
+    // ship 送的是中文名（沿用原契約，n8n 端讀的是這個字串）。2026-08-05 多了「宅配到府」。
+    // pay/pay_label 是新欄位＝客戶的付款偏好；n8n 現在沒讀它也不會壞（多帶欄位是被忽略的），
+    // 但退化用的 orderText 一定看得到，真人下單時老闆不會漏掉這件事。
+    ship: shipLabel(F.ship.value), ship_fee: shipFee(F.ship.value),
+    pay: rv('pay'), pay_label: ((CONFIG.CUSTOM_PAY||[]).find(x=>x.id===rv('pay'))||{}).label || '',
+    contact:g('contact'), email:g('email'), est: $('#pAmt').textContent };
   if(mode==='single') o.qty=+F.qty.value||1;
   // stage 送的是內部階段代號（不會有兩種狀況共用一格的歧義），stage_label 另外帶人看得懂的字；
   // stage_overlay 是疊加欄，勾了才有值，跟 stage 併存、衝突時以它為準。
@@ -2203,7 +2385,8 @@ function orderText(o){
   // 訂單文字是離線退化時直接複製到 LINE 的那份，所以階段這裡印客戶看得懂的字、不印內部代號。
   if(o.B){ per('客戶B（伴侶）',o.B); L.push(`關係階段：${o.B.stage_label||stageLabel(o.B.stage)}`); if(o.B.stage_overlay) L.push(`關係疊加：${(CONFIG.COUPLE_STAGE_OVERLAY||{}).label||'1 對多開放式關係'}（每段關係各出一組對串）`); }
   if(o.qty) L.push(`訂製數量：${o.qty} 條`);
-  L.push(`物流：${o.ship}｜聯絡：${o.contact}｜Email：${o.email||'未填'}`); L.push(`前台試算：${o.est}`);
+  L.push(`物流：${o.ship}${o.ship_fee?`（運費 ${o.ship_fee}）`:'（免運）'}｜付款：${o.pay_label||'未選'}`);
+  L.push(`聯絡：${o.contact}｜Email：${o.email||'未填'}`); L.push(`前台試算：${o.est}`);
   return L.join('\n');
 }
 F.addEventListener('submit', async e=>{
@@ -2357,6 +2540,54 @@ addEventListener('keydown',e=>{
   renderGallery();
 })();
 
+// 作品集群組五圖（pps2-works，唯讀 GET）。抓不到／回空陣列都合法收起這一區，
+// 兩種情況都不生假資料——差別只在要不要印 console.error，呈現上一致。
+let WORK_GROUPS = [];
+function renderWorkGroup(g){
+  const cover = g.cover || g.cover_url || '';
+  const small = (Array.isArray(g.photos) ? g.photos : []).slice(0,4);
+  const tile = (src,idx,cls) => src
+    ? `<figure class="gitem ${cls}" data-gid="${esc(g.id)}" data-idx="${idx}" tabindex="0" role="button" aria-label="放大 ${esc(g.title||'作品')} 第 ${idx+1} 張"><img src="${esc(src)}" alt="${esc(g.title||'作品')} 第 ${idx+1} 張" loading="lazy" decoding="async"><i class="ring" aria-hidden="true"></i></figure>`
+    : `<div class="gitem filler ${cls}" aria-hidden="true"></div>`;
+  const cells = tile(cover,0,'wbig') + small.map((s,i)=>tile(s,i+1,'wsm')).join('')
+    + Array.from({length:4-small.length},()=>tile('',-1,'wsm')).join('');
+  return `<div class="wgrp"><h3 class="wgrp-t">${esc(g.title||'')}</h3><div class="wgrp-grid">${cells}</div></div>`;
+}
+async function loadWorkGroups(){
+  const sec = $('#worksGroupsBlock'), box = $('#worksGroups');
+  let list = null;
+  try{
+    const res = await fetch(CONFIG.N8N_BASE + '/pps2-works?token=' + encodeURIComponent(CONFIG.SITE_TOKEN));
+    if(!res.ok) throw new Error('http '+res.status);
+    const data = await res.json();
+    if(data && data.ok === true && Array.isArray(data.works)) list = data.works;
+    else throw new Error('bad shape');
+  }catch(err){ console.error('作品集群組載入失敗：', err); }
+  WORK_GROUPS = list || [];
+  if(!sec || !box) return;
+  if(!WORK_GROUPS.length){ sec.style.display='none'; return; }
+  sec.style.display=''; box.innerHTML = WORK_GROUPS.map(renderWorkGroup).join('');
+  observeReveals();
+}
+loadWorkGroups();
+// 群組五圖的放大：重用商品 modal 的 #mMain/#mThumbs（主圖＋縮圖列），
+// 不碰 #lightbox（那是主照片牆的，工單明講一行都不能動）。價格／庫存／加購物車與作品無關，全部清空或藏起來。
+function openWorkGroup(id,startIdx){
+  const g = WORK_GROUPS.find(x=>String(x.id)===String(id)); if(!g) return;
+  const imgs = [g.cover||g.cover_url, ...(Array.isArray(g.photos)?g.photos:[])].filter(Boolean);
+  if(!imgs.length) return;
+  const start = Math.min(Math.max(startIdx||0,0), imgs.length-1);
+  $('#mName').textContent = g.title||''; $('#mMeta').innerHTML=''; $('#mDesc').textContent='';
+  $('#mSpec').textContent=''; $('#mPrice').textContent=''; $('#mStock').innerHTML='';
+  $('#mMain').src = imgs[start]; $('#mMain').alt = g.title||'';
+  $('#mThumbs').innerHTML = imgs.map((s,i)=>`<img src="${esc(s)}" alt="${esc(g.title||'')} 圖 ${i+1}" class="${i===start?'on':''}" width="56" height="56">`).join('');
+  $$('#mThumbs img').forEach(t=>t.addEventListener('click',()=>{ $('#mMain').src=t.src; $$('#mThumbs img').forEach(x=>x.classList.remove('on')); t.classList.add('on'); }));
+  $('#mAdd').style.display='none';
+  $('#mask').classList.add('on'); $('#prodModal').classList.add('on');
+}
+$('#worksGroups').addEventListener('click',e=>{ const g=e.target.closest('.gitem'); if(g && !g.classList.contains('filler')) openWorkGroup(g.dataset.gid,+g.dataset.idx); });
+$('#worksGroups').addEventListener('keydown',e=>{ const g=e.target.closest('.gitem'); if((e.key==='Enter'||e.key===' ')&&g&&!g.classList.contains('filler')){ e.preventDefault(); openWorkGroup(g.dataset.gid,+g.dataset.idx); } });
+
 /* ═══════════ FAQ ＝ 手風琴 ＋ JSON-LD ＋ 客服知識庫 ═══════════
    真值是同源靜態檔 faq.json（後台 FAQ 管理存出、放進 repo push 就生效），
    跟 copy.json／news.json 同一套：零新表、零新 workflow、零 n8n 契約變更。
@@ -2370,7 +2601,7 @@ const FAQ_BUILTIN = [
   {k:'beadwork',g:'價值疑問',q:'排珠有什麼專業依據？',a:'三層。五大命理學派先各自主張、再硬仲裁取交集；接著套心理學排列——嚴謹的人用對稱建立安定，突破期的人用不對稱強化主導；最後是物理禁忌，金與木、水與火不相鄰，中間插隔珠緩衝。主屬性只有一個，不含糊。',t:`<p>三層。</p><div class="mt-wrap"><table class="mt"><tr><th>層次</th><th>內容</th></tr><tr><td>五大命理學派</td><td>先各自主張、再硬仲裁取交集</td></tr><tr><td>心理學排列</td><td>嚴謹的人用對稱建立安定，突破期的人用不對稱強化主導</td></tr><tr><td>物理禁忌</td><td>金與木、水與火不相鄰，中間插隔珠緩衝</td></tr></table></div><p>主屬性只有一個，不含糊。</p>`},
   {k:'no-feeling',g:'價值疑問',q:'戴了一陣子沒什麼感覺，正常嗎？',a:'謝謝你誠實說，這是很重要的回饋。通常三種情況：一，你正處在動態平衡，提醒的作用是隱性的；二，已經適應了，建議對照一開始的基準線看具體指標；三，狀態剛好劇變，需要重新校準，我們走回饋閉環幫你調。我們的立場很清楚：尚未通過雙盲驗證，賣的是可追溯的文化推論，不是神效。',t:`<p>謝謝你誠實說，這是很重要的回饋。通常三種情況：</p><div class="mt-wrap"><table class="mt"><tr><th>情況</th><th>說明</th></tr><tr><td>你正處在動態平衡</td><td>提醒的作用是隱性的</td></tr><tr><td>已經適應了</td><td>建議對照一開始的基準線看具體指標</td></tr><tr><td>狀態剛好劇變</td><td>需要重新校準，我們走回饋閉環幫你調</td></tr></table></div><p>我們的立場很清楚：尚未通過雙盲驗證，賣的是可追溯的文化推論，不是神效。</p>`},
   {k:'no-promise',g:'價值疑問',q:'戴了會帶來好運、帶來財富、擋掉身邊的麻煩人嗎？',a:'我們不做這類承諾。命盤是性格傾向的統計模型，不是宿命。換句話說：對財富的想望，我們放進「務實執行力與資源判斷」的提醒；對人際的困擾，做成「人際覺察與心理邊界」的練習，那是隔珠的符號意涵；對運勢的期待，是用五行視覺補足性格符號的缺口、把潛能撬動起來。裝的是提醒，不是奇蹟。',t:`<p>我們不做這類承諾。命盤是性格傾向的統計模型，不是宿命。換句話說：</p><div class="mt-wrap"><table class="mt"><tr><th>你在意的</th><th>我們怎麼處理</th></tr><tr><td>財富的想望</td><td>我們放進「務實執行力與資源判斷」的提醒</td></tr><tr><td>人際的困擾</td><td>做成「人際覺察與心理邊界」的練習，那是隔珠的符號意涵</td></tr><tr><td>運勢的期待</td><td>是用五行視覺補足性格符號的缺口、把潛能撬動起來</td></tr></table></div><p>裝的是提醒，不是奇蹟。</p>`},
-  {k:'pricing',g:'價格',q:'價格怎麼算？',a:'底價看「手圍 × 珠徑」查矩陣，價格區有完整表。顆數＝floor(手圍÷珠徑)+2，多兩顆做緩衝。加購：深度命理推論報告 +300／串。運費：店到店 60、中壢–龍潭面交免運。少數晶石有更高規格版本，設計完成後在訂單確認頁另外提，你自由選。問卷下方會即時試算，正式金額以報價單為準。',t:`<div class="mt-wrap"><table class="mt"><tr><th>項目</th><th>費用／說明</th></tr><tr><td>底價</td><td>看「手圍 × 珠徑」查矩陣，價格區有完整表</td></tr><tr><td>顆數</td><td>＝floor(手圍÷珠徑)+2，多兩顆做緩衝</td></tr><tr><td>加購：深度命理推論報告</td><td>+300／串</td></tr><tr><td>運費：店到店</td><td>60</td></tr><tr><td>運費：中壢–龍潭面交</td><td>免運</td></tr></table></div><p>少數晶石有更高規格版本，設計完成後在訂單確認頁另外提，你自由選。問卷下方會即時試算，正式金額以報價單為準。</p>`},
+  {k:'pricing',g:'價格',q:'價格怎麼算？',a:'底價看「手圍 × 珠徑」查矩陣，價格區有完整表。顆數＝floor(手圍÷珠徑)+2，多兩顆做緩衝。加購：深度命理推論報告 +300／串。運費：宅配到府 130、店到店 60、中壢–龍潭面交免運。少數晶石有更高規格版本，設計完成後在訂單確認頁另外提，你自由選。問卷下方會即時試算，正式金額以報價單為準。',t:`<div class="mt-wrap"><table class="mt"><tr><th>項目</th><th>費用／說明</th></tr><tr><td>底價</td><td>看「手圍 × 珠徑」查矩陣，價格區有完整表</td></tr><tr><td>顆數</td><td>＝floor(手圍÷珠徑)+2，多兩顆做緩衝</td></tr><tr><td>加購：深度命理推論報告</td><td>+300／串</td></tr><tr><td>運費：宅配到府</td><td>130</td></tr><tr><td>運費：店到店</td><td>60</td></tr><tr><td>運費：中壢–龍潭面交</td><td>免運</td></tr></table></div><p>少數晶石有更高規格版本，設計完成後在訂單確認頁另外提，你自由選。問卷下方會即時試算，正式金額以報價單為準。</p>`},
   {k:'whats-included',g:'價格',q:'這筆錢到底買到什麼？',a:'精密運算：五派整合、需求向量、配珠分配。客製報告：個人九節、情侶十二節，含五派主張、基準盤、行為建議。實體：排列設計與科學品管篩選，加上手作。你付的不是一串珠子，是背後那套可追溯的推論。',t:`<div class="mt-wrap"><table class="mt"><tr><th>項目</th><th>內容</th></tr><tr><td>精密運算</td><td>五派整合、需求向量、配珠分配</td></tr><tr><td>客製報告</td><td>個人九節、情侶十二節，含五派主張、基準盤、行為建議</td></tr><tr><td>實體</td><td>排列設計與科學品管篩選，加上手作</td></tr></table></div><p>你付的不是一串珠子，是背後那套可追溯的推論。</p>`},
   {k:'wrist-measure',g:'價格',q:'手圍怎麼量？',a:'軟尺緊貼手腕最細處平繞、不留鬆份，回報像 15.2cm 這樣。系統級距向上取（15.2 會取 15.5）。再加兩顆緩衝珠吸收誤差，戴起來剛好。沒有軟尺，拿一條紙條繞一圈再量長度也可以。'},
   {k:'bead-size',g:'價格',q:'珠徑跟顆數怎麼決定？',a:'珠徑看你的偏好與手圍比例，常見 8–10mm。顆數是算出來的：floor(手圍÷珠徑)+2。你只要給手圍和想要的珠徑，剩下我們精算，不用你自己數。'},
@@ -2511,7 +2742,7 @@ function localBrain(qtext){
   const has=(...ws)=>ws.some(w=>qtext.includes(w));
   const mW=qtext.match(/(1[4-9](?:\.5)?|20)\s*(?:cm|公分|手圍)?/), mB=qtext.match(/(?:[^\d]|^)([4-9]|1[0-2])\s*mm/);
   if(mW&&mB){ const w=mW[1], b=+mB[1], v=base(w,b);
-    if(v!=null) return `手圍 ${w}cm × 珠徑 ${b}mm 的底價是 NT$ ${v.toLocaleString()}／串。\n加購：深度報告 +300；店到店運費 60、中壢–龍潭面交免運。\n（正式金額以報價單為準，問卷下方也有即時試算）`;
+    if(v!=null) return `手圍 ${w}cm × 珠徑 ${b}mm 的底價是 NT$ ${v.toLocaleString()}／串。\n加購：深度報告 +300；宅配到府 130、店到店 60、中壢–龍潭面交免運。\n（正式金額以報價單為準，問卷下方也有即時試算）`;
     return '這個尺寸超出底價矩陣範圍，需要人工報價——加 LINE '+CONFIG.CONTACT.line+'，店長直接算給你。'; }
   if(has('價','錢','費用','多少','報價')) return fa('pricing');
   if(has('多久','幾天','交期','什麼時候','何時','工作天')) return fa('lead-time');
