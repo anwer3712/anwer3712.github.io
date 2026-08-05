@@ -251,7 +251,14 @@ section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
   opacity:.5;
   -webkit-mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.6) 52%,transparent 100%);
   mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.6) 52%,transparent 100%);
-  animation:heroLight 1.25s cubic-bezier(.22,.61,.36,1) .15s both}
+  /* 兩段接力：heroLight 開頁點亮一次（.15s 起、1.25s 跑完＝1.4s），
+     heroBreath 從 1.4s 接手做持續緩慢推近，剛好無縫。
+     heroBreath 只碰 transform——opacity／filter／mask 留給 heroLight 的 both 保持值，
+     兩個動畫掛同一個屬性會互蓋，分工才不會打架。
+     reduced-motion 由 §尊重減少動態偏好 的 * 規則統一關掉，這裡不必再寫一次。 */
+  animation:heroLight 1.25s cubic-bezier(.22,.61,.36,1) .15s both,
+            heroBreath 22s ease-in-out 1.4s infinite}
+@keyframes heroBreath{0%,100%{transform:scale(1.04)}50%{transform:scale(1.11)}}
 @keyframes heroLight{
   from{opacity:.16;filter:blur(20px) saturate(.6) brightness(.34);transform:scale(1.12);
     -webkit-mask-image:radial-gradient(closest-side at 50% 42%,#000 0%,rgba(0,0,0,.3) 30%,transparent 52%);
@@ -279,7 +286,9 @@ section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
 .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
 .hero-art{display:flex;justify-content:center}
 .hero-art svg{width:100%;max-width:400px;height:auto;filter:drop-shadow(0 18px 40px rgba(0,0,0,.4))}
-.spin{transform-origin:210px 210px;animation:spin 60s linear infinite}
+/* 24s／圈。原本 60s 慢到肉眼看不出在轉（使用者回報「首頁圖不會動」）。
+   ⚠ 下面 .bead-tip-spin 的反轉必須用同一個秒數，否則珠子上的說明字會跟著轉歪。 */
+.spin{transform-origin:210px 210px;animation:spin 24s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 #heroRing{overflow:visible}
 .bead-el{cursor:pointer}
@@ -289,7 +298,7 @@ section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
 .bead-el:hover .bead-body,.bead-el:focus-visible .bead-body{transform:scale(1.15)}
 .bead-el:hover .bead-hl,.bead-el:focus-visible .bead-hl{opacity:.9}
 .bead-el:hover .bead-tip,.bead-el:focus-visible .bead-tip{opacity:1}
-.bead-tip-spin{transform-box:fill-box;transform-origin:center;animation:spinRev 60s linear infinite}
+.bead-tip-spin{transform-box:fill-box;transform-origin:center;animation:spinRev 24s linear infinite}
 @keyframes spinRev{to{transform:rotate(-360deg)}}
 
 /* ── 卡片 / 格線 ── */
@@ -976,7 +985,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
     <div class="wrap">
       <div class="head reveal"><p class="tag-eyebrow">現貨商品</p><h2>設計好的，直接帶走</h2><p>每一件都依排珠法與體感美學設計完成。數量不多，慢慢看。</p></div>
       <div class="grid prods" id="prodGrid" aria-live="polite"></div>
-      <p class="persona" id="shopNote" style="margin-top:26px">下單走匯款或 LINE 轉帳；信用卡與行動支付之後開放。若系統忙碌，會自動整理訂單讓你複製給 LINE 真人下單。</p>
+      <p class="persona" id="shopNote" style="margin-top:26px">下單走匯款、LINE 轉帳或現金；信用卡與行動支付之後開放。宅配到府運費 130、店到店 60、中壢–龍潭面交免運。若系統忙碌，會自動整理訂單讓你複製給 LINE 真人下單。</p>
     </div>
   </section>
 </div>
@@ -2484,7 +2493,8 @@ function localBrain(qtext){
   if(has('流年','當年','年份','太歲','今年算')) return FAQ[FAQ.length-1].a;
   if(has('原理','公式','數值','由來','怎麼算出','演算')) return '方法攤在「關於我們」的運算原理區：需求向量六分量（扶抑 0.30／缺口 0.28／調候 0.12／流年 0.12／盲派 0.10／意圖 0.08，意圖上限 15%）、五派交叉裁決（差 >20% 採高分者）、封頂 0.38 保底 0.03 與相生溢出、Hamilton 分配（誤差 ≤0.05）、禁鄰規則。流年那 0.12 讀的是你下單當年的年份，切到調候模式也一樣是 0.12。歡迎去看。';
   if(has('真人','店長','客服','聯絡','line','LINE')) return '真人服務走官方 LINE：'+CONFIG.CONTACT.line+'（回覆最快）。也可以 IG 私訊 '+CONFIG.CONTACT.ig+'。';
-  if(has('地址','面交','自送','店到店','運費','宅配')) return '物流：店到店 +60；中壢–龍潭面交免運（約時間地點）。';
+  // 宅配只有現貨結帳選得到，訂製問卷的取貨 radio 目前只有店到店／面交——講清楚免得訂製客戶問了選不到
+  if(has('地址','面交','自送','店到店','運費','宅配')) return '物流：宅配到府 +130（現貨結帳可選）；店到店 +60；中壢–龍潭面交免運（約時間地點）。';
   if(has('訂','買','下單','開始','怎麼訂')) return '切到「訂製服務」分頁，一步步填，約 3 分鐘；送出會拿到訂單編號，之後都能線上查進度。';
   return null;
 }

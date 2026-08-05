@@ -144,14 +144,18 @@ const CONFIG = {
   // ── 現貨商城設定 ──
   SHOP: {
     lowStock: 3,                 // 庫存 ≤ 此值顯示「僅剩 N」徽章
+    // ⚠ 運費真值有兩份：這裡是前台試算，後端另有 pps2_settings.shipping_rules。
+    //    兩邊不一致時 pps2-shop-order 會以後端為準並回 shipping_mismatch=true，
+    //    客戶看到的金額就跟實收不同 → 改這裡務必同步改 DB（sql/pps2_seed_v2.sql 的 shipping_rules 那組）。
     shipping: [                  // 取貨方式（value 對後端；fee 前台試算）
-      { id:"home",  label:"宅配到府",        fee:0  },
+      { id:"home",  label:"宅配到府",        fee:130 },
       { id:"store", label:"店到店（超商取貨）", fee:60 },
       { id:"self",  label:"店長自送／面交（龍潭—中壢）", fee:0 }
     ],
     payment: [                   // 付款方式（enabled=false → 前台灰態「即將開放」）
       { id:"transfer", label:"銀行匯款",       enabled:true  },
       { id:"line",     label:"LINE 轉帳",       enabled:true  },
+      { id:"cash",     label:"現金",            enabled:true  },   // 後台收款帳本的 methodLabel 也叫 cash
       { id:"card",     label:"信用卡",          enabled:false },
       { id:"mobile",   label:"行動支付",        enabled:false }
     ]
