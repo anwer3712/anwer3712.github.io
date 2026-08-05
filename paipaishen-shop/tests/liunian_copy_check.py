@@ -8,8 +8,10 @@
   4  一致性 個人線與情侶線講法不衝突（同一組數字：0.12、調候模式仍 0.12）
   5  溢出   1280 與 375 兩個寬度零水平溢出
 
-另加一項工單沒寫但非驗不可的：FAQ 陣列的寫死索引。客服快答用 FAQ[5][8][9][11]
-[13][15][19][20][21][22][1][4]，新題插在中間會全部錯位（陣列末尾有註解警告）。
+另加一項工單沒寫但非驗不可的：客服快答取用的那 12 題還在不在。
+2026-08-05 FAQ 合併之後客服快答改成靠穩定鍵 k 取題（原本寫死索引 FAQ[5][8]…，
+後台一重排就整組錯位），所以這裡釘的也從「第幾題」改成「哪個 k 對哪一題」。
+逐字回歸另有 tests/faq_merge_check.py，這支只確認題目沒被搬走或改名。
 
 用法：python tests/liunian_copy_check.py [--headed]
 """
@@ -30,13 +32,16 @@ BASELINE = {"index.html": 5, "config.js": 0}   # 動工前實測（2026-08-03）
 
 FAILS = []
 
-# 客服快答寫死的索引 → 該位置應該是哪一題
+# 客服快答取用的穩定鍵 → 那個鍵應該是哪一題
 PINNED = {
-    1: "跟市面上的水晶手串差在哪？", 4: "戴了會帶來好運、帶來財富、擋掉身邊的麻煩人嗎？",
-    5: "價格怎麼算？", 8: "珠徑跟顆數怎麼決定？", 9: "下單到收到要多久？",
-    11: "可以幫家人或朋友訂嗎？", 13: "我的生日資料安全嗎？", 15: "不知道出生時辰可以訂嗎？",
-    19: "可以退換貨嗎？", 20: "設計可以修改嗎？", 21: "怎麼付款？",
-    22: "情侶對串跟買兩條個人款差在哪？",
+    "vs-market": "跟市面上的水晶手串差在哪？",
+    "no-promise": "戴了會帶來好運、帶來財富、擋掉身邊的麻煩人嗎？",
+    "pricing": "價格怎麼算？", "bead-size": "珠徑跟顆數怎麼決定？",
+    "lead-time": "下單到收到要多久？", "order-for-others": "可以幫家人或朋友訂嗎？",
+    "data-safety": "我的生日資料安全嗎？", "no-birth-hour": "不知道出生時辰可以訂嗎？",
+    "return-policy": "可以退換貨嗎？", "design-change": "設計可以修改嗎？",
+    "payment": "怎麼付款？", "couple-vs-two": "情侶對串跟買兩條個人款差在哪？",
+    "liunian": "「流年」是什麼？它在你們的運算裡做什麼？",
 }
 
 # 「講運算」的地方 → 那一段必須出現的流年字樣
@@ -79,13 +84,15 @@ def static_checks():
     check("一致性：0.12 只有一個版本",
           src.count("流年那一格在兩種模式下都是 0.12") == 1 and "流年仍是 0.12" in src)
 
-    # FAQ 寫死索引
-    blk = src[src.index("const FAQ = ["):]
-    qs = [m.group(1) for m in re.finditer(r"\{g:'.*?',q:'(.*?)'", blk)]
-    for i, expect in PINNED.items():
-        got = qs[i] if i < len(qs) else "(超出範圍)"
-        check("FAQ[%d] 仍是「%s」" % (i, expect[:12]), got == expect, got)
-    check("流年題 append 在陣列尾端", qs and "流年" in qs[-1], qs[-1] if qs else "")
+    # 客服快答取用的那幾題（現在靠 k，不靠順序）
+    blk = src[src.index("const FAQ_BUILTIN = ["):]
+    blk = blk[:blk.index("\n];")]
+    byk = dict(re.findall(r"\{k:'([^']+)',g:'[^']*',q:'([^']*)'", blk))
+    for k, expect in PINNED.items():
+        got = byk.get(k, "(找不到這個 k)")
+        check("k=%s 仍是「%s」" % (k, expect[:12]), got == expect, got)
+    check("客服快答已不用寫死索引",
+          not re.findall(r"FAQ\[\d+\]", src), re.findall(r"FAQ\[\d+\]", src)[:3])
 
     for f, base in BASELINE.items():
         out = subprocess.run([sys.executable, str(ROOT / "docs/p4_kit/scan_compliance.py"), f],
