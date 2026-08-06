@@ -9,7 +9,7 @@
     python -m http.server 8788 --directory <repo>     # 另一個終端
     python tests/ui_20260806_check.py [--url http://localhost:8788/]
 """
-import sys, io, argparse, re
+import sys, io, argparse, re, json
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 from playwright.sync_api import sync_playwright
 
@@ -128,7 +128,10 @@ def run(url):
             if(!i) return {miss:true};
             return {miss:false,src:i.getAttribute('src'),nw:i.naturalWidth,nh:i.naturalHeight,
                     lazy:i.getAttribute('loading'),alt:(i.getAttribute('alt')||'').length};}""")
-        chk("[1] DANNY 圖在頁面上", not img["miss"] and "danny.webp" in (img.get("src") or ""), img)
+        # ⚠ 2026-08-06 使用者訂正：這裡要的一直是 S__9019531.jpg（＝ hero 與關於我們共用的那張書封）。
+        #   第一版寫成從 git 歷史挖回來的舊書封，那張是 2026-08-04 使用者裁決拿掉的。
+        #   斷言釘死檔名，不再只檢查「有圖」——「有圖」放什麼圖都會綠。
+        chk("[1] 頁尾品牌圖＝S__9019531.jpg", not img["miss"] and "S__9019531.jpg" in (img.get("src") or ""), img)
         chk("[1] 圖檔載得到（不是破圖）", not img["miss"] and img["nw"] > 0 and img["nh"] > 0, img)
         chk("[1] 有 alt 文字", not img["miss"] and img["alt"] >= 6, img)
 
@@ -186,8 +189,12 @@ def run(url):
         chk("[2] 這一段的捲動動畫全部 active",
             not gen.get("miss") and gen["anims"] > 0 and gen["active"] == gen["anims"], gen)
 
-        # 五段年份與文字一字未動
-        txt = pg.evaluate("""()=>[...document.querySelectorAll('.journey.gen .jact')].map(a=>a.textContent.replace(/\\s+/g,''))""")
+        # 五段年份與原本那一行文字一字未動
+        # ⚠ 只取 .n（年份）＋ .jd（原本那一行），不取整張卡的 textContent：
+        #   2026-08-06 使用者要求 3 在每一幕下面加了一塊 .gfix 對照（新增內容，不是改動），
+        #   量整張卡會把新增的簡述一起算進來，變成「一字未動」永遠紅。
+        txt = pg.evaluate("""()=>[...document.querySelectorAll('.journey.gen .jact')]
+            .map(a=>[...a.querySelectorAll(':scope>.n,:scope>.jd')].map(x=>x.textContent).join('').replace(/\\s+/g,''))""")
         want = ["2024系統雛形起步，第一代八字符號配珠邏輯成形。",
                 "2024–2025導入五派硬仲裁與需求向量，配珠從經驗走向量化。",
                 "2025加入心理學降維轉譯與Gottman七維，情侶對串成形。",
@@ -195,18 +202,108 @@ def run(url):
                 "2026-07-12封裝為v1.1一條龍最終執行包，個人與情侶雙線定版。"]
         chk("[2] 五段文字一字未動", txt == want, txt)
 
+        # ══ [3] 五幕的「卡了什麼 → 解了什麼」對照 ════════════════════════
+        fx = pg.evaluate("""()=>{const acts=[...document.querySelectorAll('.journey.gen .jact')];
+            return acts.map(a=>{const f=a.querySelector('.gfix');
+              if(!f) return {miss:true};
+              const was=f.querySelector('.was'), now=f.querySelector('.now');
+              const li=[...f.querySelectorAll('.was li')];
+              return {miss:false, lis:li.length,
+                      strike:li.every(x=>getComputedStyle(x).textDecorationLine.includes('line-through')),
+                      nowLen:(now.querySelector('p').textContent||'').trim().length,
+                      cols:getComputedStyle(f).gridTemplateColumns.split(' ').length,
+                      wasTop:Math.round(was.getBoundingClientRect().top),
+                      nowTop:Math.round(now.getBoundingClientRect().top)};});}""")
+        chk("[3] 五幕都有簡述（對照塊）", all(not x["miss"] for x in fx), fx)
+        chk("[3] 左欄是已作廢的限制（有刪除線）",
+            all(x["lis"] >= 1 and x["strike"] for x in fx), [(x["lis"], x["strike"]) for x in fx])
+        chk("[3] 右欄真的有內容（每幕 >= 30 字）",
+            all(x["nowLen"] >= 30 for x in fx), [x["nowLen"] for x in fx])
+        # 桌機是左右兩欄；同一列＝左右並排，不是上下堆疊
+        chk("[3] 桌機呈現是左右對照", all(x["cols"] == 2 and x["wasTop"] == x["nowTop"] for x in fx), fx)
+
+        # ══ [5] 訂製服務子選單分 A／B 兩組，且點 B 會自動切到情侶對串 ═════
+        # 使用者回報的症狀：預設是個人手串，所以只有 A 那組會動，B 那組整組沒反應。
+        # 根因＝#duoInfo 整塊 display:none，scrollIntoView 對隱藏元素完全不動。
+        sub = pg.evaluate("""async()=>{location.hash='#custom';await new Promise(r=>setTimeout(r,400));
+            const item=[...document.querySelectorAll('#navLinks .nav-item')]
+              .find(n=>n.querySelector('.nav-top').getAttribute('href')==='#custom');
+            const rows=[...item.querySelector('.nav-sub').children];
+            return {groups:rows.filter(r=>r.tagName==='B').map(r=>r.textContent.trim()),
+                    links:rows.filter(r=>r.tagName==='A').map(r=>({t:r.textContent.trim(),h:r.getAttribute('href')})),
+                    order:rows.map(r=>r.tagName).join('')};}""")
+        chk("[5] 子選單分成 A 個人手串／B 情侶對串兩組",
+            len(sub["groups"]) == 2 and "個人手串" in sub["groups"][0] and "情侶對串" in sub["groups"][1], sub["groups"])
+        chk("[5] A 組 4 條、B 組 6 條", sub["order"] == "B" + "A" * 4 + "B" + "A" * 6, sub["order"])
+        chk("[5] 十條落點與使用者指定的一致",
+            [x["h"] for x in sub["links"]] == [
+                "#custom/cu-intro", "#custom/cu-aes", "#custom/cu-wrist", "#custom/order",
+                "#custom/cu-rv", "#custom/cu-bridge", "#custom/cu-pair", "#custom/cu-gottman",
+                "#custom/cu-wrist", "#custom/order"], sub["links"])
+        chk("[5] 每條落點在頁面上都存在",
+            pg.evaluate("()=>%s.every(h=>!!document.getElementById(h.split('/')[1]))"
+                        % json.dumps([x["h"] for x in sub["links"]])), sub["links"])
+
+        # 真的點下去：B 組四條（情侶專屬那幾條）每一條都要「切到情侶模式 ＋ 元素量得到框」
+        def click_sub(href):
+            return pg.evaluate("""async(h)=>{
+                const a=[...document.querySelectorAll('#navLinks .nav-sub a')].find(x=>x.getAttribute('href')===h);
+                a.click(); await new Promise(r=>setTimeout(r,700));
+                const el=document.getElementById(h.split('/')[1]);
+                const r=el.getBoundingClientRect();
+                return {mode:(document.querySelector('#modeSeg button.on')||{}).dataset.mode,
+                        visible:el.getClientRects().length>0,
+                        top:Math.round(r.top), title:(document.getElementById('orderTitle')||{}).textContent};}""", href)
+        for h in ("#custom/cu-rv", "#custom/cu-bridge", "#custom/cu-pair", "#custom/cu-gottman"):
+            r = click_sub(h)
+            chk(f"[5] 點 {h} 會自動切到情侶對串", r["mode"] == "couple", r)
+            # 落點要真的捲到視窗上緣附近（header 78px），不是停在原地
+            chk(f"[5] 點 {h} 真的捲到那一段", r["visible"] and -20 <= r["top"] <= 220, r)
+        back = click_sub("#custom/cu-aes")
+        chk("[5] 點回 A 組會切回個人手串", back["mode"] == "single" and back["visible"], back)
+        chk("[5] 切模式時問卷標題跟著換", "個人手串" in (back["title"] or ""), back)
+
+        # 關於我們 ▸ 聯絡我 → 頁尾那張品牌圖
+        # ⚠ 這一段是整頁最遠的落點（約 6400px），smooth 捲完要一秒多。
+        #   固定 sleep 900ms 會量到「還在飛的半路」（實測 top=483），那是計時器太短，不是功能壞掉。
+        #   所以等 scrollY 連續三幀不變才量。
+        con = pg.evaluate("""async()=>{location.hash='#about';await new Promise(r=>setTimeout(r,400));
+            const item=[...document.querySelectorAll('#navLinks .nav-item')]
+              .find(n=>n.querySelector('.nav-top').getAttribute('href')==='#about');
+            const a=[...item.querySelectorAll('.nav-sub a')].find(x=>x.textContent.trim()==='聯絡我');
+            if(!a) return {miss:true};
+            a.click();
+            let last=-1, same=0;
+            for(let i=0;i<120 && same<3;i++){ await new Promise(r=>setTimeout(r,50));
+              if(Math.round(scrollY)===last) same++; else { same=0; last=Math.round(scrollY); } }
+            const el=document.getElementById('about-contact');
+            return {miss:false, href:a.getAttribute('href'), top:Math.round(el.getBoundingClientRect().top),
+                    vh:innerHeight, atBottom:Math.ceil(scrollY+innerHeight)>=document.body.scrollHeight-2,
+                    img:!!el.querySelector('img')};}""")
+        chk("[5] 關於我們子選單有「聯絡我」", not con.get("miss") and con["href"] == "#about/about-contact", con)
+        # 落點捲到頂端；除非頁面已經捲到底捲不動了，那就只要求它在視窗內看得到
+        chk("[5] 聯絡我落在頁尾那張品牌圖上",
+            not con.get("miss") and con["img"]
+            and (-20 <= con["top"] <= 220 or (con["atBottom"] and 0 <= con["top"] < con["vh"])), con)
+
         # ══ 沒把既有的東西弄壞 ═══════════════════════════════════════════
+        # ⚠ 2026-08-06 使用者裁決反轉：三幕上的 .jveil 疊層整組移除（全站只留頁尾一張圖）。
+        #   原本兩條回歸（疊層存在／veilIn active）已無標的，改成「三幕本身沒被誤傷」＋
+        #   「疊層真的不在了」。三幕自己的動畫（actRise／railDraw／flareOpen／bgSink）照樣要 active。
         keep = pg.evaluate("""async()=>{location.hash='#about';await new Promise(r=>setTimeout(r,400));
             const j=document.querySelector('.journey:not(.gen)');
             j.scrollIntoView({block:'center'});
             await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
-            const v=document.querySelector('.jveil');
-            const a=document.getAnimations().filter(x=>x.animationName==='veilIn');
-            return {acts:j.querySelectorAll('.jact').length,veil:!!v,
+            const inJ=x=>x.effect&&x.effect.target&&j.contains(x.effect.target);
+            const a=document.getAnimations().filter(inJ);
+            return {acts:j.querySelectorAll('.jact').length,veil:document.querySelectorAll('.jveil').length,
+                    imgs:document.querySelectorAll('#tab-about img').length,
                     anims:a.length,active:a.filter(x=>x.currentTime!==null).length};}""")
-        chk("[回歸] 關於我們的三幕沒被動到", keep["acts"] == 3 and keep["veil"], keep)
-        chk("[回歸] .jveil 疊層動畫仍 active（--journey 沒被 --genline 搶走）",
+        chk("[回歸] 關於我們的三幕沒被動到", keep["acts"] == 3, keep)
+        chk("[回歸] 三幕自己的捲動動畫仍 active",
             keep["anims"] > 0 and keep["active"] == keep["anims"], keep)
+        chk("[2b] 三幕的疊層圖已移除，關於我們整頁只剩頁尾那一張圖",
+            keep["veil"] == 0 and keep["imgs"] == 1, keep)
 
         nav = pg.evaluate("""async()=>{const out={};
             for(const t of ['home','shop','custom','works','about','faq','track']){

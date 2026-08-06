@@ -120,6 +120,11 @@ header{position:sticky;top:0;z-index:100;background:rgba(251,249,244,.86);backdr
 .nav-sub a{display:block;padding:8px 12px;font-size:14px;line-height:1.5;white-space:normal;
   border-radius:8px;color:var(--muted)}
 .nav-sub a:hover{background:var(--paper2);color:var(--mu)}
+/* 分組標題（訂製服務的 A 個人手串／B 情侶對串）。刻意用 <b> 不用 <a>：
+   它不是落點，點下去不該有事。第一組不畫上邊線，否則面板頂端多一條沒有意義的橫線。 */
+.nav-sub b.g,.tocpanel b.g{display:block;padding:9px 12px 5px;font-size:11.5px;letter-spacing:.16em;
+  color:var(--mu);font-family:var(--serif);border-top:1px solid var(--line);margin-top:4px}
+.nav-sub b.g:first-child{border-top:0;margin-top:0}
 /* 錨點捲過去時，標題不能被 sticky 的 header（64px）吃掉。
    [data-toc] ＝ buildTOC() 退到 h3 級時直接錨在標題上的那些元素 */
 main section[id],main [data-toc]{scroll-margin-top:78px}
@@ -231,18 +236,13 @@ section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
   }
 }
 
-/* ── 品牌書封（關於我們）── 2026-08-04：使用者裁決 A，改單張大圖，360px 上限已拿掉。 */
-.bookcard{margin:0 auto;max-width:620px;transform:rotate(-1.6deg)}
-.bcimg{position:relative;border-radius:var(--r-sm);overflow:hidden;
-  box-shadow:0 12px 30px rgba(16,24,40,.18),0 0 0 1px rgba(45,106,79,.32) inset}
-.bookcard img{display:block;width:100%;height:auto}
-/* 2026-08-04 使用者裁決：「不要動我的圖，先直接上」——整張完整顯示，不遮、不裁、不改。
-   曾做過一版局部柔焦蓋住店章下那行舊版英文，已依裁決移除；
-   那行字的合規判斷是店主的商業決定，不是技術問題。
-   日後若要改回來，做法與量出來的座標在 git 歷史 commit d0078e3。 */
-/* text-wrap:balance：這句剛好比欄寬長一點點，不平衡的話會掉出一個孤字 */
-.bookcard figcaption{margin-top:12px;font-family:var(--serif);font-size:14px;line-height:1.75;color:var(--ink);text-align:center;text-wrap:balance;transform:rotate(1.6deg)}
-@media(max-width:900px){ .bookcard{transform:none} .bookcard figcaption{transform:none} }
+/* ── 三幕的收束句 ── 2026-08-06 使用者要求 2：三幕這裡的品牌圖整個拿掉，
+   整頁只在頁尾（.dannyveil）放一次。圖沒了，這句留著——「深淵／在旁／光芒」
+   三個幕名就是從這句拆出來的，它是這段旅程的落款，不是圖的說明文字。
+   （原本 .bookcard／.bcimg 那組樣式只服務那張圖，一起刪掉。歷史在 commit defe886。）
+   text-wrap:balance：這句剛好比欄寬長一點點，不平衡的話會掉出一個孤字 */
+.jclose{margin:30px auto 0;max-width:620px;font-family:var(--serif);font-size:16px;line-height:1.75;
+  color:var(--mu);text-align:center;text-wrap:balance}
 
 /* ── 開場區塊：每頁的深淵端。先說中處境，最後一句才給出路 ── */
 .opener{position:relative;overflow:hidden;color:#EDE7DA;padding:clamp(38px,6vw,62px) 0;
@@ -753,10 +753,7 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
    ① 根本不用捲就全看完了（＝又把長滾動頁面浪費掉）
    ② .jbead 的 position:sticky 從頭到尾不會觸發，「依舊在你身旁」就演不出來。
    驗收腳本 tests/visual_check.py【3】會實測整段高度與珠子是否釘住，別把間距改小。 */
-/* view-timeline-name 讓 .jveil 量的是「整段旅程」的框，不是它自己的。
-   .jveil 是 sticky 的，掛 view() 會一直待在視窗內＝進度永遠卡在中段（.jflare 那段
-   踩過同一個坑）。指名時間軸就繞開了。 */
-.journey{position:relative;margin:30px 0 10px;padding:8px 0 8px 44px;view-timeline-name:--journey}
+.journey{position:relative;margin:30px 0 10px;padding:8px 0 8px 44px}
 /* 2026-08-05：使用者說「距離太遠」。40vh→30vh，但不能再低——
    間距一小整段就矮於視窗，.jbead 的 sticky 不觸發、「依舊在你身旁」直接演不出來
    （驗收 tests/visual_check.py【3】實測這件事）。30vh×2 ＋ 三張卡仍高於視窗。 */
@@ -781,8 +778,7 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
 .jbg{inset:-20% 0;background:radial-gradient(66% 54% at 50% 14%,rgba(143,207,174,.16),transparent 70%)}
 /* 版面隨三幕打開：窄 → 中 → 滿。靜態就成立，捲動時間軸只是加上動態。
    2026-08-05：420／560 讓右側留了一大片空白（使用者原話「右邊顯示空白太多」）。
-   放寬到 560／740——漸開的節奏還在（每一幕都比前一幕寬），但不再是三張窄卡貼左邊。
-   剩下的空白由 .jveil 那張品牌圖接手填滿。 */
+   放寬到 560／740——漸開的節奏還在（每一幕都比前一幕寬），但不再是三張窄卡貼左邊。 */
 .jact.a1{max-width:560px;background:linear-gradient(168deg,var(--abyss),var(--abyss-2));border-color:rgba(143,207,174,.26)}
 .jact.a1 .n{color:var(--mu-lit)} .jact.a1 h3{color:#EDE7DA} .jact.a1 .jd{color:#C7CEDC}
 .jact.a2{max-width:740px}
@@ -802,54 +798,16 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
 .jflare::before{content:"";position:absolute;left:-30px;top:50%;width:min(760px,170%);aspect-ratio:1;
   translate:-50% -50%;border-radius:50%;
   background:radial-gradient(circle,rgba(143,207,174,.52) 0%,rgba(232,201,122,.44) 38%,transparent 72%)}
-/* ═══ 品牌圖與三幕融合（2026-08-05 使用者要求 7）═══
-   原本這張圖只是被放在三幕下方當配圖，使用者原話：「你還是只放上去沒有做效果」。
-   現在它是這段動畫的收束——從深淵走到光芒的過程中，圖由 0 淡到 100，
-   最後把「深淵／在旁／光芒」三個字框整個蓋掉：路走完了，剩下的只有那張畫面。
-   實作要點——
-     ① sticky＋負 margin：釘在視窗中段、且不佔 .journey 一分高度（佔了就會把三幕推開）
-     ② 進度來自 .journey 的 view-timeline（見上方 .journey 註解），不是自己的框
-     ③ 用 background 不用 <img>：零額外 DOM、零額外請求（hero 已載過同一張，直接命中快取）
-     ④ 柔邊 mask：不是一塊硬矩形貼上來，是一團光裡浮出畫面
-   fallback：@supports 沒過或使用者要求減少動態 → .jveil 整個不存在（display:none 是預設值），
-   圖回到下方 .aboutbook 那張靜態大圖照常顯示，資訊一點都不少。 */
-.jveil{display:none}
-@supports (animation-timeline:view()){
-  @media(prefers-reduced-motion:no-preference){
-    /* ⚠ background-size 用 contain 不用 cover，也不掛 mask：
-       2026-08-04 使用者對這張圖的裁決是「不要動我的圖、不遮不裁」，cover 會把
-       923×1152 的直圖裁掉上下、mask 會啃掉四角，兩個都違反那條裁決。
-       contain ＝整張完整顯示；「遮住字框」由底下那層不透明 --paper 負責，
-       用底色遮、不是用圖遮，兩個要求同時成立。 */
-    .jveil{display:block;position:sticky;top:13vh;height:74vh;margin-bottom:-74vh;z-index:3;
-      pointer-events:none;border-radius:var(--r);
-      background:var(--paper) url(photos/brand/S__9019531.jpg) 50% 50%/contain no-repeat;
-      box-shadow:0 24px 60px rgba(16,24,40,.28);
-      opacity:0;animation:veilIn linear both;
-      /* 區間不收在 96%：那個位置整段旅程都快捲出畫面上緣了，圖要到看不見時才滿＝白做。
-         改成 30%→88%，並在 keyframes 裡分三段：淡入 → 滿（蓋住字框）→ 退場前淡掉。
-         ⚠ 最後那段淡出是必要的，不是裝飾：.jveil 有 margin-bottom:-74vh 所以不佔高度，
-         它的視覺框會越過 .journey 底緣壓到下一段「走了九個世代的路」上（截圖實證過）。
-         用 overflow 夾住會連 sticky 一起殺掉，所以改用透明度自己退場。 */
-      animation-timeline:--journey;animation-range:cover 30% cover 88%}
-    /* ⚠ 頭尾一律 from／to，不要改成百分比語法——理由同 orderPing 那條註解
-       （合規掃描器規則表）。中段的 62／82 兩格不受影響，可以留。 */
-    @keyframes veilIn{from{opacity:0}62%{opacity:1}82%{opacity:1}to{opacity:0}}
-    /* 疊層接手之後，下方那張靜態大圖就是重複的同一張圖，收起來。
-       ⚠ 只收圖，不收 figcaption——「即使身處萬丈深淵，依舊在你身旁，散發前行的光芒」
-       正是深淵／在旁／光芒三個詞的出處，它留下來當這段旅程的收束句。
-       圖沒了，那組 ±1.6deg 的歪斜也一起歸零，否則單獨一行字歪著很怪。 */
-    .aboutbook .bcimg{display:none}
-    .aboutbook .bookcard,.aboutbook .bookcard figcaption{transform:none}
-    .aboutbook .bookcard figcaption{margin-top:0;font-size:16px;color:var(--mu)}
-  }
-}
+/* ⚠ 這裡曾經有一層 .jveil（2026-08-05 要求 7）：品牌書封 sticky 疊在三幕上、
+   隨捲動由 0 淡到 100 再淡出。2026-08-06 使用者裁決「深淵在旁光芒那邊的圖不要了，
+   整頁只留頁尾那一張」，整組（.jveil、@keyframes veilIn、.aboutbook 靜態大圖、
+   view-timeline-name:--journey）一起刪。
+   要復原：commit defe886 的這一段是完整可用版本，連 --journey 的指名時間軸一起。 */
 @media(max-width:620px){ .journey{padding-left:32px} .jrail{left:9px}
   .jact.a1,.jact.a2{max-width:100%} .jact+.jact{margin-top:clamp(110px,26vh,260px)}
   /* 手機上「逐幕加寬」演不出來（本來就只有一欄寬），五幕一律滿版，
      節奏改由 genRise 的浮起與亮度承擔。間距也再壓一階，否則五幕在手機上長得誇張。 */
-  .journey.gen .jact{max-width:100%} .journey.gen .jact+.jact{margin-top:clamp(90px,18vh,200px)}
-  .jveil{top:16vh;height:62vh;margin-bottom:-62vh} }
+  .journey.gen .jact{max-width:100%} .journey.gen .jact+.jact{margin-top:clamp(90px,18vh,200px)} }
 
 /* ═══ 「走了九個世代的路」＝第二段三幕旅程（2026-08-06 使用者要求 2）═══
    前一版（2026-08-05）是條垂直時間線 .timeline-v：底線＋進度線＋sticky 珠子＋逐格浮起。
@@ -859,24 +817,51 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
      第一幕 深色窄卡（起點，還在摸索）→ 中間三幕逐幕加寬轉亮 → 第五幕滿版＋金光（定版）
    .jrail 的畫線、.jbg 的負向視差、.jflare 的光擴散，這三個動畫本來就掛在 class 上
    （見上方「三幕旅程的動態層」那段 @supports），套上同一組 class 就自動繼承，不必再寫一次。
-   ⚠ view-timeline-name 一定要跟關於我們那段（--journey）不同名。同名的話，
-     .jveil 用 `animation-timeline:--journey` 查找時可能命中錯的那一條時間軸。
-     這裡沒有 .jveil，所以 --genline 其實沒人用；命名純粹是為了不污染 --journey 的查找。
+   ⚠ --genline 目前沒有任何 animation-timeline 指向它（三幕那層疊圖已於 2026-08-06 移除，
+     連帶 --journey 也拿掉了）。留著是因為它零成本、而且下次要在這段掛 sticky 疊層時
+     就直接有一條量得到「整段旅程」的時間軸——重新命名一次比重新推導一次便宜。
    ⚠ 間距 22vh 比三幕的 30vh 小：五幕用 30vh 會長到兩個視窗以上，捲不完。
      但不能再壓——整段必須比視窗高，否則 .jbead 的 sticky 從頭到尾不觸發（同三幕那條註解）。 */
 .journey.gen{view-timeline-name:--genline;margin-top:18px}
 .journey.gen .jact+.jact{margin-top:clamp(90px,22vh,240px)}
 .journey.gen .jact .n{font-size:16px;letter-spacing:.14em}
 .journey.gen .jact .jd{font-size:15px;color:var(--ink)}
-/* 五幕逐格加寬：400 → 465 → 530 → 595 → 滿版。跟三幕同一個手法，只是多兩階。
+/* 五幕逐格加寬：440 → 500 → 560 → 620 → 滿版。跟三幕同一個手法，只是多兩階。
    ⚠ 上限不是隨便填的：這一段的 .wrap 是 760px、.journey 又吃掉 44px 左內距，
      可用寬度只有約 660px。前一版寫 480/560/640/720 時，720 與滿版都被夾成 660，
-     實測寬度序列變成 [480,560,640,660,660]＝最後兩幕看起來一樣寬，第四幕白做。 */
-.journey.gen .g1{max-width:400px;background:linear-gradient(168deg,var(--abyss),var(--abyss-2));border-color:rgba(143,207,174,.26)}
+     實測寬度序列變成 [480,560,640,660,660]＝最後兩幕看起來一樣寬，第四幕白做。
+   2026-08-06：每幕多了一塊兩欄對照（.gfix），400px 內兩欄會各只剩約 180px，
+     所以整階往上抬到 440/500/560/620，仍全部小於 660 且嚴格遞增。 */
+.journey.gen .g1{max-width:440px;background:linear-gradient(168deg,var(--abyss),var(--abyss-2));border-color:rgba(143,207,174,.26)}
 .journey.gen .g1 .n{color:var(--mu-lit)} .journey.gen .g1 .jd{color:#C7CEDC}
-.journey.gen .g2{max-width:465px}
-.journey.gen .g3{max-width:530px}
-.journey.gen .g4{max-width:595px}
+.journey.gen .g2{max-width:500px}
+.journey.gen .g3{max-width:560px}
+.journey.gen .g4{max-width:620px}
+/* ═══ 「卡了什麼 → 解了什麼」對照（2026-08-06 使用者選定的呈現方式）═══
+   跟三幕的 .jm（主文下方一段木色左線小字）刻意不同：那組是「同一件事再講細一點」，
+   這裡要的是前後差別，所以做成左右兩欄。
+     左欄＝已經不成立的限制：紙色底、灰字、刪除線
+     右欄＝這一代拿掉它的辦法：淡木色底、正常字
+   ⚠ 刪除線只加在 li 上，不加在整塊：整段劃掉會直接不能讀。 */
+.gfix{display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);margin-top:14px;
+  border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:13px;line-height:1.7}
+.gfix>div{padding:11px 13px}
+.gfix .was{background:var(--paper2);border-right:1px solid var(--line)}
+.gfix .now{background:rgba(143,207,174,.10)}
+.gfix b{display:block;font-size:11px;letter-spacing:.14em;font-family:var(--serif);margin-bottom:6px}
+.gfix .was b{color:var(--muted)} .gfix .now b{color:var(--mu)}
+.gfix ul{list-style:none;display:grid;gap:4px;margin:0;padding:0}
+.gfix .was li{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(107,114,128,.55)}
+.gfix .now p{color:var(--ink);margin:0}
+/* 第一幕是深色卡，對照塊要跟著換一套底與字色，否則紙色底貼在深藍上像貼了張便條 */
+.journey.gen .g1 .gfix{border-color:rgba(143,207,174,.26)}
+.journey.gen .g1 .gfix .was{background:rgba(255,255,255,.05);border-right-color:rgba(143,207,174,.26)}
+.journey.gen .g1 .gfix .was b,.journey.gen .g1 .gfix .was li{color:#8F9AAC}
+.journey.gen .g1 .gfix .was li{text-decoration-color:rgba(143,154,172,.6)}
+.journey.gen .g1 .gfix .now b{color:var(--mu-lit)} .journey.gen .g1 .gfix .now p{color:#C7CEDC}
+@media(max-width:620px){ .gfix{grid-template-columns:minmax(0,1fr)}
+  .gfix .was{border-right:0;border-bottom:1px solid var(--line)}
+  .journey.gen .g1 .gfix .was{border-bottom-color:rgba(143,207,174,.26)} }
 /* 最後一幕＝定版那一刻，收在金色：全站「金＝抵達」的同一套語意 */
 .journey.gen .g5{max-width:100%;border-left-color:var(--glow-deep);
   background:linear-gradient(100deg,#FFFDF6,var(--card) 60%)}
@@ -1229,7 +1214,9 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
 
   <section class="block">
     <div class="wrap">
-      <div class="head reveal"><p class="tag-eyebrow">個人化訂製</p><h2>從你的八字，長出一串專屬</h2></div>
+      <!-- id/data-toc＝頁首「訂製服務 ▸ A 個人手串 ▸ 訂製介紹」的落點。
+           data-toc 不只是標記：CSS 那條 main [data-toc]{scroll-margin-top:78px} 靠它閃開 sticky header。 -->
+      <div class="head reveal" id="cu-intro" data-toc="1"><p class="tag-eyebrow">個人化訂製</p><h2>從你的八字，長出一串專屬</h2></div>
       <!-- 訂製入口：原本是一顆 15px 灰字膠囊，使用者反映「很難找哪裡下單」。
            改成兩張說得出差別的可點卡片，並在正下方直接給進入問卷的入口。
            id/data-mode 一字不動——JS 用 closest('button') 與 dataset.mode 綁定，改名會斷。 -->
@@ -1258,7 +1245,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
           <p style="color:var(--muted)">最後排珠：主珠取你最高的那個五行，強制置中；金與木、水與火不相鄰，中間一定隔一顆。<b style="color:var(--ink)">每一顆的位置都有理由，報告會逐顆說明為什麼放它。</b></p>
         </div>
 
-        <p class="reveal" style="max-width:620px;margin:0 auto 24px;font-family:var(--serif);font-style:italic;color:var(--ink);border-left:3px solid var(--glow);padding:2px 0 2px 16px">同一份配比，可以長成三種樣子。配比決定「放哪些石頭」，體感決定「看起來是什麼調性」——這兩件事是分開選的。</p>
+        <p class="reveal" id="cu-aes" data-toc="1" style="max-width:620px;margin:0 auto 24px;font-family:var(--serif);font-style:italic;color:var(--ink);border-left:3px solid var(--glow);padding:2px 0 2px 16px">同一份配比，可以長成三種樣子。配比決定「放哪些石頭」，體感決定「看起來是什麼調性」——這兩件事是分開選的。</p>
         <div class="grid g3-aes" style="margin-bottom:40px">
           <div class="card aes-card lift reveal" style="--i:0">
             <img src="photos/brand/aes-1-light.webp" alt="輕盈流光系珠串樣本：簡約單色、多彩清透、流光組合" width="443" height="542" loading="lazy">
@@ -1294,7 +1281,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
 
       <!-- 情侶資訊區 -->
       <div id="duoInfo" style="display:none">
-        <div class="grid duo" style="margin-bottom:40px">
+        <div class="grid duo" id="cu-rv" data-toc="1" style="margin-bottom:40px">
           <div class="illus reveal" id="rvIllus" aria-label="雙人配比五步流程圖解" style="--i:0"></div>
           <div class="reveal" style="--i:1">
             <h3 style="font-size:22px;margin-bottom:10px">兩個人的盤，不是各算各的</h3>
@@ -1305,7 +1292,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
           </div>
         </div>
 
-        <div class="grid duo" style="margin-bottom:40px">
+        <div class="grid duo" id="cu-bridge" data-toc="1" style="margin-bottom:40px">
           <div class="reveal" style="--i:0">
             <h3 style="font-size:22px;margin-bottom:10px">翻譯：把一句他聽不懂的話，換成他的語言再說一次</h3>
             <p style="color:var(--muted)">水和火不會直接相處，硬放在一起是對沖。所以我們不去「調和」它們，而是插一個<b style="color:var(--ink)">木</b>：水生木、木生火——同一股力氣，換一條路走，對撞就成了流動。金和木相剋，插的是<b style="color:var(--ink)">土</b>：金生於土、土載木。</p>
@@ -1348,13 +1335,13 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
           </details>
         </div>
 
-        <div class="head reveal"><h2 style="font-size:26px">兩條，會像一對嗎</h2><p style="color:var(--muted);font-size:14px">這兩種都是算出來的結果，不是可以挑的方案。</p></div>
+        <div class="head reveal" id="cu-pair" data-toc="1"><h2 style="font-size:26px">兩條，會像一對嗎</h2><p style="color:var(--muted);font-size:14px">這兩種都是算出來的結果，不是可以挑的方案。</p></div>
         <div class="grid pairtypes" style="margin-bottom:40px">
           <div class="track-card lift reveal" style="--i:0"><h3>同石不同位</h3><p>兩人的共同喜神重疊度高時，會出現同一種石頭，但各自的主珠不同、排列位置也不同。看起來是一組，不是一對複製品。</p></div>
           <div class="track-card lift reveal" style="--i:1"><h3>各有各的主</h3><p>共同喜神只重疊一部分時，兩條串的主珠會落在不同五行上。石頭清單有交集，中心不同——這很常見，不是算錯。</p></div>
         </div>
 
-        <div class="grid duo" style="margin-bottom:40px;align-items:start">
+        <div class="grid duo" id="cu-gottman" data-toc="1" style="margin-bottom:40px;align-items:start">
           <div class="illus reveal" id="radarIllus" aria-label="Gottman 七維雷達圖，七軸各標對應五行" style="--i:0"></div>
           <div class="reveal" style="--i:1">
             <h3 style="font-size:20px;margin-bottom:12px">Gottman 七維：把關係拆成看得懂的七塊</h3>
@@ -1373,8 +1360,9 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
         </div>
       </div>
 
-      <!-- 手圍量法＋顆數試算（個人／情侶共用公共區） -->
-      <div class="calc reveal" style="margin-bottom:34px">
+      <!-- 手圍量法＋顆數試算（個人／情侶共用公共區）。
+           子選單 A、B 兩組的「手圍怎麼量」都指到這裡——同一段，不是兩份。 -->
+      <div class="calc reveal" id="cu-wrist" data-toc="1" style="margin-bottom:34px">
         <div id="wristIllus" aria-label="量手圍示意" style="margin-bottom:18px;padding-bottom:18px;border-bottom:1px dashed var(--line)"></div>
         <details id="beadCalcDetails">
           <summary style="cursor:pointer;color:var(--glow-deep);font-size:15px;font-weight:600">想知道顆數怎麼算？</summary>
@@ -1406,7 +1394,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
       </div>
 
       <!-- 問卷（payload 契約與現版逐欄位一致） -->
-      <div class="form-card reveal" id="order">
+      <div class="form-card reveal" id="order" data-toc="1">
         <div class="order-h">
           <p class="tag-eyebrow">就是這裡下單</p>
           <h2 id="orderTitle">訂製問卷・個人手串</h2>
@@ -1559,25 +1547,14 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
            三段文字一字未動（後台鏡像的鍵算的是「標籤名＋原文雜湊」，維持 <p>／<h3>／<p> 就不會斷）。 -->
       <div class="journey">
         <div class="jrail" aria-hidden="true"><span class="jbead"></span></div>
-        <div class="jveil" aria-hidden="true"></div>
         <article class="jact a1"><div class="jbg" aria-hidden="true"></div><p class="n">深淵</p><h3>理解困局</h3><p class="jd">八字引擎照見你性格裡的慣性與壓抑。</p><p class="jm">你填的是出生資料與當下的痛點，出來的是一張標了權重的盤：哪個五行過旺、哪裡是缺口、今年的流年又把它推向哪一邊。這一步不給建議，只把現況攤平。</p></article>
         <article class="jact a2"><div class="jbg" aria-hidden="true"></div><p class="n">在旁</p><h3>陪伴提醒</h3><p class="jd">物理性的陪伴，目光觸及時校準步調。</p><p class="jm">配比換算成顆數之後，變成一串戴得住的東西。它不做任何事，它只是在那裡——低頭看到手腕的那一秒，你想起自己今年打算調的是什麼。</p></article>
         <article class="jact a3"><div class="jflare" aria-hidden="true"></div><p class="n">光芒</p><h3>心理導航</h3><p class="jd">點亮你原本具備、卻被遺忘的潛能。</p><p class="jm">報告裡九節（情侶十二節）逐節寫清楚：五派各自主張什麼、為什麼這樣裁、行為上可以怎麼調。看得懂、驗得回去，不必相信我們也能自己判斷。</p></article>
       </div>
-      <!-- 2026-08-04 使用者裁決 A：拿掉並排的 danny.webp，關於我們改單張大圖。
-           原本這裡是 .grid.duo 雙欄，圖被壓在 360px 內＝只是配圖，正是使用者點名的問題。
-           現在圖是這一節的主體，620px 上限只為不讓它在寬螢幕上壓過文字節奏。
-           圖檔一個位元都沒動，也不遮不裁（2026-08-04 使用者裁決，理由見 CSS .bookcard 那段註解）。 -->
-      <!-- .aboutbook＝這張圖的靜態版。支援捲動時間軸且未要求減少動態時，
-           它會被 CSS 收起來，改由 .jveil 那層在三幕上淡入（2026-08-05 要求 7）。 -->
-      <div class="reveal aboutbook" style="margin:36px auto 0;max-width:620px">
-        <figure class="bookcard">
-          <div class="bcimg">
-            <img src="photos/brand/S__9019531.jpg" alt="拍拍深五行水晶設計研究所品牌書封，封面中央為五行配色手串" width="923" height="1152" loading="lazy">
-          </div>
-          <figcaption>即使身處萬丈深淵，依舊在你身旁，散發前行的光芒</figcaption>
-        </figure>
-      </div>
+      <!-- 2026-08-06 使用者要求 2：這裡的品牌圖（先是 .aboutbook 靜態大圖、後來是 .jveil 疊層）
+           整個拿掉，全站只在關於我們頁尾 #about-contact 放一次。留下的是這句落款——
+           「深淵／在旁／光芒」三個幕名就是從這句拆出來的。 -->
+      <p class="jclose reveal">即使身處萬丈深淵，依舊在你身旁，散發前行的光芒</p>
     </div>
   </section>
 
@@ -1588,13 +1565,43 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
            刻意不掛 .reveal：跟三幕同一個理由——.reveal 是「整塊一起淡入」，
            這裡要的是一條連續的線，由 .jrail 與釘住的 .jbead 承擔。
            五段年份與文字一字未動，只換外層結構。 -->
+      <!-- 五幕的簡述用「卡了什麼 → 解了什麼」對照（2026-08-06 使用者選定的呈現方式）。
+           刻意不沿用三幕那組 .jm 小字：那是「同一件事再講細一點」，這裡要講的是前後差別，
+           一段連續小字看不出「哪一代解掉哪一件事」。左欄是已經不成立的限制（灰＋刪除線），
+           右欄是這一代拿掉它的辦法。五段年份與原本那行 .jd 一字未動，只在下面加對照塊。
+           ⚠ 第一幕的左欄標題是「在這之前」不是「上一代卡在」——它就是第一代，沒有上一代。 -->
       <div class="journey gen">
         <div class="jrail" aria-hidden="true"><span class="jbead"></span></div>
-        <article class="jact g1"><div class="jbg" aria-hidden="true"></div><p class="n">2024</p><p class="jd">系統雛形起步，第一代八字符號配珠邏輯成形。</p></article>
-        <article class="jact g2"><div class="jbg" aria-hidden="true"></div><p class="n">2024–2025</p><p class="jd">導入五派硬仲裁與需求向量，配珠從經驗走向量化。</p></article>
-        <article class="jact g3"><div class="jbg" aria-hidden="true"></div><p class="n">2025</p><p class="jd">加入心理學降維轉譯與 Gottman 七維，情侶對串成形。</p></article>
-        <article class="jact g4"><div class="jbg" aria-hidden="true"></div><p class="n">2025–2026</p><p class="jd">建立合規防火牆與 Golden Set 回測，禁詞熔斷上線。</p></article>
-        <article class="jact g5"><div class="jflare" aria-hidden="true"></div><p class="n">2026-07-12</p><p class="jd">封裝為 v1.1 一條龍最終執行包，個人與情侶雙線定版。</p></article>
+        <article class="jact g1"><div class="jbg" aria-hidden="true"></div><p class="n">2024</p><p class="jd">系統雛形起步，第一代八字符號配珠邏輯成形。</p>
+          <div class="gfix">
+            <div class="was"><b>在這之前</b><ul><li>憑經驗挑石頭</li><li>同一個人問兩次，答案不一定一樣</li></ul></div>
+            <div class="now"><b>這一代做到</b><p>把生日排成四柱、四柱對到五行，整條流程第一次被固定成一套一定會跑完的程序。這一代要的是「有沒有步驟」，還不是「準不準」。</p></div>
+          </div>
+        </article>
+        <article class="jact g2"><div class="jbg" aria-hidden="true"></div><p class="n">2024–2025</p><p class="jd">導入五派硬仲裁與需求向量，配珠從經驗走向量化。</p>
+          <div class="gfix">
+            <div class="was"><b>上一代卡在</b><ul><li>缺什麼補什麼靠人判斷</li><li>門派打架時沒有裁決規則</li></ul></div>
+            <div class="now"><b>這一代解掉</b><p>扶抑、缺口、調候、流年、盲派、意圖六個分量各給固定權重加權相加；五派主張互斥時比置信度，差距超過 20% 才採信高分那一派。從這一代起，相同輸入得到相同輸出。</p></div>
+          </div>
+        </article>
+        <article class="jact g3"><div class="jbg" aria-hidden="true"></div><p class="n">2025</p><p class="jd">加入心理學降維轉譯與 Gottman 七維，情侶對串成形。</p>
+          <div class="gfix">
+            <div class="was"><b>上一代卡在</b><ul><li>講不出「所以我該怎麼做」</li><li>兩個人只能各算各的</li></ul></div>
+            <div class="now"><b>這一代解掉</b><p>命理語言降維成可操作的心理提醒；兩人的需求向量合成一份雙人向量（0.4×你 ＋ 0.4×對方 ＋ 0.2×橋接元素），再乘關係階段係數。處理的對象從「一個人缺什麼」變成「兩個人之間缺什麼」。</p></div>
+          </div>
+        </article>
+        <article class="jact g4"><div class="jbg" aria-hidden="true"></div><p class="n">2025–2026</p><p class="jd">建立合規防火牆與 Golden Set 回測，禁詞熔斷上線。</p>
+          <div class="gfix">
+            <div class="was"><b>上一代卡在</b><ul><li>改一條規則怕弄壞別的</li><li>輸出用字沒有統一把關</li></ul></div>
+            <div class="now"><b>這一代解掉</b><p>固定一組標準案例當回歸基準，改動要先跑過回測才准上線；輸出文字過禁詞掃描，命中就擋下不發。這一代加的全是「不讓它出錯」的機制，不是新功能。</p></div>
+          </div>
+        </article>
+        <article class="jact g5"><div class="jflare" aria-hidden="true"></div><p class="n">2026-07-12</p><p class="jd">封裝為 v1.1 一條龍最終執行包，個人與情侶雙線定版。</p>
+          <div class="gfix">
+            <div class="was"><b>上一代卡在</b><ul><li>各段分開，交接靠人記得</li><li>報告格式每次都在微調</li></ul></div>
+            <div class="now"><b>這一代解掉</b><p>問卷、運算、逐單人工複核、報告、排珠圖到出貨串成一條線；個人九節、情侶十二節的報告格式同時定版。定版之後只修錯，不再改結構。</p></div>
+          </div>
+        </article>
       </div>
     </div>
   </section>
@@ -1649,10 +1656,17 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
         </ul>
       </div>
       <!-- DANNY 品牌照（2026-08-06 使用者要求 1）：夾在方法與聯絡方式中間，捲到這裡才由淡到濃拉開。
-           圖檔是 2026-08-04 從關於我們上半拿掉的那張，這次不是配圖，是這一頁的收束畫面。
-           刻意不加 figcaption：這一段已經有「來找我們」接著，再插一句標語會變成兩個結尾。 -->
-      <figure class="dannyveil reveal">
-        <img src="photos/brand/danny.webp" alt="「專屬特製五行水晶報告」書封上放著一串五行配色手串" width="1080" height="1120" loading="lazy">
+           刻意不加 figcaption：這一段已經有「來找我們」接著，再插一句標語會變成兩個結尾。
+           ⚠ 圖檔一定是 photos/brand/S__9019531.jpg。
+             2026-08-06 第一版放的是 2026-08-04 使用者裁決拿掉的那張舊書封（檔名見
+             tests/visual_check.py【5】那條反向斷言），從 git 歷史 38ff8da^ 挖回來用，
+             等於把被否決的東西復活。要換圖先回頭看那條斷言。
+             ⚠ 那個舊檔名不要寫進頁面本體的註解裡——斷言掃的是整段原始碼字串，
+               連註解一起算，寫了就會自己把自己判紅（同類雷見交接卡雷 2）。
+               同理，註解裡也不要出現 body 的開標籤：那條斷言用它切段，多一個就切錯位置。
+           id/data-toc：頁首「關於我們 ▸ 聯絡我」錨在這裡（2026-08-06 使用者要求）。 -->
+      <figure class="dannyveil reveal" id="about-contact" data-toc="1">
+        <img src="photos/brand/S__9019531.jpg" alt="拍拍深五行水晶設計研究所品牌書封，封面中央為五行配色手串" width="923" height="1152" loading="lazy">
       </figure>
       <div class="head reveal" style="margin-top:40px;margin-bottom:14px"><h2 style="font-size:24px">來找我們</h2></div>
       <div class="channels" id="channels"></div>
@@ -1847,7 +1861,8 @@ function route(){
   requestAnimationFrame(()=>{
     observeReveals(); observeMotion();
     const el = anchor && document.getElementById(anchor);
-    if(el) requestAnimationFrame(()=>el.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'}));
+    // 錨點若在訂製服務互斥顯示的那半邊，先切模式再捲——沒切就是白捲（見 revealTarget 註解）
+    if(el){ revealTarget(el); requestAnimationFrame(()=>el.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'})); }
     else scrollTo({top:0,behavior:reduce?'auto':'smooth'});
   });
   renderTocPanel();
@@ -1864,11 +1879,47 @@ $('#navLinks').addEventListener('mouseleave',()=>{ const on=$('#navLinks .nav-to
    ⚠ 只取每個 <section> 的第一個 h1/h2。收 h3 的話光「把方法攤開給你看」一段就會多出四條，
      這份清單的用處是「一眼掃完」，不是把整頁目錄化。 */
 const TOC = {};
+/* ═══ 手寫章節（2026-08-06 使用者要求 5）═══
+   自動掃描有兩處做不到，這兩處手寫，其餘照舊自動產生：
+   ① custom：這一頁的「個人手串／情侶對串」是互斥顯示（#soloInfo／#duoInfo 互相 display:none）。
+      自動掃描把兩邊的標題混成一份平的清單，而且點到隱藏那半邊等於白捲——
+      display:none 的元素 scrollIntoView 完全不動，畫面沒反應、也不報錯。
+      預設是個人手串，所以使用者實測到的症狀是「只有 A 那組會動，B 那組整組無效」。
+      改成手寫並分 A／B 兩組；「點 B 的項目要先切到情侶」由 revealTarget() 統一處理。
+   ② about：頁尾那張品牌圖沒有標題，掃不到，但使用者要一條「聯絡我」指到它。
+   ⚠ 手寫＝要維護：這一頁改版位、改 id，這份清單要跟著改（自動那條路的好處就是這點）。
+     所以只有這兩處手寫，別把其他頁也搬過來。
+   ⚠ 手圍怎麼量／填寫訂製資料在 A、B 兩組各出現一次：那是同一段，不是兩份，使用者指定兩組都要有。 */
+const TOC_FIX = { custom:[
+  { g:'A　個人手串' },
+  { id:'cu-intro',   text:'訂製介紹' },
+  { id:'cu-aes',     text:'體感美學' },
+  { id:'cu-wrist',   text:'手圍怎麼量' },
+  { id:'order',      text:'填寫訂製資料' },
+  { g:'B　情侶對串' },
+  { id:'cu-rv',      text:'運算方向' },
+  { id:'cu-bridge',  text:'關於橋接' },
+  { id:'cu-pair',    text:'是一模一樣的嗎' },
+  { id:'cu-gottman', text:'關係階段心理學' },
+  { id:'cu-wrist',   text:'手圍怎麼量' },
+  { id:'order',      text:'填寫訂製資料' }
+] };
+/* 掃完再補在後面（不取代自動清單） */
+const TOC_ADD = { about:[ { id:'about-contact', text:'聯絡我' } ] };
+/* 錨點落在互斥顯示的那半邊時，先把那半邊切出來再捲。切換走既有的 #modeSeg 按鈕，
+   不另寫一套顯示邏輯——問卷必填欄位、標題、試算都掛在那個 handler 上，繞過去會不同步。 */
+function revealTarget(el){
+  if(!el) return;
+  const want = el.closest('#duoInfo') ? 'couple' : el.closest('#soloInfo') ? 'single' : '';
+  if(!want) return;
+  const b = document.querySelector('#modeSeg button[data-mode="'+want+'"]');
+  if(b && !b.classList.contains('on')) b.click();
+}
 function tocLabel(el){ const s = el.textContent.trim().replace(/\s+/g,' '); return s.length>24 ? s.slice(0,24)+'…' : s; }
 function buildTOC(){
   Object.keys(TABS).forEach(t=>{
-    let list = [];
-    $$('#tab-'+t+' > section').forEach((sec,i)=>{
+    let list = (TOC_FIX[t]||[]).slice();
+    if(!list.length) $$('#tab-'+t+' > section').forEach((sec,i)=>{
       const h = sec.querySelector('h1,h2'); if(!h) return;
       if(!sec.id) sec.id = 'sec-'+t+'-'+i;
       list.push({ id: sec.id, text: tocLabel(h) });
@@ -1887,7 +1938,7 @@ function buildTOC(){
         .slice(0,8)
         .map((h,i)=>{ if(!h.id) h.id = 'sec-'+t+'-h'+i; h.dataset.toc='1'; return { id:h.id, text:tocLabel(h) }; });
     }
-    TOC[t] = list;
+    TOC[t] = list.concat(TOC_ADD[t]||[]);
   });
   $$('#navLinks .nav-item').forEach(item=>{
     const a = item.querySelector('.nav-top'); const sub = item.querySelector('.nav-sub'); const exp = item.querySelector('.nav-exp');
@@ -1895,15 +1946,21 @@ function buildTOC(){
     const list = TOC[t]||[];
     // 沒有可跳的章節就把展開鈕與空面板拿掉——留一個點下去沒東西的鈕比沒有更糟
     if(list.length<2){ if(sub) sub.remove(); if(exp) exp.remove(); return; }
-    sub.innerHTML = list.map(s=>`<a href="#${t}/${s.id}">${esc(s.text)}</a>`).join('');
+    sub.innerHTML = list.map(tocRow(t)).join('');
   });
+}
+/* 一份清單兩個地方畫（頁首子選單／左下角面板），列的長相統一從這裡出。
+   有 g 的那筆是分組標題，不是連結——點不下去是刻意的。 */
+function tocRow(t, panel){
+  return s => s.g ? `<b class="g">${esc(s.g)}</b>`
+    : `<a href="#${t}/${s.id}"${panel?` data-sec="${s.id}"`:''}>${esc(s.text)}</a>`;
 }
 function tocCurrentTab(){ const t=$('.tab.active'); return t ? t.id.replace('tab-','') : 'home'; }
 function renderTocPanel(){
   const t = tocCurrentTab(); const list = TOC[t]||[];
   const p = $('#tocPanel'); if(!p) return;
   p.innerHTML = '<b>本頁章節</b>' + (list.length
-    ? list.map(s=>`<a href="#${t}/${s.id}" data-sec="${s.id}">${esc(s.text)}</a>`).join('')
+    ? list.map(tocRow(t,1)).join('')
     : '<a style="color:var(--muted)">（這一頁沒有分段）</a>');
   $('#tocBall').style.display = list.length>1 ? '' : 'none';
   tocSpy();
@@ -1915,7 +1972,8 @@ function closeToc(){ const p=$('#tocPanel'); if(p){ p.classList.remove('on'); $(
 function tocSpy(){
   const p = $('#tocPanel'); if(!p || !p.classList.contains('on')) return;
   let now = '';
-  (TOC[tocCurrentTab()]||[]).forEach(s=>{ const el=document.getElementById(s.id); if(el && el.getBoundingClientRect().top <= 96) now = s.id; });
+  (TOC[tocCurrentTab()]||[]).forEach(s=>{ if(!s.id) return;   // 分組標題沒有落點，跳過
+    const el=document.getElementById(s.id); if(el && el.getClientRects().length && el.getBoundingClientRect().top <= 96) now = s.id; });
   $$('#tocPanel a').forEach(a=>a.classList.toggle('now', a.dataset.sec===now));
 }
 $('#tocBall').addEventListener('click',()=>{
@@ -1929,7 +1987,9 @@ document.addEventListener('click',e=>{
   const sec = a.dataset.sec || (a.getAttribute('href')||'').split('/')[1];
   const el = sec && document.getElementById(sec);
   if(el && a.getAttribute('href') === location.hash){
-    e.preventDefault(); el.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
+    // 已經在同一個 hash 上：hashchange 不會觸發，route() 不會跑，所以切模式也要自己來
+    e.preventDefault(); revealTarget(el);
+    requestAnimationFrame(()=>el.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'}));
   }
 });
 $('#navLinks').addEventListener('click',e=>{

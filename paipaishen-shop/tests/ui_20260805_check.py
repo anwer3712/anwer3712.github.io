@@ -78,30 +78,16 @@ def run(url, shots):
         chk("[2] 三幕右側空白已收窄（最大 <200px）", max(g := [geo["wrap"] - c for c in geo["cards"]]) < 200, f"空白 {g}")
         chk("[2] 三幕各補了一段內容", geo["jm"] == 3, geo["jm"])
 
-        # jveil 隨捲動由 0 淡到 1
-        seq = []
-        jtop = pg.evaluate("()=>{const j=document.querySelector('.journey:not(.gen)');return j.getBoundingClientRect().top+scrollY;}")
-        jh = geo["h"]
-        # 掃到 1.4 倍段高：淡出發生在旅程尾端（cover 82%→88%），只掃到 1.0 會停在峰值上看不到退場
-        steps = [i / 10 for i in range(15)]
-        for f in steps:
-            pg.evaluate(f"()=>window.scrollTo({{top:{int(jtop - 800*0.6 + jh*f)},behavior:'instant'}})")
-            pg.evaluate(RAF)
-            seq.append(pg.evaluate("()=>+getComputedStyle(document.querySelector('.jveil')).opacity"))
-        rs = [round(x, 2) for x in seq]
-        chk("[7] 品牌圖疊層起點透明", seq[0] < 0.05, f"opacity 序列 {rs}")
-        chk("[7] 品牌圖疊層中段全滿（＝蓋住字框）", max(seq) > 0.95, f"峰值 {round(max(seq),2)}｜序列 {rs}")
-        peak = seq.index(max(seq))
-        chk("[7] 淡入是連續漸變不是二值切換",
-            peak >= 2 and any(0.05 < x < 0.95 for x in seq[:peak]), f"峰值落在第 {peak+1}/13 點｜序列 {rs}")
-        chk("[7] 退場前會淡掉（不壓到下一段沿革線）", seq[-1] < 0.35, f"末端 {round(seq[-1],2)}｜序列 {rs}")
-        # 峰值當下，疊層必須真的蓋在幕卡上
-        pg.evaluate(f"()=>window.scrollTo({{top:{int(jtop - 800*0.6 + jh*steps[0])},behavior:'instant'}})")
-        cover = pg.evaluate(f"""()=>{{window.scrollTo({{top:{int(jtop - 800*0.6 + jh*0.5)},behavior:'instant'}});
-            const v=document.querySelector('.jveil').getBoundingClientRect();
-            return [...document.querySelectorAll('.journey:not(.gen) .jact')].filter(a=>{{const r=a.getBoundingClientRect();
-              return r.bottom>v.top&&r.top<v.bottom;}}).length;}}""")
-        chk("[7] 疊層確實壓在字框上", cover >= 1, f"與 {cover} 張幕卡重疊")
+        # ⚠ 2026-08-06 使用者裁決反轉：三幕上那層品牌圖疊層（.jveil，2026-08-05 要求 7）
+        #   整組移除，全站只留關於我們頁尾那一張（#about-contact）。
+        #   原本 [7] 那五條（起點透明／中段全滿／連續漸變／退場淡掉／壓在字框上）已無標的，
+        #   改成兩條反向斷言，釘住「不會有人默默把它加回來」＋「收束句沒被一起刪掉」。
+        gone = pg.evaluate("""()=>({veil:document.querySelectorAll('.jveil').length,
+            book:document.querySelectorAll('.aboutbook,.bookcard').length,
+            close:(document.querySelector('#tab-about .jclose')||{}).textContent||''})""")
+        chk("[7] 三幕的品牌圖疊層已移除", gone["veil"] == 0 and gone["book"] == 0, gone)
+        chk("[7] 三幕收束句留著（幕名的出處）",
+            "即使身處萬丈深淵" in gone["close"], gone["close"][:24])
 
         # 沿革（走了九個世代的路）
         # ⚠ 2026-08-06 使用者要求 2：原本的 .timeline-v 垂直時間線整組拿掉，

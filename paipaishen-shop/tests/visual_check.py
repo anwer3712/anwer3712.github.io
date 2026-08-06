@@ -109,10 +109,28 @@ def t_contrast():
 
 
 # ═══════════ 5. 新圖已就位、舊遮蔽已退場（靜態）═══════════
+def body_of(src):
+    """頁面本體（第一個 <body 之後）。
+
+    ⚠ 一定要 split(..., 1)：index.html 的 JS 裡有一句
+      `new DOMParser().parseFromString('<body>'+String(html),'text/html')`，
+      用 split('<body')[-1] 會切到那一行之後，等於只掃最後幾十行。
+      2026-08-06 抓到的實例：「danny.webp 已從關於我們移除」這條在圖真的被放回
+      <body> 之後仍然綠燈，因為那張圖在第 1655 行、切點在第 2053 行。
+      綠燈不代表沒事，也可能是量錯了地方。
+    """
+    return src.split("<body", 1)[-1]
+
+
 def t_images(src):
     print("\n【5】新品牌圖")
+    body = body_of(src)
     check("hero 背景＝新圖", "url(photos/brand/S__9019531.jpg)" in src)
+    # 2026-08-06：關於我們的圖只剩頁尾 .dannyveil 那一張，而且必須是同一個檔
     check("關於我們 img src＝新圖", 'src="photos/brand/S__9019531.jpg"' in src)
+    check("關於我們整頁只放一次品牌圖",
+          body.count('src="photos/brand/S__9019531.jpg"') == 1,
+          f"實測 {body.count('src=\"photos/brand/S__9019531.jpg\"')} 次")
     check("舊圖 S__8962095 已無任何引用", "S__8962095" not in src)
     check("185px 裁切窗（.bookcard .win）已移除", ".bookcard .win" not in src and 'class="win"' not in src)
     blurs = [int(x) for x in re.findall(r"blur\((\d+)px\)", src)]
@@ -123,7 +141,9 @@ def t_images(src):
     # 2026-08-04 使用者裁決 A：關於我們改單張大圖。
     # 舊斷言是「上限 360px」，那正是使用者點名「圖被縮到只剩配圖」的那條規則，已作廢。
     # 2026-08-04 使用者裁決「不要動我的圖」：整張完整顯示，不遮不裁（下一條反向釘住）。
-    check("danny.webp 已從關於我們移除", "danny.webp" not in src.split("<body")[-1])
+    # ⚠ 這條在 2026-08-06 之前是壞的（切點錯，見 body_of 註解），所以那張被否決的圖
+    #   被放回頁面時它照樣綠燈。現在改用 body_of()，而且連 <style>／註解一起掃。
+    check("被否決的舊書封已從關於我們移除", "danny.webp" not in body)
     check("bookcard 360px 上限已拿掉", "max-width:360px" not in src)
     # 2026-08-04 使用者裁決「不要動我的圖，先直接上」：整張完整顯示。
     # 這條反向釘住——日後誰再加遮罩／裁切都會先紅，逼他回來看這行註解。
@@ -244,45 +264,38 @@ def t_browser(keep_shots, pw_exe=""):
             check("七個分頁的 img 都沒被拉變形（object-fit:fill 者）", not bad_all, str(bad_all) if bad_all else "0 張")
             pg.close()
 
-            # ── 【5c】關於我們大圖：遮罩要真的蓋住店章下那行英文 ──
-            # 英文在原圖 923×1152 的位置＝x 55~140、y 983~1016（逐列取像素量出來的）。
-            # 這裡只確認圖夠大、且沒有任何覆蓋層。
-            # 改版位或換圖時這條會先紅，是刻意的：那代表遮罩要重量。
-            print("\n【5c】關於我們大圖與店章英文遮罩")
+            # ── 【5c】關於我們品牌圖：整張顯示、沒有蓋東西上去 ──
+            # 使用者裁決「不要動我的圖」→ 只確認兩件事：圖夠大、上面沒有疊任何覆蓋元素。
+            # 圖片本身的長寬比守門在【5b】，不重複。
+            # 2026-08-06 使用者裁決：三幕那層 .jveil 與靜態 .bookcard 都拿掉了，
+            # 關於我們只剩頁尾 .dannyveil 這一張，所以這裡改量它。
+            # ⚠ .dannyveil img 身上有一層捲簾 mask，那是「捲到哪拉到哪」的過程量，不是覆蓋物：
+            #   捲完 mask-size 會長到 176%（＞圖高＝全開，一個像素都沒少）。
+            #   所以這裡先把它捲過去讓動畫走完，再量最終狀態；
+            #   捲簾的逐點序列由 tests/ui_20260806_check.py【1】負責，不重複。
+            print("\n【5c】關於我們品牌圖完整顯示")
             pg = br.new_page(viewport={"width": 1280, "height": 900})
             pg.goto(f"{base}#about", wait_until="load")
             pg.wait_for_timeout(800)
-            # 截圖的 clip 是視窗座標，元素在畫面外會直接丟 "clip is outside viewport"
-            pg.locator(".bookcard").scroll_into_view_if_needed()
+            pg.locator(".dannyveil").scroll_into_view_if_needed()
+            pg.evaluate("()=>window.scrollTo({top:document.body.scrollHeight,behavior:'instant'})")
             pg.wait_for_timeout(600)
-            # 使用者裁決「不要動我的圖」→ 這裡只確認兩件事：圖夠大、上面沒有疊任何遮罩層。
-            # 圖片本身的長寬比守門在【5b】，不重複。
-            # 2026-08-05：這張圖搬進三幕當捲動疊層（.jveil，要求 7），支援捲動時間軸的
-            # 瀏覽器會把下方靜態那張 .bcimg 收起來。所以這裡改成「不管走哪條路，圖都要夠大
-            # 且沒被裁」——.jveil 走 background-size:contain（整張完整），.bcimg 走原本的 <img>。
-            geo = pg.evaluate("""()=>{const veil=document.querySelector('.jveil');
-              if(veil && getComputedStyle(veil).display!=='none'){
-                const r=veil.getBoundingClientRect(), cs=getComputedStyle(veil);
-                return {mode:'jveil', imgW:Math.round(r.width), imgH:Math.round(r.height),
-                        size:cs.backgroundSize, masked:cs.maskImage!=='none'&&cs.maskImage!=='',
-                        overlays:[]};}
-              const box=document.querySelector('.bcimg');
-              const img=document.querySelector('.bookcard img');if(!img||!box)return null;
-              const r=img.getBoundingClientRect();
-              const overlays=[...box.children].filter(e=>e.tagName!=='IMG').map(e=>e.className||e.tagName);
-              return {mode:'bcimg', imgW:Math.round(r.width), imgH:Math.round(r.height),
-                      size:'', masked:false, overlays};}""")
+            geo = pg.evaluate("""()=>{const f=document.querySelector('.dannyveil');
+              const img=f&&f.querySelector('img'); if(!img) return null;
+              const r=img.getBoundingClientRect(), cs=getComputedStyle(img);
+              const m=(cs.maskSize||cs.webkitMaskSize||'').match(/([\\d.]+)%/g)||[];
+              return {imgW:Math.round(r.width), imgH:Math.round(r.height),
+                      maskH:m.length?parseFloat(m[m.length-1]):-1,
+                      overlays:[...f.children].filter(e=>e.tagName!=='IMG').map(e=>e.className||e.tagName)};}""")
             if not geo:
-                check("關於我們大圖存在", False, "找不到 .jveil 也找不到 .bookcard img")
+                check("關於我們品牌圖存在", False, "找不到 .dannyveil img")
             else:
-                check(f"關於我們是大圖（{geo['mode']} 顯示寬 {geo['imgW']}px > 420）",
+                check(f"關於我們是大圖（顯示寬 {geo['imgW']}px > 420）",
                       geo["imgW"] > 420, f"實得 {geo['imgW']}px")
-                check("圖上沒有疊任何遮罩層（使用者裁決：不要動圖）",
-                      not geo["overlays"] and not geo["masked"],
-                      f"overlays={geo['overlays']} masked={geo['masked']}")
-                if geo["mode"] == "jveil":
-                    check("疊層用 contain 顯示整張、沒有裁切（同一條裁決）",
-                          "contain" in (geo["size"] or ""), f"background-size={geo['size']}")
+                check("圖上沒有疊任何覆蓋元素（使用者裁決：不要動圖）",
+                      not geo["overlays"], f"overlays={geo['overlays']}")
+                check("捲簾捲完是全開的（遮罩高於圖，等於沒遮）",
+                      geo["maskH"] < 0 or geo["maskH"] >= 100, f"mask 高度 {geo['maskH']}%")
             pg.close()
 
             # ── 【6】hero h1 對新背景的實測對比 ──
