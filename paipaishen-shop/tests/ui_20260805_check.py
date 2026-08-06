@@ -66,18 +66,21 @@ def run(url, shots):
         chk("[6] 五行環 16s（原 24s）", "16s" in dur["ring"], dur["ring"])
 
         # ── [2][7] 關於我們：三幕 + 品牌圖疊層 + 沿革線 ────────────────────
-        pg.evaluate("()=>{const a=[...document.querySelectorAll('.nav-links a')].find(x=>x.textContent.includes('關於'));a&&a.click();}")
+        pg.evaluate("()=>{const a=[...document.querySelectorAll('.nav-links .nav-top')].find(x=>x.textContent.includes('關於'));a&&a.click();}")
         pg.wait_for_timeout(400)
-        geo = pg.evaluate("""()=>{const j=document.querySelector('.journey');
-            return {h:j.offsetHeight,vh:innerHeight,cards:[...document.querySelectorAll('.jact')].map(c=>Math.round(c.getBoundingClientRect().width)),
-                    wrap:Math.round(j.getBoundingClientRect().width),jm:document.querySelectorAll('.jact .jm').length};}""")
+        # ⚠ 2026-08-06 起「走了九個世代的路」也是一段 .journey（.gen），底下同樣是 .jact。
+        #   這裡量的是關於我們那段三幕，選擇器一律加 :not(.gen)，
+        #   否則會把五幕那段刻意做的「逐幕加寬」當成三幕的右側空白過大。
+        geo = pg.evaluate("""()=>{const j=document.querySelector('.journey:not(.gen)');
+            return {h:j.offsetHeight,vh:innerHeight,cards:[...j.querySelectorAll('.jact')].map(c=>Math.round(c.getBoundingClientRect().width)),
+                    wrap:Math.round(j.getBoundingClientRect().width),jm:j.querySelectorAll('.jact .jm').length};}""")
         chk("[2] 三幕整段仍高於視窗（sticky 才會觸發）", geo["h"] > geo["vh"], f"{geo['h']}px vs 視窗 {geo['vh']}px")
         chk("[2] 三幕右側空白已收窄（最大 <200px）", max(g := [geo["wrap"] - c for c in geo["cards"]]) < 200, f"空白 {g}")
         chk("[2] 三幕各補了一段內容", geo["jm"] == 3, geo["jm"])
 
         # jveil 隨捲動由 0 淡到 1
         seq = []
-        jtop = pg.evaluate("()=>{const j=document.querySelector('.journey');return j.getBoundingClientRect().top+scrollY;}")
+        jtop = pg.evaluate("()=>{const j=document.querySelector('.journey:not(.gen)');return j.getBoundingClientRect().top+scrollY;}")
         jh = geo["h"]
         # 掃到 1.4 倍段高：淡出發生在旅程尾端（cover 82%→88%），只掃到 1.0 會停在峰值上看不到退場
         steps = [i / 10 for i in range(15)]
@@ -96,20 +99,28 @@ def run(url, shots):
         pg.evaluate(f"()=>window.scrollTo({{top:{int(jtop - 800*0.6 + jh*steps[0])},behavior:'instant'}})")
         cover = pg.evaluate(f"""()=>{{window.scrollTo({{top:{int(jtop - 800*0.6 + jh*0.5)},behavior:'instant'}});
             const v=document.querySelector('.jveil').getBoundingClientRect();
-            return [...document.querySelectorAll('.jact')].filter(a=>{{const r=a.getBoundingClientRect();
+            return [...document.querySelectorAll('.journey:not(.gen) .jact')].filter(a=>{{const r=a.getBoundingClientRect();
               return r.bottom>v.top&&r.top<v.bottom;}}).length;}}""")
         chk("[7] 疊層確實壓在字框上", cover >= 1, f"與 {cover} 張幕卡重疊")
 
-        # 沿革線
-        pg.evaluate("()=>{const t=document.querySelector('.timeline-v');t.scrollIntoView({block:'center'});}")
+        # 沿革（走了九個世代的路）
+        # ⚠ 2026-08-06 使用者要求 2：原本的 .timeline-v 垂直時間線整組拿掉，
+        #   改成第二段三幕旅程 .journey.gen。舊的 .tvbead／tlineDraw／tvIn 已不存在，
+        #   斷言改量新結構；「有釘住的珠子」「動畫掛上且在跑」這兩件事的意圖沒變。
+        pg.evaluate("()=>{const t=document.querySelector('.journey.gen');t.scrollIntoView({block:'center'});}")
         pg.evaluate(RAF)
-        tl = pg.evaluate("""()=>{const t=document.querySelector('.timeline-v'),b=t.querySelector('.tvbead');
-            const a=document.getAnimations().filter(x=>['tlineDraw','tvIn'].includes(x.animationName));
+        tl = pg.evaluate("""()=>{const t=document.querySelector('.journey.gen'),b=t.querySelector('.jbead');
+            const inGen=x=>x.effect&&x.effect.target&&t.contains(x.effect.target);
+            const a=document.getAnimations().filter(x=>inGen(x)&&['actRise','genRise','railDraw','flareOpen','bgSink'].includes(x.animationName));
             return {bead:!!b, beadSticky:b?getComputedStyle(b).position:'',
+                    acts:t.querySelectorAll('.jact').length,
                     anims:a.length, active:a.filter(x=>x.currentTime!==null).length,
                     h:t.offsetHeight, vh:innerHeight};}""")
-        chk("[2] 沿革線有釘住的珠子", tl["bead"] and tl["beadSticky"] == "sticky", tl["beadSticky"])
-        chk("[2] 沿革線動畫已掛上且 active", tl["anims"] > 0 and tl["active"] == tl["anims"], tl)
+        chk("[2] 沿革改用三幕旅程結構（五幕）", tl["acts"] == 5, tl["acts"])
+        chk("[2] 沿革有釘住的珠子", tl["bead"] and tl["beadSticky"] == "sticky", tl["beadSticky"])
+        chk("[2] 沿革動畫已掛上且 active", tl["anims"] > 0 and tl["active"] == tl["anims"], tl)
+        chk("[2] 整段比視窗高（否則 sticky 不觸發）", tl["h"] > tl["vh"], f"{tl['h']} vs {tl['vh']}")
+        chk("[2] 舊時間線已移除", pg.evaluate("()=>!document.querySelector('.timeline-v,.tvbead,.tv')"), "")
 
         # ── [3] 綠 ────────────────────────────────────────────────────
         col = pg.evaluate("""()=>{const gold=/--glow|--jin/;
@@ -152,15 +163,16 @@ def run(url, shots):
         if shots:
             import os
             os.makedirs(shots, exist_ok=True)
-            pg.evaluate("()=>{const a=[...document.querySelectorAll('.nav-links a')].find(x=>x.textContent.includes('關於'));a&&a.click();}")
+            # ⚠ 2026-08-06 起導覽多了折疊子選單，`.nav-links a` 會連子項一起選到 → 一律用 .nav-top
+            pg.evaluate("()=>{const a=[...document.querySelectorAll('.nav-links .nav-top')].find(x=>x.textContent.includes('關於'));a&&a.click();}")
             pg.wait_for_timeout(300)
             for tag, f in (("journey-0", 0.0), ("journey-50", 0.5), ("journey-100", 1.0)):
                 pg.evaluate(f"()=>window.scrollTo({{top:{int(jtop - 800*0.6 + jh*f)},behavior:'instant'}})")
                 pg.evaluate(RAF); pg.wait_for_timeout(150)
                 pg.screenshot(path=os.path.join(shots, f"{tag}.png"))
-            pg.evaluate("()=>{const t=document.querySelector('.timeline-v');t.scrollIntoView({block:'center'});}")
+            pg.evaluate("()=>{const t=document.querySelector('.journey.gen');t.scrollIntoView({block:'center'});}")
             pg.wait_for_timeout(200); pg.screenshot(path=os.path.join(shots, "timeline.png"))
-            pg.evaluate("()=>{const a=[...document.querySelectorAll('.nav-links a')].find(x=>x.textContent.includes('首頁'));a&&a.click();window.scrollTo({top:0,behavior:'instant'});}")
+            pg.evaluate("()=>{const a=[...document.querySelectorAll('.nav-links .nav-top')].find(x=>x.textContent.includes('首頁'));a&&a.click();window.scrollTo({top:0,behavior:'instant'});}")
             pg.wait_for_timeout(400); pg.screenshot(path=os.path.join(shots, "home.png"))
         b.close()
 
