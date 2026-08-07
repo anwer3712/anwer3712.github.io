@@ -1464,6 +1464,10 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
 
           <fieldset class="fieldset" id="stepB" style="display:none">
             <legend>伴侶的資料</legend>
+            <!-- 這一句取代原本規劃的「已取得對方同意」勾選（裁決 2026-08-03 不做勾選）：
+                 驚喜禮物的情境本來就不會有對方同意這回事，勾選只會逼人按一個假的。
+                 改成把用途與清除時點寫明。對應 #tab-privacy 的「代填伴侶資料」段。 -->
+            <p style="color:var(--muted);font-size:13px;margin:-4px 0 12px">伴侶的生日只用於這一次的合盤運算，不另作他用；自由填寫欄位在出貨滿一年後清空，其餘依<a href="#privacy" style="color:var(--glow-deep);text-decoration:underline">隱私政策</a>保留。</p>
             <div class="fcol"><label>姓名／暱稱</label><input type="text" name="b_name" maxlength="30"></div>
             <div class="frow">
               <div><label>生理性別（八字排盤用）</label><select name="b_gender"><option>其他／不填</option><option>女</option><option>男</option></select></div>
@@ -1501,6 +1505,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
             <div class="fcol"><label>聯絡方式（LINE／電話）<span class="req">必填</span></label><input type="text" name="contact" required maxlength="60" placeholder="方便我們與你確認設計；也用於訂單進度查詢驗證"></div>
             <div class="fcol"><label>Email<span class="req">必填</span></label><input type="email" name="email" required maxlength="120" placeholder="用於接收命盤解析、報價單與出貨通知信"></div>
           </fieldset>
+          <p style="text-align:center;font-size:13px;color:var(--muted);margin:18px 0 0">送出即表示你已看過我們的<a href="#privacy" style="color:var(--glow-deep);text-decoration:underline">隱私政策</a>（收哪些欄位、留多久、怎麼要求刪除）。</p>
 
           <div class="est">
             <div><div class="amt" id="pAmt">—</div><div class="dt" id="pDetail">選手圍與珠徑後顯示</div></div>
@@ -1756,6 +1761,105 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
     </div>
   </section>
 </div>
+<!-- ═══════════ 隱私政策 ═══════════
+     ⚠ 這一頁的每一句都對得上系統實際行為，逐句根據見
+       docs/隱私政策-定稿-20260805.md 的 §5 根據對照表（檔名＋行號／workflow 節點名）。
+       ⚠ 2026-08-07 訂正：原本寫成「docs/隱私政策-根據對照表-20260805.md」，那個檔不存在——
+         對照表是定稿檔裡的一節，不是獨立檔。與 6a685cb 修過的運費註解同一類錯。
+       要改文字前先去對照表確認根據還在，不要憑印象改。
+     ⚠ 沒有 nav 連結是刻意的：入口在頁尾與問卷送出鈕上方，
+       但 TABS 有登記 privacy，所以 #privacy 直接可路由。 -->
+<div class="tab" id="tab-privacy">
+  <section class="opener">
+    <div class="wrap">
+      <p>算命這行最常見的隱私說法，是「我們不會留你的資料」。</p>
+      <p>那句話對我們不成立——排盤要生日，重算要留底，售後要查得回去。</p>
+      <p>所以下面寫的是實話：收哪些、為什麼收、留多久、誰看得到、怎麼要求刪掉。</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap" style="max-width:820px">
+      <div class="head reveal"><p class="tag-eyebrow">隱私政策</p><h2>你的資料，我們怎麼處理</h2><p>最後更新 2026-08-05。有疑問請用你原本下單的聯絡方式問我們。</p></div>
+
+      <div class="reveal" style="margin-top:26px">
+        <h3 style="font-family:var(--serif);font-size:20px;margin-bottom:10px">一、我們收什麼、留多久</h3>
+        <p style="color:var(--muted);font-size:14px">訂製問卷送出的欄位如下。情侶對串時，同一份欄位也需要伴侶那一份。</p>
+        <div class="mt-wrap"><table class="mt">
+          <tr><th>資料</th><th>為什麼需要</th><th>保留到什麼時候</th></tr>
+          <tr><td>姓名／暱稱</td><td>訂單識別、報告抬頭、面交確認身分</td><td>出貨後 2 年</td></tr>
+          <tr><td>生理性別</td><td>八字排盤需要，不作行銷分群</td><td>出貨後 2 年</td></tr>
+          <tr><td>國曆生日</td><td>命盤的主要輸入，沒有它整份推論算不出來</td><td>出貨後 2 年</td></tr>
+          <tr><td>出生時間（可不填）</td><td>提高命盤精度；不填會走三柱模式並在報告揭露</td><td>出貨後 2 年</td></tr>
+          <tr><td>手圍、珠徑</td><td>決定顆數與成品尺寸</td><td>出貨後 2 年</td></tr>
+          <tr><td>核心功能、視覺體感</td><td>決定配比方向與外觀取向</td><td>出貨後 2 年</td></tr>
+          <tr><td><b>痛點／希望調整（自由填）</b></td><td>文案與配石取向</td><td><b>出貨滿 1 年清空</b></td></tr>
+          <tr><td>關係階段（情侶）</td><td>影響雙人係數</td><td>出貨後 2 年</td></tr>
+          <tr><td>聯絡方式（LINE／電話）</td><td>確認設計、約面交，也是訂單查詢的驗證碼來源</td><td>出貨後 2 年</td></tr>
+          <tr><td>Email</td><td>寄命盤解析、報價單與出貨通知</td><td>出貨後 2 年</td></tr>
+          <tr><td>物流方式</td><td>出貨</td><td>出貨後 2 年</td></tr>
+          <tr><td>訂單編號、金額</td><td>對帳</td><td><b>7 年</b>（帳簿憑證年限，這段期間不能刪）</td></tr>
+        </table></div>
+        <p style="color:var(--muted);font-size:13px;margin-top:10px">系統另外會存下命盤運算的中間結果與產出的報告內容（出貨後 2 年）、設計初稿與成品照（2 年）、你在確認關卡的回覆（2 年）、物流單號（2 年）。</p>
+      </div>
+
+      <div class="reveal" style="margin-top:30px">
+        <h3 style="font-family:var(--serif);font-size:20px;margin-bottom:10px">二、我們不收什麼</h3>
+        <ul style="color:var(--muted);font-size:14px;line-height:1.9;padding-left:1.2em;list-style:disc">
+          <li><b>出生地。</b>真太陽時一律以東經 120° 計算，不需要也不收——少收一個欄位就少一分外洩風險。</li>
+          <li><b>身分證字號、地址門牌。</b>取貨走超商店到店或面交，不建檔。</li>
+          <li><b>付款卡號。</b>收款走轉帳與面交現金，站上不經手任何卡號。</li>
+          <li><b>第三方廣告追蹤與分析。</b>目前沒有啟用。程式裡留著 GA4 與 Meta Pixel 的載入器，但識別碼是空的、不會載入；哪天啟用，這一頁會先更新。</li>
+        </ul>
+      </div>
+
+      <div class="reveal" style="margin-top:30px">
+        <h3 style="font-family:var(--serif);font-size:20px;margin-bottom:10px">三、東西實際存在哪裡</h3>
+        <div class="mt-wrap"><table class="mt">
+          <tr><th>環節</th><th>用什麼</th><th>說明</th></tr>
+          <tr><td>前台網頁</td><td>GitHub Pages</td><td>純靜態，問卷內容不經過它</td></tr>
+          <tr><td>送單通道</td><td>Cloudflare Tunnel</td><td>加密通道，不落地儲存</td></tr>
+          <tr><td>流程引擎、資料庫</td><td>自架伺服器</td><td>在我們自己的機器上</td></tr>
+          <tr><td>命盤運算</td><td>自架運算服務</td><td>不外送任何雲端 AI</td></tr>
+          <tr><td>報告簡報、照片</td><td>Google Slides／Drive</td><td>產出的報告檔與成品照</td></tr>
+          <tr><td>通知信</td><td>Gmail 寄信</td><td>報價、成品確認與出貨通知</td></tr>
+          <tr><td>內部通知</td><td>Telegram、LINE</td><td>只推給負責人本人，<b>內容包含客戶姓名、聯絡方式、訂單金額與你在確認關卡填的回覆原文</b></td></tr>
+        </table></div>
+        <p style="color:var(--muted);font-size:13px;margin-top:10px">最後一列講白一點：新單進來、你按了確認或提了調整，負責人手機上跳出來的那則通知裡就有你的姓名與聯絡方式。那是給店主一個人看的內部通知，不是公開頻道，但它確實帶著你的資料，所以寫出來。</p>
+      </div>
+
+      <div class="reveal" style="margin-top:30px">
+        <h3 style="font-family:var(--serif);font-size:20px;margin-bottom:10px">四、誰看得到</h3>
+        <p style="color:var(--muted);font-size:14px">後台帳號分角色，每個角色能呼叫的功能是寫死在權限表裡的，不是靠介面藏起來：負責人全部；客服看得到訂單與會員、可以收款與回覆；倉管只看得到訂單與出貨欄位（姓名、聯絡方式、物流、金額），碰不到會員資料；行銷只有優惠券與營收報表，看不到任何客戶名單。全體客戶名單的匯出只有負責人做得到。訂製問卷的命盤內容不在後台，只有負責人透過流程系統看得到。</p>
+      </div>
+
+      <div class="reveal" style="margin-top:30px">
+        <h3 style="font-family:var(--serif);font-size:20px;margin-bottom:10px">五、你代填伴侶資料時</h3>
+        <p style="color:var(--muted);font-size:14px">情侶對串需要伴侶的生日與手圍，這是由你代為提供的第三人資料。我們沒有設「已取得對方同意」的勾選——驚喜禮物的情境本來就不會有那件事，勾了也只是形式。我們改成把界線寫死：伴侶的資料只用於這一次的合盤運算，不另作他用；自由填寫的那一欄在出貨滿一年後清空；伴侶本人同樣可以要求我們刪除他那一份，用同一個訂單編號提出即可。</p>
+      </div>
+
+      <div class="reveal" style="margin-top:30px">
+        <h3 style="font-family:var(--serif);font-size:20px;margin-bottom:10px">六、連結會過期</h3>
+        <p style="color:var(--muted);font-size:14px">流程中寄給你的「確認」連結（報價確認、成品確認）在該關卡走完後就失效。訂單面板與續行連結會在<b>出貨滿兩週後從資料庫清除</b>。之後要查訂單，請到<a href="#track" style="color:var(--glow-deep);text-decoration:underline">訂單查詢</a>輸入訂單編號與聯絡方式末四碼。報告 PDF 的連結不在此列，會繼續有效。</p>
+      </div>
+
+      <div class="reveal" style="margin-top:30px">
+        <h3 style="font-family:var(--serif);font-size:20px;margin-bottom:10px">七、你可以要求什麼</h3>
+        <p style="color:var(--muted);font-size:14px">你可以要求我們查詢、更正或刪除你的個人資料。用你原本下單的聯絡方式告訴我們就行，<b>我們在兩週內處理完</b>。</p>
+        <div class="mt-wrap"><table class="mt">
+          <tr><th>你要求</th><th>我們做什麼</th><th>會留下什麼</th></tr>
+          <tr><td>刪除個人資料</td><td>清空姓名、聯絡方式、Email、生日、出生時間、自由填寫欄位；情侶單連伴侶那一份一起清</td><td>訂單編號、金額、時間戳（帳簿憑證，7 年內不能刪）</td></tr>
+          <tr><td>完全刪除</td><td>連訂單紀錄一起刪掉</td><td>什麼都不留</td></tr>
+        </table></div>
+        <p style="color:var(--muted);font-size:13px;margin-top:10px">「完全刪除」只在該筆訂單超過帳簿保存年限（7 年）之後才做得到；還在年限內的，我們只能做到上面那一列。每一次執行都會留下操作紀錄（誰、什麼時候、刪了哪一筆），紀錄本身不含被刪掉的內容。</p>
+      </div>
+
+      <div class="reveal" style="margin-top:30px;padding-top:18px;border-top:1px solid var(--line)">
+        <p style="color:var(--muted);font-size:13px">我們曾經在站上寫過「不儲存你的姓名、確切生日、聯絡方式」。那句話是錯的，三樣都有存，已於 2026-07-30 移除。留這一段是為了讓你知道我們改過什麼。</p>
+      </div>
+    </div>
+  </section>
+</div>
 
 </main>
 
@@ -1770,7 +1874,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
       <div>
         <h4>逛逛</h4>
         <div class="links">
-          <a href="#shop">現貨商品</a><a href="#custom">訂製服務</a><a href="#works">作品集</a><a href="#track">訂單查詢</a>
+          <a href="#shop">現貨商品</a><a href="#custom">訂製服務</a><a href="#works">作品集</a><a href="#track">訂單查詢</a><a href="#privacy">隱私政策</a>
         </div>
       </div>
       <div>
@@ -1871,7 +1975,9 @@ const TABS = {
   works:'作品集｜拍拍深五行水晶設計研究所',
   about:'關於我們｜拍拍深五行水晶設計研究所',
   faq:'常見問題｜拍拍深五行水晶設計研究所',
-  track:'訂單進度查詢｜拍拍深五行水晶設計研究所'
+  track:'訂單進度查詢｜拍拍深五行水晶設計研究所',
+  // privacy 沒有 nav 連結，入口在頁尾與問卷送出鈕上方；沒有這一行 route() 會把 #privacy 打回 home
+  privacy:'隱私政策｜拍拍深五行水晶設計研究所'
 };
 const navUnder = $('#navUnder');
 function moveUnder(a){
@@ -2993,7 +3099,7 @@ const FAQ_BUILTIN = [
   {k:'full-flow',g:'流程',q:'完整流程是什麼樣子？',a:'三階段。一，進件與初步運算：你填問卷，系統跑八字引擎。二，報告生成與正式報價：出九節（或十二節）報告與報價單。三，實體製作與自檢交付。中間有兩個確認節點——初步配珠規劃要你點頭，報價也要你同意，才往下走。',t:`<p>三階段。</p><div class="mt-wrap"><table class="mt"><tr><th>階段</th><th>內容</th></tr><tr><td>進件與初步運算</td><td>你填問卷，系統跑八字引擎</td></tr><tr><td>報告生成與正式報價</td><td>出九節（或十二節）報告與報價單</td></tr><tr><td colspan="2">實體製作與自檢交付</td></tr></table></div><p>中間有兩個確認節點——初步配珠規劃要你點頭，報價也要你同意，才往下走。</p>`},
   {k:'order-for-others',g:'流程',q:'可以幫家人或朋友訂嗎？',a:'可以。需要：對方的國曆生日與出生時間（不知道時辰走三柱模式）、生理性別、精確手圍、珠徑偏好，還有你觀察到的核心煩惱。驚喜訂製也行，手圍可以拿對方的手錶或飾品估。',t:`<p>可以。需要：</p><div class="mt-wrap"><table class="mt"><tr><th>欄位</th><th>備註</th></tr><tr><td>對方的國曆生日與出生時間</td><td>不知道時辰走三柱模式</td></tr><tr><td colspan="2">生理性別</td></tr><tr><td colspan="2">精確手圍</td></tr><tr><td colspan="2">珠徑偏好</td></tr><tr><td colspan="2">你觀察到的核心煩惱</td></tr></table></div><p>驚喜訂製也行，手圍可以拿對方的手錶或飾品估。</p>`},
   {k:'tracks-abc',g:'流程',q:'三軌道 A／B／C 差在哪？',a:'A 主方案，尊崇意志款：五行配比內優先照你的視覺喜好，適合初次訂製、重穿搭。B 錦囊組，專業核心款：用神導向直擊缺口，適合轉折期、壓力大、需要決斷力。C 本源重置，深層回填款：最柔和的晶石、貼合本命比例，適合靜心與夜間配戴。',t:`<div class="mt-wrap"><table class="mt"><tr><th>方案</th><th>名稱</th><th>內容</th><th>適合</th></tr><tr><td>A 主方案</td><td>尊崇意志款</td><td>五行配比內優先照你的視覺喜好</td><td>初次訂製、重穿搭</td></tr><tr><td>B 錦囊組</td><td>專業核心款</td><td>用神導向直擊缺口</td><td>轉折期、壓力大、需要決斷力</td></tr><tr><td>C 本源重置</td><td>深層回填款</td><td>最柔和的晶石、貼合本命比例</td><td>靜心與夜間配戴</td></tr></table></div>`},
-  {k:'data-safety',g:'資料安全',q:'我的生日資料安全嗎？',a:'生日是演算法唯一需要你提供的符號輸入源（另一個輸入是你下單當年的年份，那個系統自己知道，不用你填）。你填的問卷、排出的命盤與運算結果會被保存下來——製作要用，日後重算或售後校準也要用，我們不會假裝沒存。用途限於你的手串、你的報告，以及系統本身的校準。想知道具體存了哪些欄位、保存多久、怎麼刪，直接問我們，我們照實回答。'},
+  {k:'data-safety',g:'資料安全',q:'我的生日資料安全嗎？',a:'生日是演算法唯一需要你提供的符號輸入源（另一個輸入是你下單當年的年份，那個系統自己知道，不用你填）。你填的問卷、排出的命盤與運算結果會被保存下來——製作要用，日後重算或售後校準也要用，我們不會假裝沒存。用途限於你的手串、你的報告，以及系統本身的校準。具體存了哪些欄位、保存多久、怎麼要求刪除，都逐項寫在隱私政策裡（頁尾有連結）。'},
   {k:'no-birthplace',g:'資料安全',q:'為什麼不收出生地？',a:'因為真太陽時我們一律以東經 120° 計算，不靠出生地。這是寫進公式的隱私設計——少收一個欄位，就少一分外洩風險。'},
   {k:'no-birth-hour',g:'資料安全',q:'不知道出生時辰可以訂嗎？',a:'可以。缺時辰我們走三柱模式，只用年月日，不會偷偷補一個子時假裝完整。「置信度 70%」是我們對這份推論有多少把握的自評——四柱齊全我們標 100%，缺時辰標 70%，並且寫在報告上。少的那 30% 是時柱本來會提供的細節：它讓配比的微調變粗一點，不是讓整份推論失效。你拿到的手串與九節報告一樣完整，差別在報告上會誠實寫著 70%。',t:`<p>可以。缺時辰走三柱模式，只用年月日。</p><div class="mt-wrap"><table class="mt"><tr><th>你想問的</th><th>答案</th></tr><tr><td>會不會亂補一個時辰？</td><td>不會。我們寧可標註不足，也不假裝完整</td></tr><tr><td>「置信度 70%」是什麼意思？</td><td>是我們對這份推論的把握自評。四柱齊全＝100%，缺時辰＝70%，數字直接寫在報告上</td></tr><tr><td>少的 30% 差在哪？</td><td>時柱本來會提供的細節。它讓配比的微調變粗一點，不會讓整份推論失效</td></tr><tr><td>拿到的東西會變少嗎？</td><td>不會。手串與九節報告一樣完整</td></tr><tr><td>技術上怎麼算</td><td>時柱權重歸零、分母由 100 改為 80 重新歸一化</td></tr></table></div>`},
   {k:'care',g:'售後',q:'怎麼保養？',a:'多數水晶清水沖一沖、擦乾就好。怕水怕汗酸的別浸水——岫玉、祕魯紅紋石、青金石這幾類，沾了要盡快擦乾。洗澡請取下：清潔劑會蝕光澤，熱水也讓彈力線老化更快。避開烈日暴曬和鹽水。有金屬隔珠的更要離潮濕環境，不然會褪色。想做個儀式，把它放月光下靜置一晚，當作給自己的心理狀態重整。',t:`<div class="mt-wrap"><table class="mt"><tr><th>情境</th><th>怎麼做</th></tr><tr><td>多數水晶</td><td>清水沖一沖、擦乾就好</td></tr><tr><td>怕水怕汗酸的（岫玉、祕魯紅紋石、青金石類）</td><td>別浸水，沾到盡快擦乾</td></tr><tr><td>洗澡</td><td>請取下。清潔劑會蝕光澤，熱水也讓彈力線老化更快</td></tr><tr><td>有金屬隔珠的</td><td>離潮濕環境，久了會褪色</td></tr><tr><td>日曬與海水</td><td>避開烈日暴曬和鹽水</td></tr><tr><td>想做個儀式</td><td>放月光下靜置一晚，當作給自己的心理狀態重整</td></tr></table></div>`},
@@ -3175,7 +3281,9 @@ $('#chatClose').addEventListener('click',()=>{ $('#chatPanel').classList.remove(
 $('#chatSend').addEventListener('click',()=>chatSend());
 $('#chatInput').addEventListener('keydown',e=>{ if(e.key==='Enter') chatSend(); });
 
-/* ═══════════ 追蹤碼（後台填 ID 才注入，預設不載外部腳本） ═══════════ */
+/* ═══════════ 追蹤碼（後台填 ID 才注入，預設不載外部腳本） ═══════════
+   ⚠ CONFIG.GA4_ID／PIXEL_ID 一旦填上，#privacy「我們不收什麼」那一條就與事實不符了。
+      要啟用追蹤，先改隱私政策再填 ID，不要反過來。 */
 (function tracking(){
   if(CONFIG.GA4_ID){ const s=document.createElement('script'); s.async=true; s.src='https://www.googletagmanager.com/gtag/js?id='+CONFIG.GA4_ID; document.head.appendChild(s);
     window.dataLayer=window.dataLayer||[]; function gtag(){dataLayer.push(arguments);} gtag('js',new Date()); gtag('config',CONFIG.GA4_ID); }

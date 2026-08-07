@@ -24,7 +24,8 @@ NOTIFYBOSS = ROOT / "_scratch" / "wf-20260806" / "out_notifyboss.json"
 # ⚠ 這個值每開新的一輪就要跟著往前推。留在舊值的話，守衛比較的是好幾輪以前的差異，
 #   於是每一輪合法的改動都會被判成「動到範圍外」——一個永遠紅的守衛等於沒有守衛，
 #   下一個人只會學會忽略它。2026-08-06 那一輪的基準是 cd2cffc，已合併進 f7405e6。
-BASE_COMMIT = "f7405e6"
+#   2026-08-07 推到 e9fa481＝隱私政策上站那一輪的開工點（前兩輪 59ceedb／e9fa481 都已上線）。
+BASE_COMMIT = "e9fa481"
 
 R = []
 
@@ -166,8 +167,10 @@ def main():
           "template_key:'shipped'" in src and "template:'shipped'" not in src, "")
 
     # [11] git diff --stat 只動 admin.html + tests/ + _scratch/
-    diff = subprocess.run(["git", "diff", "--stat", BASE_COMMIT], cwd=str(ROOT),
-                           capture_output=True, text=True, encoding="utf-8")
+    # -c core.quotepath=false：預設 git 會把非 ASCII 路徑印成 "docs/\351\232\261..."
+    # （帶引號＋八進位跳脫），於是 startswith("docs/") 永遠比不到，中文檔名一律被誤判成範圍外。
+    diff = subprocess.run(["git", "-c", "core.quotepath=false", "diff", "--stat", BASE_COMMIT],
+                           cwd=str(ROOT), capture_output=True, text=True, encoding="utf-8")
     changed = []
     for line in (diff.stdout or "").splitlines():
         m2 = re.match(r"\s*(\S.*?)\s+\|\s+\d+", line)
@@ -179,8 +182,12 @@ def main():
     # 2026-08-07 加 scripts/：交接卡 H 的裁決是「提交」——
     # scripts/photo_publish.py 的 DB 同步按鈕本來就在 working tree 裡等著進版控，
     # 它是這一輪授權範圍的一部分，不是被順手改到的。
-    ALLOWED_FILES = {"admin.html", "index.html"}
-    ALLOWED_DIRS = ("tests/", "_scratch/", "photos/brand/", "scripts/")
+    # 2026-08-07 隱私政策上站這一輪授權的範圍：index.html（#privacy 分頁＋頁尾連結）、
+    # sitemap.xml（多一條 #privacy）、faq.json（生日資料安全那題改指向政策）、
+    # docs/（政策定稿與根據對照表）。FAQ 那題同一句話在 tests/ 的基準檔也要跟著改，
+    # tests/ 本來就在允許清單裡。
+    ALLOWED_FILES = {"admin.html", "index.html", "sitemap.xml", "faq.json"}
+    ALLOWED_DIRS = ("tests/", "_scratch/", "photos/brand/", "scripts/", "docs/")
     bad = [f for f in changed if f not in ALLOWED_FILES and not f.startswith(ALLOWED_DIRS)]
     check("[11] git diff --stat 只動本輪授權的檔",
           not bad, "動到範圍外的檔：%s（清單：%s）" % (bad, changed) if bad else ("動到：%s" % changed))
