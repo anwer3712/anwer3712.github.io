@@ -2487,13 +2487,21 @@ async function loadProducts(){
     const r = await api(CONFIG.PATHS.PRODUCTS,{ op:'list' });
     if(r && r.ok && Array.isArray(r.products)){ list = r.products; reached = true; }
   }catch(_){}
-  // 🔴 2026-08-05 修：這裡以前一筆都沒濾，後台按「下架」的商品在正式站照樣賣得到。
   // 使用者定義的兩種狀態要分開處理，別混成同一件事：
-  //   已下架（status==='下架'）＝前台看不到，這一行擋掉
-  //   已售完（stock<=0）      ＝前台看得到、標「已售完」、不能加購物車（shopBadge／mAdd 本來就有做）
-  // 濾在前台是因為 /pps2-products 是共用端點，後台自己也要讀得到下架品。
+  //   已下架 ＝前台看不到
+  //   已售完（stock<=0）＝前台看得到、標「已售完」、不能加購物車（shopBadge／mAdd 本來就有做）
+  //
+  // ⚠ 2026-08-07 訂正：真正擋住下架品的是 n8n `查上架商品` 的 `WHERE status='上架'`，
+  // 不是這一行。前台 op:'list' 與後台 op:'list_admin' 打的是**兩支不同的 SQL**，
+  // 公開這條從來就不會回下架品（舊註解說「共用端點所以要在前台濾」是錯的）。
+  // 這一行留著當第二道防線，動 SQL 時它才是安全網——但別把它當唯一的門。
+  //
+  // 欄位要兩個都判：公開 op:'list' 經「包裝商品清單」轉成 boolean `active`、不回 `status`；
+  // 離線退路 CONFIG.PRODUCTS 兩個都沒有（undefined 一律放行＝示例商品照常顯示）。
+  // 只寫 status 那半的話，這條 filter 對線上資料恆為 true＝等於沒有防線。
+  // 守門斷言在 tests/products_api_check.py [6]。
   PRODUCTS = (reached ? list : (CONFIG.PRODUCTS||[])).map(normProd)
-    .filter(p => p.status !== '下架');
+    .filter(p => p.status !== '下架' && p.active !== false);
   renderProducts(PRODUCTS);
   observeReveals();
   if(typeof prodLd==='function') prodLd();   // JSON-LD 要等真實商品載入後才建，見 prodLd() 註解

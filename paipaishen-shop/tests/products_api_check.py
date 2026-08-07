@@ -148,6 +148,25 @@ def main():
         check("update 後 photos 剩兩段", got == PHOTOS[:2], got)
         st = psql("select status from pps2_products where id=%s" % pid)
         check("update 後 status 下架", st == "下架", st)
+
+        # [6] 2026-08-07 補：這條缺了兩年——[4] 只驗上架品出得來，沒人驗下架品出不來。
+        # 擋住下架品的是 n8n「查上架商品」的 WHERE status='上架'（前台 op:'list' 走那支），
+        # 不是前台的 filter：公開回應根本不帶 status 欄，前台若只判 status 那半會恆為 true。
+        # 有人「簡化」掉那句 WHERE、或把 op:'list' 改接到「查全部商品」，只有這條會紅。
+        print("\n[6] op:list —— 下架品不得出現在公開清單（擋 SQL 那道門的守衛）")
+        r = post(args.base, dict(op="list", token=SITE_TOKEN))
+        pub = r.get("products", [])
+        me2 = [p for p in pub if p.get("name") == TEST_NAME]
+        check("下架後前台清單找不到它", len(me2) == 0, "仍回傳 %d 筆：%s" % (len(me2), me2[:1]))
+        # 順帶釘住前台 filter 依賴的欄位形狀：公開清單一律帶 active、一律不帶 status。
+        # 這兩條一旦反過來，index.html 的 `p.active !== false` 就會失效而且沒人會發現。
+        if pub:
+            check("公開清單每筆都帶 active",
+                  all("active" in p for p in pub),
+                  [p.get("name") for p in pub if "active" not in p])
+            check("公開清單不帶 status（前台才不能只判 status）",
+                  all("status" not in p for p in pub),
+                  [p.get("name") for p in pub if "status" in p])
     finally:
         n = psql("delete from pps2_products where name='%s' returning id" % TEST_NAME)
         print("\n[cleanup] 已刪除測試列: %s" % (n or "(無)"))
