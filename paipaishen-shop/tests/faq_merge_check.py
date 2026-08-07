@@ -292,6 +292,13 @@ def admin_roundtrip(headed):
             pg.fill("#f_h", "")                               # 表格版清掉，官網才會顯示純文字這版
             pg.click("#modalF .gold")
 
+            # 2026-08-07 起「存成／讀回 faq.json」改成離線備援，收在 <details> 裡（預設收合）。
+            # 主要路徑改成「☁ 發布到官網」（寫 pps2_settings.site_faq）——那條要連 n8n，
+            # 不在這支離線端到端測試的範圍，所以這裡仍然驗存檔那條路：它是 n8n 掛掉時的退路，
+            # 退路壞了不會有人發現，正是最需要被測的東西。收合的 <details> 裡的按鈕
+            # Playwright 判定為 not visible，要先把它展開。
+            pg.evaluate("""()=>{const b=[...document.querySelectorAll('#sec-faq details')]
+                .find(d=>d.textContent.includes('faq.json')); if(b) b.open=true;}""")
             with pg.expect_download() as dl:
                 pg.click('#sec-faq button:has-text("存成 faq.json")')   # 說明文字裡也有這串，要指名按鈕
             path = dl.value

@@ -20,7 +20,11 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="repla
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 ADMIN = ROOT / "admin.html"
 NOTIFYBOSS = ROOT / "_scratch" / "wf-20260806" / "out_notifyboss.json"
-BASE_COMMIT = "cd2cffc"
+# 範圍守衛的比較基準＝「本輪開工前的那個 commit」。
+# ⚠ 這個值每開新的一輪就要跟著往前推。留在舊值的話，守衛比較的是好幾輪以前的差異，
+#   於是每一輪合法的改動都會被判成「動到範圍外」——一個永遠紅的守衛等於沒有守衛，
+#   下一個人只會學會忽略它。2026-08-06 那一輪的基準是 cd2cffc，已合併進 f7405e6。
+BASE_COMMIT = "f7405e6"
 
 R = []
 
@@ -172,8 +176,11 @@ def main():
     # 這條原本是工單的範圍守衛（線 B 只准動 admin.html）。線 A（index.html 那三項）
     # 併進來之後，允許清單擴成「本輪兩條線授權的檔案聯集」——
     # 守的仍然是同一件事：這一輪不該有任何其他檔案被順手改到。
+    # 2026-08-07 加 scripts/：交接卡 H 的裁決是「提交」——
+    # scripts/photo_publish.py 的 DB 同步按鈕本來就在 working tree 裡等著進版控，
+    # 它是這一輪授權範圍的一部分，不是被順手改到的。
     ALLOWED_FILES = {"admin.html", "index.html"}
-    ALLOWED_DIRS = ("tests/", "_scratch/", "photos/brand/")
+    ALLOWED_DIRS = ("tests/", "_scratch/", "photos/brand/", "scripts/")
     bad = [f for f in changed if f not in ALLOWED_FILES and not f.startswith(ALLOWED_DIRS)]
     check("[11] git diff --stat 只動本輪授權的檔",
           not bad, "動到範圍外的檔：%s（清單：%s）" % (bad, changed) if bad else ("動到：%s" % changed))

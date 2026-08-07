@@ -234,12 +234,17 @@ def run(url):
                     order:rows.map(r=>r.tagName).join('')};}""")
         chk("[5] 子選單分成 A 個人手串／B 情侶對串兩組",
             len(sub["groups"]) == 2 and "個人手串" in sub["groups"][0] and "情侶對串" in sub["groups"][1], sub["groups"])
-        chk("[5] A 組 4 條、B 組 6 條", sub["order"] == "B" + "A" * 4 + "B" + "A" * 6, sub["order"])
-        chk("[5] 十條落點與使用者指定的一致",
+        # 2026-08-06 使用者第二次裁決：B 組砍掉「是一模一樣的嗎」那一條，
+        # 並把「關係階段心理學」的落點從 cu-gottman（段落中段的表格）改錨到 cu-pair（段落標題）。
+        # 所以 B 組從 6 條變 5 條，而且清單裡不再出現 cu-gottman。
+        chk("[5] A 組 4 條、B 組 5 條", sub["order"] == "B" + "A" * 4 + "B" + "A" * 5, sub["order"])
+        chk("[5] 九條落點與使用者指定的一致",
             [x["h"] for x in sub["links"]] == [
                 "#custom/cu-intro", "#custom/cu-aes", "#custom/cu-wrist", "#custom/order",
-                "#custom/cu-rv", "#custom/cu-bridge", "#custom/cu-pair", "#custom/cu-gottman",
+                "#custom/cu-rv", "#custom/cu-bridge", "#custom/cu-pair",
                 "#custom/cu-wrist", "#custom/order"], sub["links"])
+        chk("[5] 「關係階段心理學」錨在段落標題而不是中段表格",
+            [x["t"] for x in sub["links"] if x["h"] == "#custom/cu-pair"] == ["關係階段心理學"], sub["links"])
         chk("[5] 每條落點在頁面上都存在",
             pg.evaluate("()=>%s.every(h=>!!document.getElementById(h.split('/')[1]))"
                         % json.dumps([x["h"] for x in sub["links"]])), sub["links"])
@@ -254,7 +259,7 @@ def run(url):
                 return {mode:(document.querySelector('#modeSeg button.on')||{}).dataset.mode,
                         visible:el.getClientRects().length>0,
                         top:Math.round(r.top), title:(document.getElementById('orderTitle')||{}).textContent};}""", href)
-        for h in ("#custom/cu-rv", "#custom/cu-bridge", "#custom/cu-pair", "#custom/cu-gottman"):
+        for h in ("#custom/cu-rv", "#custom/cu-bridge", "#custom/cu-pair"):
             r = click_sub(h)
             chk(f"[5] 點 {h} 會自動切到情侶對串", r["mode"] == "couple", r)
             # 落點要真的捲到視窗上緣附近（header 78px），不是停在原地

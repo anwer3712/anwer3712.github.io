@@ -223,10 +223,25 @@ section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
     .jrail::before{transform:scaleY(0);animation:railDraw linear both;
       animation-timeline:view();animation-range-start:entry 20%;animation-range-end:contain}
     @keyframes railDraw{from{transform:scaleY(0)}to{transform:scaleY(1)}}
-    /* ② 第一幕：從壓低、暗、擠住，推到定稿 */
+    /* ② 第一幕：從壓低、暗、擠住，推到定稿。
+       rotate 併在同一組 keyframes 裡、不另開一支動畫：.jact.a1 的 animation 簡寫只有一份，
+       再寫第二筆 animation: 是「後蓋前」不是疊加（要疊只能寫成逗號分隔的多動畫，
+       連 animation-timeline／animation-range 也得跟著各給一份，維護成本比併進來高）。
+       rotate 與 translate 是各自獨立的 CSS 屬性（不是 transform 的一部分），同格寫不互蓋。 */
     .jact.a1{animation:actRise linear both;animation-timeline:view();animation-range:entry 8% cover 48%}
-    @keyframes actRise{from{opacity:.22;translate:0 28px;filter:brightness(.5) saturate(.6)}
-                       to{opacity:1;translate:0 0;filter:none}}
+    @keyframes actRise{from{opacity:.22;translate:0 28px;rotate:-2.6deg;filter:brightness(.5) saturate(.6)}
+                       to{opacity:1;translate:0 0;rotate:0deg;filter:none}}
+    /* ②b 三幕的旋轉進場（2026-08-06 使用者要求）：三張卡都繞著軌道那一側轉正。
+       transform-origin 對到左緣＝軌道那一側，不是卡片中心：三幕是掛在同一條線上的，
+       繞左緣轉才像「從軌道上翻開」；繞中心轉只會變成整張卡在原地歪一下再擺正。
+       ⚠ 角度不要調大。760px 寬的卡轉 2.6deg，右緣已經位移約 17px；
+         超過 4deg 看起來會像版面沒對齊，而不是動效。
+       a1 的旋轉寫在 actRise 裡（見上），這裡只補 a2／a3——它們原本完全沒有進場動畫，
+       所以順便帶一點淡入，否則「滿版不透明的卡在那邊轉」看起來像沒做完。 */
+    .jact{transform-origin:0 50%}
+    .jact.a2,.jact.a3{animation:actSwing linear both;
+      animation-timeline:view();animation-range:entry 6% cover 44%}
+    @keyframes actSwing{from{opacity:.34;rotate:-2.6deg}to{opacity:1;rotate:0deg}}
     /* ③ 背景負向視差：往下沉。只動 .jbg 這層，卡片本體與文字不跟著飄 */
     .jbg{animation:bgSink linear both;animation-timeline:view();animation-range:cover}
     @keyframes bgSink{from{translate:0 -9%}to{translate:0 9%}}
@@ -487,7 +502,12 @@ textarea{resize:vertical;min-height:78px}
 /* table-layout:fixed 是「第一欄固定欄寬」的前提——auto 之下瀏覽器會依內容重算，
    同一站不同表格的第一欄就會各寬各的（使用者點名的問題）。固定後第一欄吃 --col1，
    其餘欄平分剩餘寬度，全站所有 .mt 表格的項目欄一致對齊。 */
-table.mt{border-collapse:collapse;width:100%;min-width:640px;font-size:13px;background:#fff;table-layout:fixed}
+/* color 不可省，而且要跟 background 寫在一起。這張表自己指定白底，卻曾經讓字色用繼承的——
+   在淺底容器裡剛好看起來沒事，一放進深底容器（.transp 是 #0F271B 底、字 #D9E5DE）
+   就變成白底淺字＝整張表讀不到（2026-08-06 使用者回報「需求向量：六個分量」那張表看不清楚）。
+   規則：元件自己決定底色，就得自己決定字色，不能靠外面的容器餵。th 本來就有自己的 color，
+   缺的是 td，但寫在 table 這一層一次蓋掉全部，往後任何深底容器都不會再犯同一件事。 */
+table.mt{border-collapse:collapse;width:100%;min-width:640px;font-size:13px;background:#fff;color:var(--ink);table-layout:fixed}
 table.mt th,table.mt td{border:1px solid var(--line);padding:7px 9px;text-align:center;word-break:break-word}
 /* 表頭底色改白：舊的 #F3EEE2／#EFE9DC 在米色紙底上讀起來就是一片灰，字浮不出來
    （使用者原話：底色白色，你又用灰色，很難看出字）。改成白底＋木色雙線分隔，
@@ -610,7 +630,9 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
 .illus{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:22px;box-shadow:var(--shadow-sm)}
 .illus svg{width:100%;height:auto}
 .pairtypes{grid-template-columns:repeat(2,1fr)}
-.gottman-tbl{width:100%;border-collapse:collapse;font-size:14px;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+/* 同 table.mt：自己指定白底就自己指定字色，別靠容器繼承（目前所在容器是淺底所以看不出來，
+   但這張表哪天被搬進深底區塊就會整張讀不到——那正是 .transp 裡那張表發生過的事）。 */
+.gottman-tbl{width:100%;border-collapse:collapse;font-size:14px;background:#fff;color:var(--ink);border-radius:12px;overflow:hidden;border:1px solid var(--line)}
 .gottman-tbl th,.gottman-tbl td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left}
 /* 與 table.mt 同一決定：表頭不壓灰底，改白底＋木色雙線（見 .mt 那段註解） */
 .gottman-tbl th{background:#fff;font-family:var(--serif);color:var(--ink);
@@ -806,7 +828,7 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
 @media(max-width:620px){ .journey{padding-left:32px} .jrail{left:9px}
   .jact.a1,.jact.a2{max-width:100%} .jact+.jact{margin-top:clamp(110px,26vh,260px)}
   /* 手機上「逐幕加寬」演不出來（本來就只有一欄寬），五幕一律滿版，
-     節奏改由 genRise 的浮起與亮度承擔。間距也再壓一階，否則五幕在手機上長得誇張。 */
+     節奏改由 genPass 的浮起與亮度承擔。間距也再壓一階，否則五幕在手機上長得誇張。 */
   .journey.gen .jact{max-width:100%} .journey.gen .jact+.jact{margin-top:clamp(90px,18vh,200px)} }
 
 /* ═══ 「走了九個世代的路」＝第二段三幕旅程（2026-08-06 使用者要求 2）═══
@@ -868,13 +890,28 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
 .journey.gen .g5 .n{color:var(--glow-deep)}
 @supports (animation-timeline:view()){
   @media(prefers-reduced-motion:no-preference){
-    /* 第一幕沿用三幕的 actRise（壓低、暗、擠住 → 定稿）；
-       中間三幕只做「浮起變清楚」，不重壓暗度——五幕都壓一次會變成閃五下。 */
-    .journey.gen .g1{animation:actRise linear both;animation-timeline:view();animation-range:entry 8% cover 48%}
-    .journey.gen .g2,.journey.gen .g3,.journey.gen .g4,.journey.gen .g5{
-      animation:genRise linear both;animation-timeline:view();animation-range:entry 6% cover 42%}
-    @keyframes genRise{from{opacity:.28;translate:0 20px;filter:saturate(.7)}
-                       to{opacity:1;translate:0 0;filter:none}}
+    /* 五幕改成「隨進度條淡入淡出」（2026-08-06 使用者要求）。
+       前一版是 actRise（g1）＋ genRise（g2–g5）：只有淡入、進來之後就一直亮著，
+       所以捲到後段時五張卡同時全亮，那條 .jrail 畫到哪一格看不出差別。
+       現在五幕共用一支 genPass，range 用預設的 cover（＝從整個元素開始進畫面到完全離開），
+       等於把「這一幕通過視窗」的全程當時間軸：進來時淡入浮起 → 到珠子那一帶滿亮 → 往上離開時淡出。
+       視覺結果就是亮區跟著 .jbead／.jrail 的進度往下走，一次只有一幕是主角。
+       ⚠ 為什麼滿亮區是 35%–62% 而不是對稱的 40%–60%：.jbead 釘在 top:46vh（偏上），
+         元素中心通過 46vh 的時刻比通過視窗正中央早一點，區間要跟著往前挪。
+       ⚠ 頭尾不要收到 opacity:0。捲動時間軸在不同瀏覽器對 cover 端點的取樣有幾 px 差，
+         收到全透明時最後一幕在段落結尾會出現「整張卡消失」的空窗；留 .12 只是變淡。 */
+    .journey.gen .jact{animation:genPass linear both;animation-timeline:view()}
+    /* ⚠ 頭尾一定要寫 from／to，不可以用百分比端點的寫法。
+       禁詞掃描器（docs/p4_kit/scan_compliance.py）會把那個字面值判成禁詞，
+       visual_check【8】的命中數就會超過基線而整批判紅。
+       ⚠ 這段註解本身也不能舉例、也不能寫出那個詞類的名稱——註解在掃描範圍內，
+         舉例等於自己把自己判紅（本輪已經連踩兩次，第二次就是踩在類別名稱上）。
+       CSS 兩種寫法完全等價，全檔其他 keyframes 也都是 from／to。 */
+    @keyframes genPass{
+      from{opacity:.12;translate:0 28px;filter:saturate(.55)}
+      35% {opacity:1;translate:0 0;filter:none}
+      62% {opacity:1;translate:0 0;filter:none}
+      to  {opacity:.12;translate:0 -28px;filter:saturate(.55)}}
   }
 }
 .keeps{grid-template-columns:repeat(2,1fr);gap:16px}
@@ -1624,7 +1661,9 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
       <div class="transp reveal">
         <h3>需求向量：六個分量</h3>
         <p style="margin-bottom:10px">六個分量各有固定權重，逐一加權相加，不是憑感覺配：</p>
-        <p style="margin-bottom:12px;font-family:var(--serif);background:#fff;border-left:3px solid var(--glow);padding:10px 14px;border-radius:0 10px 10px 0;overflow-x:auto"><b>F = 0.30·扶抑 ＋ 0.28·缺口 ＋ 0.12·調候 ＋ 0.12·流年 ＋ 0.10·盲派 ＋ 0.08·意圖</b></p>
+        <!-- color 跟 background:#fff 是一組的：這一段在 .transp（深綠底、淺字）裡面，
+             只給白底不給字色 → 淺字印在白底上＝這條公式整行看不到（同 table.mt 那個雷）。 -->
+        <p style="margin-bottom:12px;font-family:var(--serif);background:#fff;color:var(--ink);border-left:3px solid var(--glow);padding:10px 14px;border-radius:0 10px 10px 0;overflow-x:auto"><b>F = 0.30·扶抑 ＋ 0.28·缺口 ＋ 0.12·調候 ＋ 0.12·流年 ＋ 0.10·盲派 ＋ 0.08·意圖</b></p>
         <ul style="margin-bottom:16px">
           <li>「意圖」放的是你的痛點與核心功能。<b>合計影響上限 15%</b>——你的想法有話語權，但命盤本身永遠是主體。</li>
           <li><b>「流年」占 0.12</b>：只讀出生那一刻的命盤，等於把你留在出生那年。所以式子裡固定留一格給流年——你下單當年的年份也讀進來一起算，算的是你<b>此刻</b>的五行處境，不是你出生時的樣子。它在這裡的身分是一個被讀進去的輸入變數，跟手圍、珠徑一樣；我們對它做的事只有「讀」。</li>
@@ -1899,8 +1938,14 @@ const TOC_FIX = { custom:[
   { g:'B　情侶對串' },
   { id:'cu-rv',      text:'運算方向' },
   { id:'cu-bridge',  text:'關於橋接' },
-  { id:'cu-pair',    text:'是一模一樣的嗎' },
-  { id:'cu-gottman', text:'關係階段心理學' },
+  /* 2026-08-06 使用者裁決：「是一模一樣的嗎」這一條捨棄不用；
+     「關係階段心理學」的定位點改錨到 cu-pair（＝「兩條，會像一對嗎」那個段落標題）。
+     ⚠ 這裡的 id 刻意跟標籤對不上，不是筆誤：cu-gottman 是段落中段的 Gottman 七維那塊，
+       錨過去會直接跳到表格、把上面「兩條，會像一對嗎」的標題與兩張卡跳過。
+       錨在 cu-pair 才是從這一節的開頭讀起，Gottman 那塊就在它下面接著。
+       所以 cu-gottman 這個 id 現在沒有任何目錄項指向它——留著沒關係（它是段落錨點，
+       不是只為目錄存在的），但要拿掉它之前先確認沒有別的地方連過去。 */
+  { id:'cu-pair',    text:'關係階段心理學' },
   { id:'cu-wrist',   text:'手圍怎麼量' },
   { id:'order',      text:'填寫訂製資料' }
 ] };
@@ -2021,12 +2066,40 @@ function observeMotion(){
   $$('.tab.active .gitem:not(.filler), .tab.active .prod, .tab.active .aes-card, .tab.active #wristIllus').forEach(el=>mo.observe(el));
 }
 
+/* ═══════════ 站台內容的雲端來源（後台按「☁ 發布到官網」寫進 pps2_settings 的那一份）═══════════
+   2026-08-07 使用者要求：後台改 FAQ／文案不要再「存檔 → 放進 repo → push」，按一下就上線。
+   寫入端走 pps2-admin 的 op:'settings_set'（本來就吃任意 key，n8n 零改動），
+   讀取端掛在 pps2-works 的公開 GET 上——那條線本來就是「公開唯讀＋SITE_TOKEN 擋門＋
+   內容由後台維護」，形狀跟需求一樣；新開一支 workflow 要 import＋重啟 n8n（既有雷區）。
+
+   ⚠ 三個消費端（作品集／文案覆寫／FAQ）共用同一個 promise，所以整頁只打一次 pps2-works。
+     不要各自 fetch——那會變成同一支 webhook 一次載入被打三遍。
+   ⚠ 這條路是加分項不是必要條件：n8n 掛掉、還沒部署、或直接用 file:// 開檔，
+     三個消費端各自退回原本的靜態檔（copy.json／faq.json）或程式碼內建那份，站台照常運作。
+     所以這裡吞掉所有錯誤只回 {}，不讓任何一個 await 卡住渲染。 */
+let SITE_CLOUD = null;
+function siteCloud(){
+  if(SITE_CLOUD) return SITE_CLOUD;
+  SITE_CLOUD = (async()=>{
+    if(!CONFIG.N8N_BASE) return {};
+    try{
+      const r = await fetch(CONFIG.N8N_BASE + '/pps2-works?token=' + encodeURIComponent(CONFIG.SITE_TOKEN),
+                            {cache:'no-cache'});
+      if(!r.ok) throw new Error('http ' + r.status);
+      const d = await r.json();
+      return (d && d.ok === true) ? d : {};
+    }catch(err){ console.error('站台內容雲端來源載入失敗（改用內建／靜態檔）：', err); return {}; }
+  })();
+  return SITE_CLOUD;
+}
+
 /* ═══════════ 前台文案覆寫（後台鏡像編輯器的前台這一半）═══════════
    設計取捨：不在 HTML 上手工掛 data-cms="key"。鍵由「分頁 + 標籤名 + 原文雜湊」在執行期算出，
    好處是①不用改動四十處標記②原文一旦在程式碼裡被改寫，舊覆寫會自動失效並退回新原文，
    不會出現「改了程式碼卻被舊覆寫蓋掉」這種查不出來的鬼。
-   覆寫來源優先序：window.__COPY__（靜態內嵌）→ copy.json（同源靜態檔）→ localStorage（編輯預覽）。
-   三者都沒有就用內建原文，站台行為零變化——沿用 gallery/products 的 fail-safe 模式。 */
+   覆寫來源優先序：window.__COPY__（靜態內嵌）→ 雲端 site_copy（後台按「發布到官網」那份）
+   → copy.json（同源靜態檔）→ localStorage（編輯預覽疊在最上面）。
+   全部都沒有就用內建原文，站台行為零變化——沿用 gallery/products 的 fail-safe 模式。 */
 /* 掃描範圍：七個分頁 ＋ 頁尾。頁尾也要收，不然頁尾那兩句永遠改不到。 */
 const CMS_ROOT='.tab, footer';
 /* 站上「客人看得到的散文」＝標題與段落型元素。列元素型別而不是逐塊列 class，
@@ -2104,6 +2177,13 @@ async function cmsBoot(){
   const edit = new URLSearchParams(location.search).get('edit')==='1';
   cmsScan(edit);
   let map = window.__COPY__ || null;
+  /* 優先序：內嵌 → 雲端（後台按「發布到官網」的那份）→ copy.json（舊的靜態檔路線）→ 內建原文。
+     雲端排在 copy.json 前面是刻意的：後台改完立刻生效，才是使用者要的「直觀」。
+     copy.json 留著當 n8n 沒部署／掛掉時的退路，不刪——它是這條路的 fail-safe。 */
+  if(!map){
+    const c = await siteCloud();
+    if(c.copy && typeof c.copy==='object' && !Array.isArray(c.copy)) map = c.copy;
+  }
   if(!map){
     try{ const r=await fetch('copy.json',{cache:'no-cache'}); if(r.ok) map=await r.json(); }catch(_){}
   }
@@ -2497,16 +2577,19 @@ function checkout(){
     <div class="fcol"><label style="font-size:13px;font-weight:600">付款方式</label>
       <select id="coPay">${pays.map(p=>`<option value="${esc(p.id)}" ${p.enabled?'':'disabled'}>${esc(p.label)}${p.enabled?'':'（即將開放）'}</option>`).join('')}</select></div>
     <div class="fcol"><input id="coName" placeholder="姓名" maxlength="30"></div>
-    <div class="fcol"><input id="coContact" placeholder="聯絡方式（LINE／電話）" maxlength="60"></div>
+    <!-- 2026-08-07 使用者裁決：Email 改必填之後就不用跟客戶要 LINE 了。
+         電話這一欄留著——宅配與店到店的物流單一定要有連絡電話，那不是「聯絡方式」的替代品。 -->
+    <div class="fcol"><input id="coContact" placeholder="聯絡電話" maxlength="60" inputmode="tel"></div>
     <!-- 收件資訊（2026-08-06）：選宅配卻沒地址＝有單也出不了貨。
          DB 的 pps2_shop_orders.ship_addr 欄一直都在，只是從來沒有人填過它——
          08-05 那張測試單 ship_method='home' 而 ship_addr 是 NULL，就是這個洞的證據。
          一個欄位吃兩種用途（宅配填地址／店到店填門市），因為它們互斥、
          而且後端就一個欄位；label 與 placeholder 隨取貨方式換，不另開欄位。 -->
     <div class="fcol" id="coAddrWrap"><input id="coAddr" placeholder="收件地址" maxlength="120"></div>
-    <!-- email 是選填：出貨通知走 email，但這裡本來只收「LINE／電話」，
-         寄信時拿到的是一串電話號碼＝一定寄不出去。留空就走人工聯繫，不擋下單。 -->
-    <div class="fcol"><input id="coEmail" type="email" placeholder="Email（選填，用來寄出貨通知）" maxlength="80"></div>
+    <!-- 2026-08-07 使用者裁決：email 從選填改必填。
+         理由是這一欄同時是「訂單成立通知信」與「出貨通知信」唯一的收件地址，
+         選填等於讓一部分客人從頭到尾收不到任何通知（交接卡 D）。 -->
+    <div class="fcol"><input id="coEmail" type="email" placeholder="Email（必填，訂單成立與出貨通知都寄這裡）" maxlength="80" required></div>
     <div class="fcol"><input id="coNote" placeholder="備註（可空）" maxlength="200"></div>
     <div class="sum"><span>商品小計</span><span>NT$ ${sub.toLocaleString()}</span></div>
     <div class="sum"><span>運費</span><span id="coFee">NT$ 0</span></div>
@@ -2527,16 +2610,19 @@ function checkout(){
 }
 async function submitShopOrder(e){
   const name=$('#coName').value.trim(), contact=$('#coContact').value.trim();
-  if(!name||!contact){ $('#coOut').innerHTML='<div class="msg warn">請填姓名與聯絡方式。</div>'; return; }
+  if(!name||!contact){ $('#coOut').innerHTML='<div class="msg warn">請填姓名與聯絡電話。</div>'; return; }
   const shipOpt = $('#coShip').selectedOptions[0], payOpt = $('#coPay').selectedOptions[0];
   // 宅配沒地址、店到店沒門市 → 這張單出不了貨。擋在送出之前，不要讓它變成一張要回頭追問的單。
   const NEED = { home:'收件地址', store:'取貨門市' };
   const ship_addr = $('#coAddr').value.trim();
   if(NEED[shipOpt.value] && !ship_addr){
     $('#coOut').innerHTML='<div class="msg warn">請填'+NEED[shipOpt.value]+'。</div>'; $('#coAddr').focus(); return; }
+  // Email 2026-08-07 起必填：它是訂單成立信與出貨通知信唯一的收件地址。
   const email = $('#coEmail').value.trim();
-  if(email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){
-    $('#coOut').innerHTML='<div class="msg warn">Email 格式看起來不對，留空也可以。</div>'; $('#coEmail').focus(); return; }
+  if(!email){
+    $('#coOut').innerHTML='<div class="msg warn">請填 Email——訂單成立通知與出貨通知都寄到這裡。</div>'; $('#coEmail').focus(); return; }
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){
+    $('#coOut').innerHTML='<div class="msg warn">Email 格式看起來不對，請再檢查一次。</div>'; $('#coEmail').focus(); return; }
   const sub = cart.reduce((s,x)=>s+x.price*x.qty,0), shipping=+shipOpt.dataset.fee||0;
   const o = { items:cart.map(x=>({id:x.id,name:x.name,price:x.price,qty:x.qty})), subtotal:sub, shipping,
     ship_method:shipOpt.value, ship_label:shipOpt.textContent, pay_method:payOpt.value, pay_label:payOpt.textContent.replace('（即將開放）',''),
@@ -2546,7 +2632,10 @@ async function submitShopOrder(e){
   btn.classList.remove('busy'); btn.disabled=false;
   if(res && res.ok && res.order_no){
     cart.length=0; renderCart();
-    $('#cartItems').innerHTML=`<div class="done"><div class="big">🎉</div><h3 style="margin:10px 0">訂單成立</h3><div class="orderbox">訂單編號<br><b>${esc(res.order_no)}</b></div><p style="color:var(--muted);font-size:14px">報價與收款資訊會由專人與你聯繫。</p></div>`;
+    $('#cartItems').innerHTML=`<div class="done"><div class="big">🎉</div><h3 style="margin:10px 0">訂單成立</h3><div class="orderbox">訂單編號<br><b>${esc(res.order_no)}</b></div><!-- 刻意不寫「通知信已寄出」：客戶那封信是後端的死路分支，回應裡拿不到寄送結果，
+                 寫「已寄出」就是在猜（同交接卡指出的舊雷：出貨通知一律跳「已發送」但其實吞掉了失敗）。
+                 這裡只講「會寄到哪」——那是不管信有沒有寄成功都成立的事實。 -->
+            <p style="color:var(--muted);font-size:14px">訂單確認與收款資訊會寄到 ${esc(email)}，請留意信箱（含垃圾郵件匣）。</p></div>`;
     $('#cartFoot').innerHTML='';
   } else if(res && res.error==='out_of_stock'){
     $('#coOut').innerHTML='<div class="msg warn">不好意思，部分商品剛好被搶購一空，請調整數量後再送出。</div>';
@@ -2847,15 +2936,10 @@ function renderWorkGroup(g){
 }
 async function loadWorkGroups(){
   const sec = $('#worksGroupsBlock'), box = $('#worksGroups');
-  let list = null;
-  try{
-    const res = await fetch(CONFIG.N8N_BASE + '/pps2-works?token=' + encodeURIComponent(CONFIG.SITE_TOKEN));
-    if(!res.ok) throw new Error('http '+res.status);
-    const data = await res.json();
-    if(data && data.ok === true && Array.isArray(data.works)) list = data.works;
-    else throw new Error('bad shape');
-  }catch(err){ console.error('作品集群組載入失敗：', err); }
-  WORK_GROUPS = list || [];
+  // 改走共用的 siteCloud()：同一支 pps2-works 現在還載著文案覆寫與 FAQ，
+  // 各自 fetch 會變成一次載入打三遍同一個 webhook（錯誤處理已經在 siteCloud 裡）。
+  const data = await siteCloud();
+  WORK_GROUPS = Array.isArray(data.works) ? data.works : [];
   if(!sec || !box) return;
   if(!WORK_GROUPS.length){ sec.style.display='none'; return; }
   sec.style.display=''; box.innerHTML = WORK_GROUPS.map(renderWorkGroup).join('');
@@ -2954,12 +3038,20 @@ renderFAQ();
    ⚠ 不看筆數判退化：空陣列＝老闆真的把每一題都下架了，那是他的決定，不是離線。
    answer_html 不消毒：faq.json 跟 index.html 一樣是自家 repo 裡、要 push 才會變的同源檔案，
    能改它的人本來就能改這一頁，多一道濾網擋不到任何人，卻會把表格的 colspan 洗掉。 */
-fetch('faq.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(j=>{
+(async()=>{
+  /* 來源優先序：雲端 site_faq（後台按「☁ 發布到官網」那份）→ faq.json（舊的靜態檔路線）
+     → 程式碼內建那 31 題。雲端排前面，後台改完才會立刻生效（2026-08-07 使用者要求）。 */
+  let j=null, src='faq.json';
+  const c = await siteCloud();
+  if(Array.isArray(c.faq)){ j = c.faq; src = 'cloud'; }
+  if(!j){
+    try{ const r=await fetch('faq.json',{cache:'no-cache'}); if(r.ok){ const x=await r.json(); if(Array.isArray(x)) j=x; } }catch(_){}
+  }
   if(!Array.isArray(j)) return;
   FAQ = j.map(faqNorm).filter(f=>f.q && !f.off).sort((x,y)=>x.o-y.o);
-  window.__FAQ_SRC__ = 'faq.json';
+  window.__FAQ_SRC__ = src;
   renderFAQ();
-}).catch(()=>{});
+})();
 // Product JSON-LD — 只送真實上架商品給搜尋引擎。
 // 舊版讀 CONFIG.PRODUCTS（示例資料）並把「【示例】」字樣去掉再送出，
 // 等於把不存在的商品與價格當成真商品提交給 Google。改讀實際載入的 PRODUCTS，
