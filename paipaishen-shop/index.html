@@ -2481,7 +2481,11 @@ function shopOrderText(o){
   L.push(`小計：NT$ ${o.subtotal.toLocaleString()}　運費：NT$ ${o.shipping}`);
   L.push(`合計：NT$ ${(o.subtotal+o.shipping).toLocaleString()}`);
   L.push(`取貨：${o.ship_label}｜付款：${o.pay_label}`);
-  L.push(`姓名：${o.name}｜聯絡：${o.contact}`); if(o.note) L.push(`備註：${o.note}`);
+  L.push(`姓名：${o.name}｜聯絡：${o.contact}`);
+  // 退化成「複製給 LINE」時，地址與 email 也要一起帶——那是這條退路唯一的傳遞方式
+  if(o.ship_addr) L.push(`${o.ship_method==='store'?'取貨門市':'收件地址'}：${o.ship_addr}`);
+  if(o.email) L.push(`Email：${o.email}`);
+  if(o.note) L.push(`備註：${o.note}`);
   return L.join('\n');
 }
 function checkout(){
@@ -2494,6 +2498,15 @@ function checkout(){
       <select id="coPay">${pays.map(p=>`<option value="${esc(p.id)}" ${p.enabled?'':'disabled'}>${esc(p.label)}${p.enabled?'':'（即將開放）'}</option>`).join('')}</select></div>
     <div class="fcol"><input id="coName" placeholder="姓名" maxlength="30"></div>
     <div class="fcol"><input id="coContact" placeholder="聯絡方式（LINE／電話）" maxlength="60"></div>
+    <!-- 收件資訊（2026-08-06）：選宅配卻沒地址＝有單也出不了貨。
+         DB 的 pps2_shop_orders.ship_addr 欄一直都在，只是從來沒有人填過它——
+         08-05 那張測試單 ship_method='home' 而 ship_addr 是 NULL，就是這個洞的證據。
+         一個欄位吃兩種用途（宅配填地址／店到店填門市），因為它們互斥、
+         而且後端就一個欄位；label 與 placeholder 隨取貨方式換，不另開欄位。 -->
+    <div class="fcol" id="coAddrWrap"><input id="coAddr" placeholder="收件地址" maxlength="120"></div>
+    <!-- email 是選填：出貨通知走 email，但這裡本來只收「LINE／電話」，
+         寄信時拿到的是一串電話號碼＝一定寄不出去。留空就走人工聯繫，不擋下單。 -->
+    <div class="fcol"><input id="coEmail" type="email" placeholder="Email（選填，用來寄出貨通知）" maxlength="80"></div>
     <div class="fcol"><input id="coNote" placeholder="備註（可空）" maxlength="200"></div>
     <div class="sum"><span>商品小計</span><span>NT$ ${sub.toLocaleString()}</span></div>
     <div class="sum"><span>運費</span><span id="coFee">NT$ 0</span></div>
@@ -2501,7 +2514,14 @@ function checkout(){
     <button class="btn" id="coSubmit" type="button" style="width:100%;margin-top:12px">送出訂單</button>
     <div id="coOut" style="margin-top:10px"></div>`;
   const feeOf = ()=>+$('#coShip').selectedOptions[0].dataset.fee||0;
-  const upd = ()=>{ const f=feeOf(); $('#coFee').textContent='NT$ '+f.toLocaleString(); $('#coTot').textContent='NT$ '+(sub+f).toLocaleString(); };
+  // 收件欄跟著取貨方式換身分：宅配＝地址、店到店＝門市、面交＝不需要（整欄收起來）
+  const ADDR = { home:['收件地址','例：桃園市龍潭區中正路 1 號 5 樓'],
+                 store:['取貨門市','例：7-11 龍潭門市 / 全家 中正店'] };
+  const updAddr = ()=>{ const k=$('#coShip').value, cfg=ADDR[k];
+    $('#coAddrWrap').style.display = cfg?'':'none';
+    if(cfg){ $('#coAddr').placeholder = cfg[0]+'（'+cfg[1]+'）'; $('#coAddr').setAttribute('aria-label',cfg[0]); }
+  };
+  const upd = ()=>{ const f=feeOf(); $('#coFee').textContent='NT$ '+f.toLocaleString(); $('#coTot').textContent='NT$ '+(sub+f).toLocaleString(); updAddr(); };
   $('#coShip').addEventListener('change',upd); upd();
   $('#coSubmit').addEventListener('click',submitShopOrder);
 }
@@ -2509,10 +2529,18 @@ async function submitShopOrder(e){
   const name=$('#coName').value.trim(), contact=$('#coContact').value.trim();
   if(!name||!contact){ $('#coOut').innerHTML='<div class="msg warn">請填姓名與聯絡方式。</div>'; return; }
   const shipOpt = $('#coShip').selectedOptions[0], payOpt = $('#coPay').selectedOptions[0];
+  // 宅配沒地址、店到店沒門市 → 這張單出不了貨。擋在送出之前，不要讓它變成一張要回頭追問的單。
+  const NEED = { home:'收件地址', store:'取貨門市' };
+  const ship_addr = $('#coAddr').value.trim();
+  if(NEED[shipOpt.value] && !ship_addr){
+    $('#coOut').innerHTML='<div class="msg warn">請填'+NEED[shipOpt.value]+'。</div>'; $('#coAddr').focus(); return; }
+  const email = $('#coEmail').value.trim();
+  if(email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){
+    $('#coOut').innerHTML='<div class="msg warn">Email 格式看起來不對，留空也可以。</div>'; $('#coEmail').focus(); return; }
   const sub = cart.reduce((s,x)=>s+x.price*x.qty,0), shipping=+shipOpt.dataset.fee||0;
   const o = { items:cart.map(x=>({id:x.id,name:x.name,price:x.price,qty:x.qty})), subtotal:sub, shipping,
     ship_method:shipOpt.value, ship_label:shipOpt.textContent, pay_method:payOpt.value, pay_label:payOpt.textContent.replace('（即將開放）',''),
-    name, contact, note:$('#coNote').value.trim() };
+    name, contact, email, ship_addr, note:$('#coNote').value.trim() };
   const btn=e.target; btn.classList.add('busy'); btn.disabled=true;
   let res=null; try{ res = await api(CONFIG.PATHS.SHOP_ORDER,{ order:o }); }catch(_){ res=null; }
   btn.classList.remove('busy'); btn.disabled=false;
