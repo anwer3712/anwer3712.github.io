@@ -174,7 +174,10 @@ const CONFIG = {
   },
 
   // 聯絡通道（空字串＝前台自動隱藏該通道鈕）
-  CONTACT: { line:"17singasong", ig:"IGSINGASONG", shopee:"" },
+  // tel：老年客層打不了 LINE，這是他們唯一走得通的路。填了才會出現「電話」鈕，
+  //      顯示用原字串（含 - 好念），href 由前台去掉非數字組 tel:。
+  //      ⚠ 填入後記得同步 index.html 開頭 JSON-LD 的 telephone（那是全站唯一容許抄第二份的地方）。
+  CONTACT: { line:"17singasong", tel:"", ig:"IGSINGASONG", shopee:"" },
 
   // 追蹤碼空槽：後台填入 ID 後前台才動態注入（預設空＝不載入任何外部腳本）
   GA4_ID: "",

@@ -20,7 +20,9 @@
 <meta name="twitter:description" content="把焦慮交給數據，把平靜還給自己。用你的生日排出一份配比，再照配比挑石頭。">
 <meta name="twitter:image" content="https://anwer3712.github.io/paipaishen-shop/photos/w2.jpg">
 <!-- 全站唯一容許把 LINE／IG 帳號抄第二份的地方：結構化資料要讓爬蟲直接讀到，
-     不能等 JS 填。改 config.js 的 CONTACT 時，這裡的 sameAs 要手動跟著改。 -->
+     不能等 JS 填。改 config.js 的 CONTACT 時，這裡的 sameAs 要手動跟著改。
+     ⚠ 2026-08-09：CONTACT.tel 填進去之後，這裡要補 "telephone":"+886..."（LocalBusiness 的電話
+     走 telephone，不是 sameAs）。現在 tel 是空的，先不放空字串——空的 telephone 對爬蟲是壞資料。 -->
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"LocalBusiness","name":"拍拍深五行水晶設計研究所","description":"以八字文化符號結合心理學的個人化五行水晶手串訂製，量化配珠、五派裁決、白名單選石、透明可追溯。","image":"https://anwer3712.github.io/paipaishen-shop/photos/w2.jpg","url":"https://anwer3712.github.io/paipaishen-shop/","areaServed":["桃園","龍潭","中壢"],"sameAs":["https://line.me/ti/p/~17singasong","https://instagram.com/IGSINGASONG"],"priceRange":"NT$300–NT$1500"}
 </script>
@@ -108,6 +110,10 @@ header{position:sticky;top:0;z-index:100;background:rgba(251,249,244,.86);backdr
    桌機用 hover 展開、手機用 ▾ 鈕展開：手機沒有 hover，只靠 hover 等於沒有這個功能。 */
 .nav-item{position:relative;display:flex;align-items:center}
 .nav-exp{display:none}
+/* buildTOC() 改成「清空並隱藏」而不是 remove()（見那裡的註解）後，這兩條是配套：
+   空的 .nav-sub 在桌機 hover 時會開出一個空面板，[hidden] 的 ▾ 鈕在手機那段 display:grid 會蓋過去。 */
+.nav-sub:empty{display:none}
+.nav-exp[hidden]{display:none!important}
 @media(hover:hover) and (min-width:901px){
   /* top 與間距分兩個宣告寫，不用 calc：合規掃描器只放行「緊接在冒號後」的百分比，
      寫成 calc(百分比 + 4px) 會被算成新增的禁詞命中（docs/p4_kit/scan_compliance.py） */
@@ -131,8 +137,10 @@ main section[id],main [data-toc]{scroll-margin-top:78px}
 .tocball{position:fixed;left:20px;bottom:20px;z-index:140;display:inline-flex;align-items:center;gap:7px;
   padding:11px 16px;border-radius:999px;border:1px solid var(--line-mu);cursor:pointer;font-size:14px;color:var(--mu);
   background:rgba(251,249,244,.94);backdrop-filter:blur(10px);box-shadow:0 8px 24px rgba(16,24,40,.16);
-  transition:transform var(--t),box-shadow var(--t)}
+  transition:transform var(--t),box-shadow var(--t),bottom var(--t)}
 .tocball:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(16,24,40,.22)}
+/* 章節面板跟著章節球一起讓位，否則球上去了、面板還開在原地疊到試算列 */
+body.est-on .tocpanel{bottom:calc(74px + var(--est-lift,116px))}
 .tocpanel{position:fixed;left:20px;bottom:74px;z-index:145;width:min(300px,86vw);max-height:min(60vh,460px);
   overflow-y:auto;background:var(--paper);border:1px solid var(--line);border-radius:14px;
   box-shadow:0 24px 60px rgba(16,24,40,.28);padding:8px;display:none}
@@ -271,6 +279,13 @@ section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
 .opener p:last-child{color:var(--mu-lit)}
 .head{text-align:center;max-width:660px;margin:0 auto clamp(28px,5vw,48px)}
 .head h2{font-size:clamp(25px,4.4vw,36px);margin:8px 0 12px;position:relative;display:inline-block}
+/* 2026-08-09 三角色複審：390px 實測有三條副標掉出孤行——作品集「…點一下看大圖。」最後一行 2 字、
+   常見問題「…找真人。」2 字、訂單查詢「…哪一站。」3 字。孤行看起來像字被截斷。
+   ⚠ 不逐句改字數：那只在 390px 對，換 360／414／430 又會在別的地方斷。
+     改用瀏覽器的斷行規則，所有寬度一起解決；不支援的瀏覽器就是現在這樣，不會更糟。
+   h2 與副標都很短，用 balance（兩行等長）；.lead 較長，用 pretty（只保證最後一行不孤）。 */
+.head h2,.head p{text-wrap:balance}
+.hero .lead,.opener p,.jact .jm{text-wrap:pretty}
 .head p{color:var(--muted);font-size:16px}
 .reveal{opacity:0;translate:0 20px;transition:opacity .6s ease,translate .6s ease;transition-delay:calc(var(--i,0)*70ms)}
 .reveal.in{opacity:1;translate:0 0}
@@ -363,7 +378,11 @@ section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
 /* 16s／圈。60s → 24s → 16s：使用者三度回報看不出在轉，同一輪也查到真根因是
    系統「減少動態」把全站動畫掐成 .001ms（見 hero::before 那段註解）。秒數這邊仍再收一階。
    ⚠ 下面 .bead-tip-spin 的反轉必須用同一個秒數，否則珠子上的說明字會跟著轉歪。 */
-.spin{transform-origin:210px 210px;animation:spin 16s linear infinite}
+/* 捲離畫面就停（2026-08-09 三角色複審）：這個環是 21 個 infinite 動畫——環本身 1 個，
+   加上 20 顆珠子各自反轉的 .bead-tip-spin。它們不會因為捲出視窗而停下，
+   低階手機上是一直付出的合成成本（耗電＋捲動掉幀），而那時根本沒人在看。
+   play-state 由 --ring-play 控制，切換在 JS 的 pauseRing()。 */
+.spin{transform-origin:210px 210px;animation:spin 16s linear infinite;animation-play-state:var(--ring-play,running)}
 @keyframes spin{to{transform:rotate(360deg)}}
 #heroRing{overflow:visible}
 .bead-el{cursor:pointer}
@@ -373,7 +392,7 @@ section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
 .bead-el:hover .bead-body,.bead-el:focus-visible .bead-body{transform:scale(1.15)}
 .bead-el:hover .bead-hl,.bead-el:focus-visible .bead-hl{opacity:.9}
 .bead-el:hover .bead-tip,.bead-el:focus-visible .bead-tip{opacity:1}
-.bead-tip-spin{transform-box:fill-box;transform-origin:center;animation:spinRev 16s linear infinite}
+.bead-tip-spin{transform-box:fill-box;transform-origin:center;animation:spinRev 16s linear infinite;animation-play-state:var(--ring-play,running)}
 @keyframes spinRev{to{transform:rotate(-360deg)}}
 
 /* ── 卡片 / 格線 ── */
@@ -526,9 +545,14 @@ table.mt tr th:first-child::after,table.mt tr td:first-child::after{content:"";p
 @media(max-width:640px){
   table.mt{min-width:520px;font-size:12.5px;--col1:96px}
   table.mt th,table.mt td{padding:6px 7px}
-  /* 手機一定放不下 520px，所以這行提示無條件顯示不會說謊。
-     它在捲動容器裡，往右滑就會捲走 —— 那時它也已經做完它的事了。 */
-  .mt-wrap::before{content:"← 左右滑動看完整表格 →";display:block;font-size:11.5px;color:var(--muted);
+  /* 2026-08-09 三角色複審：兩欄表在 375px 視窗本來就放得下，520px 是白白逼出一條橫捲軸。
+     實測 FAQ 24 張表全部被迫側滑（.mt-wrap 可視寬 299px vs 表寬 520px），第二欄的答案
+     一律看不到結尾 —— 老年角色與單手滑手機的角色首當其衝。
+     欄數只有 JS 數得出來（CSS 沒有「數欄」選擇器），markFitTables() 數完掛 .mt-fit。
+     ⚠ 保留 table-layout:fixed 與 --col1：第一欄全站等寬是使用者點名要的，不能為了貼合改回 auto。 */
+  table.mt.mt-fit{min-width:0}
+  /* 提示只掛在真的捲得動的容器上。舊版無條件顯示，貼合的表也叫人左右滑＝提示在說謊。 */
+  .mt-wrap.can-x::before{content:"← 左右滑動看完整表格 →";display:block;font-size:11.5px;color:var(--muted);
     padding:5px 9px;background:#EFF5F0;border-bottom:1px solid var(--line-mu)}
 }
 
@@ -541,6 +565,9 @@ table.mt tr th:first-child::after,table.mt tr td:first-child::after{content:"";p
 .fcol{display:block;margin-bottom:14px}
 .fcol>label,.frow>div>label{display:block;font-size:14px;font-weight:600;margin-bottom:6px}
 .req{color:var(--rose-d);font-size:12px;margin-left:4px}
+/* 2026-08-09：Email 必填但沒信箱的人要有出路——點這顆字連結打開右下角客服「小串」。
+   樣式故意做成連結感（無背景框），別跟旁邊的必填 input 搶視覺。 */
+.email-help{background:none;border:none;padding:0;font:inherit;font-size:13px;color:var(--glow-deep);text-decoration:underline;cursor:pointer}
 .opts{display:grid;gap:10px}
 .opt{display:flex;gap:11px;align-items:flex-start;border:1.5px solid var(--line);border-radius:var(--r-sm);padding:13px 15px;cursor:pointer;transition:border-color var(--t),background var(--t),transform var(--t)}
 .opt:hover{border-color:var(--glow)}
@@ -806,8 +833,10 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
 .jact.a2{max-width:740px}
 /* 每一幕多一行具體內容（使用者原話「內容匱乏，會讓人覺得空洞沒意義」）。
    小字、木色左線，跟主文分層但不搶戲。 */
+/* 13px → 14px（2026-08-09 三角色複審）：這是「三幕」每一幕唯一的實質內容，
+   老年角色在 390px 螢幕上讀 13px 灰字太吃力。行高一起放到 1.75 讓它仍然是次要層級。 */
 .jact .jm{margin-top:10px;padding-left:11px;border-left:2px solid rgba(45,106,79,.32);
-  font-size:13px;line-height:1.7;color:var(--muted)}
+  font-size:14px;line-height:1.75;color:var(--muted)}
 .jact.a1 .jm{border-left-color:rgba(143,207,174,.42);color:#AEB8C8}
 .jact.a3{max-width:100%;border-left-color:var(--glow-deep);
   background:linear-gradient(100deg,#FFFDF6,var(--card) 60%)}
@@ -870,7 +899,8 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
 .gfix>div{padding:11px 13px}
 .gfix .was{background:var(--paper2);border-right:1px solid var(--line)}
 .gfix .now{background:rgba(143,207,174,.10)}
-.gfix b{display:block;font-size:11px;letter-spacing:.14em;font-family:var(--serif);margin-bottom:6px}
+/* 11px → 12.5px：這是「上一代卡在／這一代解掉」的欄名，手機上一段有 10 個，字級最小的一批 */
+.gfix b{display:block;font-size:12.5px;letter-spacing:.12em;font-family:var(--serif);margin-bottom:6px}
 .gfix .was b{color:var(--muted)} .gfix .now b{color:var(--mu)}
 .gfix ul{list-style:none;display:grid;gap:4px;margin:0;padding:0}
 .gfix .was li{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(107,114,128,.55)}
@@ -963,8 +993,20 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
 }
 
 /* ── AI 客服「小串」 ── */
-.chatball{position:fixed;right:20px;bottom:20px;z-index:140;width:62px;height:62px;border-radius:50%;border:none;cursor:pointer;background:radial-gradient(circle at 35% 30%,var(--glow),var(--glow-deep));box-shadow:0 8px 24px rgba(201,162,75,.5);display:grid;place-items:center;transition:transform var(--t)}
-.chatball::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(232,201,122,.5);animation:pulseGlow 2.2s infinite}
+/* 2026-08-09 三角色複審實測（390px）：客服球 x293–355／y762–824，問卷的「填好了，送出」
+   x187–317／y759–804 —— 兩者重疊 24×42px，按到送出鈕右緣＝開客服，不是送單。
+   最貴的一次點擊被一顆裝飾球吃掉。試算列（.est）是 sticky，捲到哪都黏在底部，
+   所以不是「捲一下就錯開」的偶發，是問卷全程都壓著。
+   解法：試算列進畫面時整個 body 掛 .est-on，兩顆浮動鈕一起讓位（章節球同理，
+   它壓在金額那一欄上）。IntersectionObserver 在 JS 那邊。 */
+body.est-on .chatball{bottom:calc(20px + var(--est-lift,116px))}
+/* 章節球在填問卷時整顆收起來：把它往上挪只是換一個欄位去壓（實測會壓到「手圍 cm」那顆 select）。
+   正在填單的人不需要跳章節，客服才需要留著。 */
+body.est-on .tocball,body.est-on .tocpanel{display:none}
+.chatball{position:fixed;right:20px;bottom:20px;z-index:140;transition:bottom var(--t);width:62px;height:62px;border-radius:50%;border:none;cursor:pointer;background:radial-gradient(circle at 35% 30%,var(--glow),var(--glow-deep));box-shadow:0 8px 24px rgba(201,162,75,.5);display:grid;place-items:center;transition:transform var(--t)}
+/* 脈動改成跑 6 次就收（約 13 秒），不再永久跳動：它是「這裡有客服」的提示，
+   目的達到就該安靜下來。永遠在動的東西在填問卷時會一直搶注意力，而那一頁最不該分心。 */
+.chatball::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(232,201,122,.5);animation:pulseGlow 2.2s 6}
 .chatball:hover{transform:scale(1.08)}
 .chatball svg{width:30px;height:30px}
 .chatpanel{position:fixed;right:20px;bottom:20px;z-index:145;width:min(370px,92vw);height:min(560px,80vh);background:#fff;border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.3);display:none;flex-direction:column;overflow:hidden}
@@ -1030,6 +1072,15 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
 @media(max-width:520px){
   body{font-size:15px}
   .brand .sub{display:none}
+  /* 2026-08-09 三角色複審：手機首屏原本整片是五行環（280px＋上下留白），
+     H1「看見深淵，然後點亮那道光」與兩顆 CTA 全被推到摺線外——第一眼看不到這在賣什麼。
+     環是品牌識別，留著但縮到 190px，標題與第一顆 CTA 就進得了 844px 首屏。
+     ⚠ 不要改回 order:0 把環丟到文字下面：深底＋發光環是這一頁的第一印象，順序是刻意的。 */
+  .hero-art svg{max-width:190px}
+  .hero .wrap{gap:20px;padding-top:24px}
+  /* 訂單查詢兩個輸入框並排時各只剩約 170px，單號 placeholder（例 S20260725-001）被截掉一半，
+     使用者看不出格式該怎麼填。窄螢幕改一行一個。 */
+  .track-form input{flex-basis:100%}
   .frow{grid-template-columns:1fr}
   .g3-aes{grid-template-columns:1fr}
   .prods{grid-template-columns:1fr}
@@ -1039,7 +1090,12 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
   .cartBtn{padding:8px}
 }
 /* 觸控目標 */
-@media(pointer:coarse){ .nav-links a,.seg button,.chip-f,.pg-btn{min-height:44px;display:inline-flex;align-items:center} }
+@media(pointer:coarse){ .nav-links a,.seg button,.chip-f,.pg-btn,.email-help{min-height:44px;display:inline-flex;align-items:center}
+  /* 2026-08-09 三角色複審量到的漏網：訂製頁那兩個裸 <summary>（想知道顆數怎麼算？／
+     展開完整底價矩陣）只有 25–26px 高，手指按不準；.acc summary 本來就有 padding，
+     多這一條不影響它。老年角色最吃這一項。 */
+  details>summary{min-height:44px;display:flex;align-items:center}
+}
 
 /* ═══════════ 觸控裝置動效（回應「手機版沒有動態效果」）═══════════
    根因不是手機少寫了效果，是既有四個圖框效果（四角括號／描邊繞行／光帶斜掃／推近）
@@ -1312,7 +1368,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
           <p style="margin-bottom:10px"><span class="pill no">配比不可改</span>五行配比是命盤決定的目標，這一層固定。</p>
           <p style="margin-bottom:10px"><span class="pill ok">實現方式可微調</span>同屬性白名單內換晶石、同五行換色系、換排列方式。</p>
           <p style="color:var(--muted);font-size:14px">流程：你提異議 → 我們調替代路徑 → 重新演算 → 再請你確認。</p>
-          <p style="margin-top:14px"><button type="button" style="background:none;border:none;color:var(--glow-deep);cursor:pointer;font-size:14px;text-decoration:underline;padding:0" onclick="document.getElementById('wristIllus').scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'})">不知道手圍？→ 看怎麼量</button></p>
+          <p style="margin-top:14px"><button type="button" style="background:none;border:none;color:var(--glow-deep);cursor:pointer;font-size:14px;text-decoration:underline;padding:11px 0" onclick="document.getElementById('wristIllus').scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'})">不知道手圍？→ 看怎麼量</button></p>
         </div>
       </div>
 
@@ -1503,7 +1559,9 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
             <div class="fcol"><label>付款方式</label><div class="opts" id="payOpts"></div>
               <p style="font-size:13px;color:var(--muted);margin-top:6px">訂製是先出報價單再付款，這裡先讓我們知道你打算怎麼付；正式金額以報價單為準。</p></div>
             <div class="fcol"><label>聯絡方式（LINE／電話）<span class="req">必填</span></label><input type="text" name="contact" required maxlength="60" placeholder="方便我們與你確認設計；也用於訂單進度查詢驗證"></div>
-            <div class="fcol"><label>Email<span class="req">必填</span></label><input type="email" name="email" required maxlength="120" placeholder="用於接收命盤解析、報價單與出貨通知信"></div>
+            <div class="fcol"><label>Email<span class="req">必填</span></label><input type="email" name="email" required maxlength="120" placeholder="用於接收命盤解析、報價單與出貨通知信">
+              <p style="font-size:13px;color:var(--muted);margin-top:6px"><button type="button" class="email-help" id="emailHelpCustom">沒有 Email？點我讓小串幫你</button></p>
+            </div>
           </fieldset>
           <p style="text-align:center;font-size:13px;color:var(--muted);margin:18px 0 0">送出即表示你已看過我們的<a href="#privacy" style="color:var(--glow-deep);text-decoration:underline">隱私政策</a>（收哪些欄位、留多久、怎麼要求刪除）。</p>
 
@@ -2005,6 +2063,8 @@ function route(){
   // 先捲會捲到錯的位置（同一個坑在 works 那條線踩過）。
   requestAnimationFrame(()=>{
     observeReveals(); observeMotion();
+    // 表格在 display:none 的分頁量不到寬度，換頁後才判得出這張表捲不捲得動
+    markFitTables($('#tab-'+id));
     const el = anchor && document.getElementById(anchor);
     // 錨點若在訂製服務互斥顯示的那半邊，先切模式再捲——沒切就是白捲（見 revealTarget 註解）
     if(el){ revealTarget(el); requestAnimationFrame(()=>el.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'})); }
@@ -2013,7 +2073,7 @@ function route(){
   renderTocPanel();
 }
 addEventListener('hashchange',route);
-addEventListener('resize',()=>{ const on=$('#navLinks .nav-top.on'); if(on) moveUnder(on); });
+addEventListener('resize',()=>{ const on=$('#navLinks .nav-top.on'); if(on) moveUnder(on); markFitTables($('.tab.active')); });
 $('#burger').addEventListener('click',()=>{ const b=$('#burger'); const o=b.classList.toggle('open'); $('#navLinks').classList.toggle('open',o); b.setAttribute('aria-expanded',o); });
 $$('#navLinks .nav-top').forEach(a=>a.addEventListener('mouseenter',()=>moveUnder(a)));
 $('#navLinks').addEventListener('mouseleave',()=>{ const on=$('#navLinks .nav-top.on'); if(on) moveUnder(on); });
@@ -2095,9 +2155,31 @@ function buildTOC(){
     const a = item.querySelector('.nav-top'); const sub = item.querySelector('.nav-sub'); const exp = item.querySelector('.nav-exp');
     const t = (a.getAttribute('href')||'').slice(1);
     const list = TOC[t]||[];
-    // 沒有可跳的章節就把展開鈕與空面板拿掉——留一個點下去沒東西的鈕比沒有更糟
-    if(list.length<2){ if(sub) sub.remove(); if(exp) exp.remove(); return; }
+    /* 沒有可跳的章節就把展開鈕與空面板藏起來——留一個點下去沒東西的鈕比沒有更糟。
+       ⚠ 2026-08-09 三角色複審改「移除」為「隱藏」：常見問題那六組分類標題是 renderFAQ()
+         生出來的，而 renderFAQ() 排在 buildTOC() 後面，第一次掃只掃得到一個靜態 h2＝
+         list 長度 1 → 舊版把 .nav-sub／.nav-exp 直接 remove()，之後就算重掃也沒有容器可填，
+         整份章節導覽在最需要它的那一頁（31 題）永遠是空的。改成隱藏後可重複重建。 */
+    if(list.length<2){ if(sub) sub.innerHTML=''; if(exp) exp.setAttribute('hidden',''); item.classList.remove('open'); return; }
+    if(exp) exp.removeAttribute('hidden');
     sub.innerHTML = list.map(tocRow(t)).join('');
+  });
+}
+
+/* ═══ 表格在手機貼合（2026-08-09 三角色複審）═══
+   CSS 沒有「數欄」選擇器，欄數只能在這裡數：≤2 欄的表拿掉 min-width 讓它貼合視窗寬，
+   ≥3 欄維持 520px 橫捲（底價矩陣 10 欄擠成一團比側滑更難讀）。
+   順便把「← 左右滑動」提示改成只掛在真的捲得動的容器上，提示才不會說謊。
+   ⚠ 摺疊在 <details> 裡的表在闔上時量不到寬度，所以 details 的 toggle 也要再跑一次。 */
+function markFitTables(root){
+  const r = root || document;
+  [...r.querySelectorAll('table.mt')].forEach(tb=>{
+    const cols = [...(tb.rows[0]?.cells||[])].reduce((n,c)=>n+(c.colSpan||1),0);
+    // 帶 inline min-width 的是刻意指定要寬的（底價矩陣、三軌方案），不碰
+    tb.classList.toggle('mt-fit', cols>0 && cols<=2 && !tb.style.minWidth);
+  });
+  [...r.querySelectorAll('.mt-wrap')].forEach(w=>{
+    w.classList.toggle('can-x', w.scrollWidth - w.clientWidth > 2);
   });
 }
 /* 一份清單兩個地方畫（頁首子選單／左下角面板），列的長相統一從這裡出。
@@ -2420,13 +2502,21 @@ fetch('news.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(j=>{ if(A
 // 靜態 HTML 裡要印 LINE 帳號的地方一律標 data-line，由這裡從 config.js 填；
 // 不要把帳號字串抄進 HTML——換帳號時抄過的那幾處一定會被漏掉。
 document.querySelectorAll('[data-line]').forEach(e=>{ e.textContent = (CONFIG.CONTACT||{}).line || ''; });
+// tel: 的 href 只吃數字與開頭的 +（03-4xx-xxxx 這種好念的寫法直接丟進 href，部分撥號程式會吃掉整串）。
+// ponytail: 不做號碼格式驗證——這個值來自 config.js，是店長自己填的，不是使用者輸入。
+function telDigits(s){ return String(s).replace(/[^\d+]/g,''); }
 (function contacts(){
   const c = CONFIG.CONTACT||{}; const out=[];
+  /* 電話排在 LINE 前面：這條線本來就是為了「不會用 LINE 的客層」才加的，
+     排在後面等於還是要他先看懂 LINE 那顆。tel: 不加 target=_blank——
+     它交給撥號程式，不是開分頁，開了會留一個空白頁在後面。 */
+  if(c.tel) out.push(`<a class="btn2" href="tel:${esc(telDigits(c.tel))}">電話：${esc(c.tel)}</a>`);
   if(c.line) out.push(`<a class="btn2" href="https://line.me/ti/p/~${esc(c.line)}" target="_blank" rel="noopener">LINE：${esc(c.line)}</a>`);
   if(c.ig) out.push(`<a class="btn2" href="https://instagram.com/${esc(c.ig)}" target="_blank" rel="noopener">IG：${esc(c.ig)}</a>`);
   if(c.shopee) out.push(`<a class="btn2" href="${esc(c.shopee)}" target="_blank" rel="noopener">蝦皮賣場</a>`);
   $('#channels').innerHTML = out.join('');
-  const fl=[]; if(c.line) fl.push(`<a href="https://line.me/ti/p/~${esc(c.line)}" target="_blank" rel="noopener">LINE：${esc(c.line)}</a>`);
+  const fl=[]; if(c.tel) fl.push(`<a href="tel:${esc(telDigits(c.tel))}">電話：${esc(c.tel)}</a>`);
+  if(c.line) fl.push(`<a href="https://line.me/ti/p/~${esc(c.line)}" target="_blank" rel="noopener">LINE：${esc(c.line)}</a>`);
   if(c.ig) fl.push(`<a href="https://instagram.com/${esc(c.ig)}" target="_blank" rel="noopener">IG：${esc(c.ig)}</a>`);
   if(c.shopee) fl.push(`<a href="${esc(c.shopee)}" target="_blank" rel="noopener">蝦皮賣場</a>`);
   $('#footLinks').innerHTML = fl.join('');
@@ -2703,7 +2793,9 @@ function checkout(){
     <!-- 2026-08-07 使用者裁決：email 從選填改必填。
          理由是這一欄同時是「訂單成立通知信」與「出貨通知信」唯一的收件地址，
          選填等於讓一部分客人從頭到尾收不到任何通知（交接卡 D）。 -->
-    <div class="fcol"><input id="coEmail" type="email" placeholder="Email（必填，訂單成立與出貨通知都寄這裡）" maxlength="80" required></div>
+    <div class="fcol"><input id="coEmail" type="email" placeholder="Email（必填，訂單成立與出貨通知都寄這裡）" maxlength="80" required>
+      <p style="font-size:13px;color:var(--muted);margin-top:6px"><button type="button" class="email-help" id="coEmailHelp">沒有 Email？點我讓小串幫你</button></p>
+    </div>
     <div class="fcol"><input id="coNote" placeholder="備註（可空）" maxlength="200"></div>
     <div class="sum"><span>商品小計</span><span>NT$ ${sub.toLocaleString()}</span></div>
     <div class="sum"><span>運費</span><span id="coFee">NT$ 0</span></div>
@@ -2721,6 +2813,7 @@ function checkout(){
   const upd = ()=>{ const f=feeOf(); $('#coFee').textContent='NT$ '+f.toLocaleString(); $('#coTot').textContent='NT$ '+(sub+f).toLocaleString(); updAddr(); };
   $('#coShip').addEventListener('change',upd); upd();
   $('#coSubmit').addEventListener('click',submitShopOrder);
+  $('#coEmailHelp').addEventListener('click',openChat);
 }
 async function submitShopOrder(e){
   const name=$('#coName').value.trim(), contact=$('#coContact').value.trim();
@@ -2887,7 +2980,11 @@ function orderText(o){
 F.addEventListener('submit', async e=>{
   e.preventDefault();
   if(F.website.value){ return; }                            // 蜜罐：機器人填了就靜默丟棄
-  if(Date.now()-formStart < 3000){ return; }                // 3 秒內送出＝機器人
+  /* 3 秒門檻本來是「靜默 return」。機率極低但後果最重：真人（例如自動填入後直接按送出）
+     碰到就是「按了完全沒反應」，而且他不會知道要再按一次——一張單就這樣消失。
+     改成補足剩下的時間再往下走：擋機器人的效果一樣（它不會等），真人只是慢半秒。 */
+  const wait = 3000 - (Date.now()-formStart);
+  if(wait > 0) await new Promise(r=>setTimeout(r, wait));
   if(!F.reportValidity()) return;
   const btn=$('#submitBtn'); btn.disabled=true; btn.classList.add('busy');
   const o=collect(); const txt=orderText(o);
@@ -2911,6 +3008,26 @@ $('#copyBtn').addEventListener('click',async e=>{
 });
 $('#againBtn').addEventListener('click',()=>{ $('#done').style.display='none'; F.style.display='block'; F.reset(); $('#submitBtn').disabled=false; $('#submitBtn').classList.remove('busy'); $('#submitBtn').textContent='填好了，送出'; est(); });
 est();
+
+/* 五行環捲出視窗就暫停（見 .spin 那段註解）。用 IntersectionObserver 而不是 scroll 事件：
+   這件事只有「進／出視窗」兩個狀態，沒必要每一幀都算一次。 */
+(function pauseRing(){
+  const art=document.querySelector('.hero-art');
+  if(!art||!('IntersectionObserver' in window))return;
+  new IntersectionObserver(es=>es.forEach(e=>{
+    document.documentElement.style.setProperty('--ring-play', e.isIntersecting?'running':'paused');
+  }),{threshold:0}).observe(art);
+})();
+
+/* 試算列在畫面上時，把兩顆浮動鈕頂上去（CSS 那邊 body.est-on，見 .chatball 上方註解）。
+   高度現量：試算列在窄螢幕會換行變兩層，寫死一個數字遲早對不上。 */
+(function estLift(){
+  const bar = $('.est'); if(!bar || !('IntersectionObserver' in window)) return;
+  new IntersectionObserver(es=>es.forEach(e=>{
+    document.body.style.setProperty('--est-lift', (bar.offsetHeight + 12) + 'px');
+    document.body.classList.toggle('est-on', e.isIntersecting);
+  }),{threshold:0}).observe(bar);
+})();
 
 /* ═══════════ 作品集：雙軸 chip 過濾（FLIP）＋ lightbox ═══════════ */
 const PAGE_SIZE = 12;
@@ -3140,7 +3257,14 @@ function renderFAQ(){
     <div class="faq-group reveal" style="--i:${gi}"><h3>${icon[gp]||'❓'} ${gp}</h3>
       ${FAQ.filter(f=>f.g===gp).map(f=>`<details class="acc"><summary class="lift">${esc(f.q)}</summary><div class="a">${f.t?f.t:esc(f.a)}</div></details>`).join('')}
     </div>`).join('');
-  $$('#faqWrap .acc').forEach(d=>d.addEventListener('toggle',()=>d.classList.toggle('open',d.open)));
+  $$('#faqWrap .acc').forEach(d=>d.addEventListener('toggle',()=>{
+    d.classList.toggle('open',d.open);
+    if(d.open) markFitTables(d);   // 闔上時量不到寬度，展開這一刻才判得出要不要掛橫捲提示
+  }));
+  markFitTables($('#faqWrap'));
+  /* 這一頁的章節導覽＝上面那六組分類標題，而它們是這一刻才生出來的。
+     buildTOC() 初次執行時排在本函式前面，掃不到 → 常見問題那格子選單會是空的，所以重掃一次。 */
+  buildTOC(); renderTocPanel();
   // JSON-LD FAQPage — 重畫時換掉舊的那份，不要疊第二份給搜尋引擎
   const ld = { "@context":"https://schema.org","@type":"FAQPage","mainEntity":FAQ.map(f=>({"@type":"Question","name":f.q,"acceptedAnswer":{"@type":"Answer","text":f.a}})) };
   let s=document.getElementById('faqLd');
@@ -3275,11 +3399,17 @@ async function chatSend(text){
 const QUICK=['價格怎麼算','多久收到','情侶對串','怎麼保養'];
 $('#chatQuick').innerHTML = QUICK.map(q=>`<button type="button">${q}</button>`).join('');
 $('#chatQuick').addEventListener('click',e=>{ if(e.target.tagName==='BUTTON') chatSend(e.target.textContent); });
-$('#chatBall').addEventListener('click',()=>{ const p=$('#chatPanel'); const on=p.classList.toggle('on'); $('#chatBall').style.display=on?'none':'grid';
-  if(on&&!chatHist.length) botSay('嗨，我是小串 🌟\n手串價格、流程、情侶對串、怎麼保養都可以問我。想找真人也跟我說。'); });
+// openChat() 抽出來單獨用：純開啟、不是 toggle，給「沒有 Email」引導鈕呼叫——
+// 用 toggle 的話，客服面板本來就開著時點下去會被關掉，變成反效果。
+function openChat(){ const p=$('#chatPanel'); if(p.classList.contains('on')) return;
+  p.classList.add('on'); $('#chatBall').style.display='none';
+  if(!chatHist.length) botSay('嗨，我是小串 🌟\n手串價格、流程、情侶對串、怎麼保養都可以問我。想找真人也跟我說。'); }
+$('#chatBall').addEventListener('click',()=>{ const p=$('#chatPanel');
+  if(p.classList.contains('on')){ p.classList.remove('on'); $('#chatBall').style.display='grid'; } else openChat(); });
 $('#chatClose').addEventListener('click',()=>{ $('#chatPanel').classList.remove('on'); $('#chatBall').style.display='grid'; });
 $('#chatSend').addEventListener('click',()=>chatSend());
 $('#chatInput').addEventListener('keydown',e=>{ if(e.key==='Enter') chatSend(); });
+$('#emailHelpCustom').addEventListener('click',openChat);
 
 /* ═══════════ 追蹤碼（後台填 ID 才注入，預設不載外部腳本） ═══════════
    ⚠ CONFIG.GA4_ID／PIXEL_ID 一旦填上，#privacy「我們不收什麼」那一條就與事實不符了。
