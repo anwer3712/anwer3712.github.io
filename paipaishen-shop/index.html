@@ -2795,10 +2795,16 @@ function checkout(){
          一個欄位吃兩種用途（宅配填地址／店到店填門市），因為它們互斥、
          而且後端就一個欄位；label 與 placeholder 隨取貨方式換，不另開欄位。 -->
     <div class="fcol" id="coAddrWrap"><input id="coAddr" placeholder="收件地址" maxlength="120"></div>
-    <!-- 2026-08-07 使用者裁決：email 從選填改必填。
-         理由是這一欄同時是「訂單成立通知信」與「出貨通知信」唯一的收件地址，
-         選填等於讓一部分客人從頭到尾收不到任何通知（交接卡 D）。 -->
-    <div class="fcol"><input id="coEmail" type="email" placeholder="Email（必填，訂單成立與出貨通知都寄這裡）" maxlength="80" required>
+    <!-- 2026-08-07 曾把 email 改必填（理由：它是訂單成立信與出貨通知信唯一的收件地址）。
+         2026-08-10 使用者裁決推翻**現貨這一半**：現貨是買現成的，沒有命盤解析、報價單、
+         設計草稿那些要來回確認的東西，硬要 email 只是把不用信箱的客人擋在門外。
+         ⚠ 訂製問卷那邊仍然必填，別一起改——那條線整個流程都靠信件往返。
+         後端本來就吃得下空 email：n8n『套訂單成立範本』開頭就 if (!to) return []
+         （下游不執行、不寄空信），後台出貨視窗也會直接說「這張單沒有 Email，請自己聯繫」。
+         所以這裡只鬆前台，不必動 n8n。
+         ⚠ 這整段在 checkout() 的樣板字串裡面——註解不准出現反引號，
+           那會直接把 template literal 截斷（2026-08-10 剛踩過，整頁 JS 死在 Unexpected token）。 -->
+    <div class="fcol"><input id="coEmail" type="email" placeholder="Email（可不填。填了才收得到訂單成立與出貨通知）" maxlength="80">
       <p style="font-size:13px;color:var(--muted);margin-top:6px"><button type="button" class="email-help" id="coEmailHelp">沒有 Email？點我，改用 LINE 收訂單與出貨通知</button></p>
     </div>
     <div class="fcol"><input id="coNote" placeholder="備註（可空）" maxlength="200"></div>
@@ -2829,11 +2835,10 @@ async function submitShopOrder(e){
   const ship_addr = $('#coAddr').value.trim();
   if(NEED[shipOpt.value] && !ship_addr){
     $('#coOut').innerHTML='<div class="msg warn">請填'+NEED[shipOpt.value]+'。</div>'; $('#coAddr').focus(); return; }
-  // Email 2026-08-07 起必填：它是訂單成立信與出貨通知信唯一的收件地址。
+  // Email 2026-08-10 起在現貨這條線是選填（現貨不用來回改設計，見上面欄位那段註解）。
+  // 空的就直接放行；有填才驗格式——不驗的話一個打錯的信箱等於白填，通知照樣收不到。
   const email = $('#coEmail').value.trim();
-  if(!email){
-    $('#coOut').innerHTML='<div class="msg warn">請填 Email——訂單成立通知與出貨通知都寄到這裡。</div>'; $('#coEmail').focus(); return; }
-  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){
+  if(email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){
     $('#coOut').innerHTML='<div class="msg warn">Email 格式看起來不對，請再檢查一次。</div>'; $('#coEmail').focus(); return; }
   const sub = cart.reduce((s,x)=>s+x.price*x.qty,0), shipping=+shipOpt.dataset.fee||0;
   const o = { items:cart.map(x=>({id:x.id,name:x.name,price:x.price,qty:x.qty})), subtotal:sub, shipping,
