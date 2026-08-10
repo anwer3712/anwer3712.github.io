@@ -1558,11 +1558,12 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
             </div></div>
             <div class="fcol"><label>付款方式</label><div class="opts" id="payOpts"></div>
               <p style="font-size:13px;color:var(--muted);margin-top:6px">訂製是先出報價單再付款，這裡先讓我們知道你打算怎麼付；正式金額以報價單為準。</p></div>
-            <!-- 2026-08-10 使用者裁決：這一欄以手機號碼為主（建檔＋聯絡），沒有手機才填 LINE ID。
+            <!-- 2026-08-10 使用者裁決（交接卡 §5-3 原文「只有 LINE／電話」的本意）：
+                 這一欄是**二擇一**——手機號碼或 LINE ID，留一個就好，不強迫兩個都給。
                  欄名 contact 不動——n8n 進件與進度查詢驗證（比對末四碼）都認這個鍵，改名要連 n8n 一起改。
                  type 維持 text：填 LINE ID 的人用 type=tel 會被瀏覽器的數字鍵盤卡住，
-                 inputmode 只是「先給數字鍵盤」的提示，不會擋住文字。 -->
-            <div class="fcol"><label>手機號碼（沒有手機才填 LINE ID）<span class="req">必填</span></label><input type="text" name="contact" required maxlength="60" inputmode="tel" placeholder="例 0912-345-678；用於建檔與確認設計，末四碼也是訂單進度查詢的驗證碼"></div>
+                 inputmode 只是「先給數字鍵盤」的提示（多數人填手機），不會擋住文字。 -->
+            <div class="fcol"><label>聯絡方式：手機號碼 或 LINE ID（二擇一）<span class="req">必填</span></label><input type="text" name="contact" required maxlength="60" inputmode="tel" placeholder="例 0912-345-678 或 LINE ID；用於建檔與確認設計，末四碼也是訂單進度查詢的驗證碼"></div>
             <div class="fcol"><label>Email<span class="req">必填</span></label><input type="email" name="email" required maxlength="120" placeholder="用於接收命盤解析、報價單與出貨通知信">
               <p style="font-size:13px;color:var(--muted);margin-top:6px"><button type="button" class="email-help" id="emailHelpCustom">沒有 Email？點我，改用 LINE 收設計稿與報價單</button></p>
             </div>
