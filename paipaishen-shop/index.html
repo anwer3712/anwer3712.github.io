@@ -1558,9 +1558,13 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
             </div></div>
             <div class="fcol"><label>付款方式</label><div class="opts" id="payOpts"></div>
               <p style="font-size:13px;color:var(--muted);margin-top:6px">訂製是先出報價單再付款，這裡先讓我們知道你打算怎麼付；正式金額以報價單為準。</p></div>
-            <div class="fcol"><label>聯絡方式（LINE／電話）<span class="req">必填</span></label><input type="text" name="contact" required maxlength="60" placeholder="方便我們與你確認設計；也用於訂單進度查詢驗證"></div>
+            <!-- 2026-08-10 使用者裁決：這一欄以手機號碼為主（建檔＋聯絡），沒有手機才填 LINE ID。
+                 欄名 contact 不動——n8n 進件與進度查詢驗證（比對末四碼）都認這個鍵，改名要連 n8n 一起改。
+                 type 維持 text：填 LINE ID 的人用 type=tel 會被瀏覽器的數字鍵盤卡住，
+                 inputmode 只是「先給數字鍵盤」的提示，不會擋住文字。 -->
+            <div class="fcol"><label>手機號碼（沒有手機才填 LINE ID）<span class="req">必填</span></label><input type="text" name="contact" required maxlength="60" inputmode="tel" placeholder="例 0912-345-678；用於建檔與確認設計，末四碼也是訂單進度查詢的驗證碼"></div>
             <div class="fcol"><label>Email<span class="req">必填</span></label><input type="email" name="email" required maxlength="120" placeholder="用於接收命盤解析、報價單與出貨通知信">
-              <p style="font-size:13px;color:var(--muted);margin-top:6px"><button type="button" class="email-help" id="emailHelpCustom">沒有 Email？點我讓小串幫你</button></p>
+              <p style="font-size:13px;color:var(--muted);margin-top:6px"><button type="button" class="email-help" id="emailHelpCustom">沒有 Email？點我，改用 LINE 收設計稿與報價單</button></p>
             </div>
           </fieldset>
           <p style="text-align:center;font-size:13px;color:var(--muted);margin:18px 0 0">送出即表示你已看過我們的<a href="#privacy" style="color:var(--glow-deep);text-decoration:underline">隱私政策</a>（收哪些欄位、留多久、怎麼要求刪除）。</p>
@@ -2783,7 +2787,7 @@ function checkout(){
     <div class="fcol"><input id="coName" placeholder="姓名" maxlength="30"></div>
     <!-- 2026-08-07 使用者裁決：Email 改必填之後就不用跟客戶要 LINE 了。
          電話這一欄留著——宅配與店到店的物流單一定要有連絡電話，那不是「聯絡方式」的替代品。 -->
-    <div class="fcol"><input id="coContact" placeholder="聯絡電話" maxlength="60" inputmode="tel"></div>
+    <div class="fcol"><input id="coContact" placeholder="手機號碼（建檔與聯絡用，出貨物流單一定要有）" maxlength="60" inputmode="tel"></div>
     <!-- 收件資訊（2026-08-06）：選宅配卻沒地址＝有單也出不了貨。
          DB 的 pps2_shop_orders.ship_addr 欄一直都在，只是從來沒有人填過它——
          08-05 那張測試單 ship_method='home' 而 ship_addr 是 NULL，就是這個洞的證據。
@@ -2794,7 +2798,7 @@ function checkout(){
          理由是這一欄同時是「訂單成立通知信」與「出貨通知信」唯一的收件地址，
          選填等於讓一部分客人從頭到尾收不到任何通知（交接卡 D）。 -->
     <div class="fcol"><input id="coEmail" type="email" placeholder="Email（必填，訂單成立與出貨通知都寄這裡）" maxlength="80" required>
-      <p style="font-size:13px;color:var(--muted);margin-top:6px"><button type="button" class="email-help" id="coEmailHelp">沒有 Email？點我讓小串幫你</button></p>
+      <p style="font-size:13px;color:var(--muted);margin-top:6px"><button type="button" class="email-help" id="coEmailHelp">沒有 Email？點我，改用 LINE 收訂單與出貨通知</button></p>
     </div>
     <div class="fcol"><input id="coNote" placeholder="備註（可空）" maxlength="200"></div>
     <div class="sum"><span>商品小計</span><span>NT$ ${sub.toLocaleString()}</span></div>
@@ -2813,7 +2817,7 @@ function checkout(){
   const upd = ()=>{ const f=feeOf(); $('#coFee').textContent='NT$ '+f.toLocaleString(); $('#coTot').textContent='NT$ '+(sub+f).toLocaleString(); updAddr(); };
   $('#coShip').addEventListener('change',upd); upd();
   $('#coSubmit').addEventListener('click',submitShopOrder);
-  $('#coEmailHelp').addEventListener('click',openChat);
+  $('#coEmailHelp').addEventListener('click',noEmailHelp);
 }
 async function submitShopOrder(e){
   const name=$('#coName').value.trim(), contact=$('#coContact').value.trim();
@@ -3404,12 +3408,32 @@ $('#chatQuick').addEventListener('click',e=>{ if(e.target.tagName==='BUTTON') ch
 function openChat(){ const p=$('#chatPanel'); if(p.classList.contains('on')) return;
   p.classList.add('on'); $('#chatBall').style.display='none';
   if(!chatHist.length) botSay('嗨，我是小串 🌟\n手串價格、流程、情侶對串、怎麼保養都可以問我。想找真人也跟我說。'); }
+/* 泡泡一律 textContent（見 addMsg），不吃 HTML——連結用真的 DOM 節點接上去，
+   不是把字串塞進 innerHTML。訊息裡會混進客人打的字，那條界線不要為了一顆按鈕破掉。 */
+function botLink(text,href){
+  const d=addMsg('bot',''), a=document.createElement('a');
+  a.href=href; a.target='_blank'; a.rel='noopener'; a.textContent=text;
+  a.style.cssText='color:var(--glow-deep);text-decoration:underline;font-weight:600';
+  d.appendChild(a); return d;
+}
+/* 「沒有 Email」的出路（2026-08-10 使用者裁決）：Email 仍然必填——它是報價信與出貨信
+   唯一的收件地址，放寬就是讓一部分客人從頭到尾收不到東西（08-07 那條裁決不變）。
+   沒有信箱的人改走這條：加官方 LINE → 客服代填單 → 設計草稿／報價單／出貨通知都用 LINE 傳。
+   ⚠ 只把聊天面板打開是不夠的：這條路是為了「不會用 Email 的客層」開的，
+     要給得出「現在點這裡」的入口，不能只丟一句 LINE ID 叫他自己去搜。 */
+function noEmailHelp(){
+  openChat();
+  botSay('沒有 Email 也可以訂 🙌\n加我們的官方 LINE，之後設計草稿、報價單、出貨通知都用 LINE 傳給你，不用信箱。');
+  if(CONFIG.CONTACT && CONFIG.CONTACT.line)
+    botLink('👉 點這裡加入官方 LINE（'+CONFIG.CONTACT.line+'）','https://line.me/ti/p/~'+CONFIG.CONTACT.line);
+  botSay('加好後跟我們說「我要訂製」或「我要買現貨」，客服會幫你把訂單填完。\n手機號碼記得留給我們——出貨的物流單一定要有連絡電話。');
+}
 $('#chatBall').addEventListener('click',()=>{ const p=$('#chatPanel');
   if(p.classList.contains('on')){ p.classList.remove('on'); $('#chatBall').style.display='grid'; } else openChat(); });
 $('#chatClose').addEventListener('click',()=>{ $('#chatPanel').classList.remove('on'); $('#chatBall').style.display='grid'; });
 $('#chatSend').addEventListener('click',()=>chatSend());
 $('#chatInput').addEventListener('keydown',e=>{ if(e.key==='Enter') chatSend(); });
-$('#emailHelpCustom').addEventListener('click',openChat);
+$('#emailHelpCustom').addEventListener('click',noEmailHelp);
 
 /* ═══════════ 追蹤碼（後台填 ID 才注入，預設不載外部腳本） ═══════════
    ⚠ CONFIG.GA4_ID／PIXEL_ID 一旦填上，#privacy「我們不收什麼」那一條就與事實不符了。
