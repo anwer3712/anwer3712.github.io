@@ -1561,9 +1561,12 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
             <!-- 2026-08-10 使用者裁決（交接卡 §5-3 原文「只有 LINE／電話」的本意）：
                  這一欄是**二擇一**——手機號碼或 LINE ID，留一個就好，不強迫兩個都給。
                  欄名 contact 不動——n8n 進件與進度查詢驗證（比對末四碼）都認這個鍵，改名要連 n8n 一起改。
-                 type 維持 text：填 LINE ID 的人用 type=tel 會被瀏覽器的數字鍵盤卡住，
-                 inputmode 只是「先給數字鍵盤」的提示（多數人填手機），不會擋住文字。 -->
-            <div class="fcol"><label>聯絡方式：手機號碼 或 LINE ID（二擇一）<span class="req">必填</span></label><input type="text" name="contact" required maxlength="60" inputmode="tel" placeholder="例 0912-345-678 或 LINE ID；用於建檔與確認設計，末四碼也是訂單進度查詢的驗證碼"></div>
+                 type 維持 text：填 LINE ID 的人用 type=tel 會被瀏覽器的數字鍵盤卡住。
+                 ⚠ inputmode="tel" 也不能留（2026-08-11 使用者回報「只能填數字不能填英文」）——
+                 它不是「先給數字鍵盤」的軟提示：手機上叫出來的是純數字撥號鍵盤，**沒有字母鍵**，
+                 而且不少機型不給切換入口，填 LINE ID 的人等於被鎖死在數字上。
+                 這一欄改成二擇一之後就不該再有 inputmode，讓系統給預設鍵盤（數字字母都打得出來）。 -->
+            <div class="fcol"><label>聯絡方式：手機號碼 或 LINE ID（二擇一）<span class="req">必填</span></label><input type="text" name="contact" required maxlength="60" placeholder="例 0912-345-678 或 LINE ID；用於建檔與確認設計，末四碼也是訂單進度查詢的驗證碼"></div>
             <div class="fcol"><label>Email<span class="req">必填</span></label><input type="email" name="email" required maxlength="120" placeholder="用於接收命盤解析、報價單與出貨通知信">
               <p style="font-size:13px;color:var(--muted);margin-top:6px"><button type="button" class="email-help" id="emailHelpCustom">沒有 Email？點我，改用 LINE 收設計稿與報價單</button></p>
             </div>
@@ -3344,8 +3347,11 @@ function prodLd(){
         <div id="reBox" style="display:none;margin-top:10px"><textarea id="reTxt" maxlength="300" placeholder="想調整哪裡？例：想要更深的藍、主珠想換……"></textarea><button class="btn2" id="reSend" type="button" style="margin-top:8px">送出調整需求</button></div>`;
       h+='</div>';
     }
-    h+=`<div class="design-box"><h4>💬 給店家留言</h4><textarea id="cmTxt" maxlength="300" placeholder="其他想說的話（意見、備註、想加的細節）"></textarea><button class="btn2" id="cmSend" type="button" style="margin-top:8px">送出留言</button>
-      <div class="evt-list" id="evtList">${(r.events||[]).map(ev=>`<div class="evt"><b>${esc(ev.kind)}</b> ${esc(ev.note||'')}<time>${esc((ev.at||'').slice(0,16).replace('T',' '))}</time></div>`).join('')}</div></div>`;
+    // 2026-08-11 使用者裁決：拿掉「💬 給店家留言」。要說話的人會去找小串或 LINE，
+    // 多一個沒人看的留言箱只是讓客戶以為留了就有人回。訂單歷程原本跟留言箱擠在同一個
+    // design-box 裡，留言箱拿掉後它要自己一個框；沒有事件就整塊不出現，不留空盒子。
+    if((r.events||[]).length) h+=`<div class="design-box"><h4>📋 訂單歷程</h4>
+      <div class="evt-list" id="evtList">${r.events.map(ev=>`<div class="evt"><b>${esc(ev.kind)}</b> ${esc(ev.note||'')}<time>${esc((ev.at||'').slice(0,16).replace('T',' '))}</time></div>`).join('')}</div></div>`;
     out.innerHTML=h;
     const no=$('#tNo').value.trim(), vf=$('#tVf').value.trim();
     const act=async(action,note,btn)=>{ if(btn){btn.disabled=true;btn.classList.add('busy');}
@@ -3354,7 +3360,6 @@ function prodLd(){
     if(q('actOk')) q('actOk').addEventListener('click',e=>{ if(confirm('確認同意此排珠提案？同意後即進入製作準備。')) act('approve','',e.target); });
     if(q('actRe')) q('actRe').addEventListener('click',()=>q('reBox').style.display='block');
     if(q('reSend')) q('reSend').addEventListener('click',e=>{ const t=q('reTxt').value.trim(); if(!t){alert('請填想調整的內容');return;} act('revise',t,e.target); });
-    if(q('cmSend')) q('cmSend').addEventListener('click',e=>{ const t=q('cmTxt').value.trim(); if(!t){alert('請填留言內容');return;} act('comment',t,e.target); });
   }
   $('#tGo').addEventListener('click',query);
   $('#tVf').addEventListener('keydown',e=>{ if(e.key==='Enter') query(); });

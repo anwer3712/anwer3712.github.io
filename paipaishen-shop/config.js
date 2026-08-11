@@ -29,6 +29,11 @@ const CONFIG = {
     // 訂單確認頁（confirm.html）用：帶 order token 取回方案階梯＋升級推薦資料。
     // P2a 已接線（CONFIRM_訂單確認頁查詢 workflow）；回應鍵名＝{ok,order_no,qty,base,plans[],upgrade}，
     // 與本檔 demoOrder() 的形狀一致。抓不到資料（尚未部署啟用／查無此單）時仍會自動退化為 demo 資料。
+    // ⚠ 回應形狀不合格（缺 plans、base 不是數字…）也一律當作抓不到——以前只看 ok:true 就往下渲染，
+    //    預審階段那種「單子在、階梯還沒算出來」的回應會讓確認頁的送出鈕停在 disabled，按了完全沒反應。
+    // ＋ preview_status（選填，值域同 admin.html：pending／approved／released／rejected）：
+    //    尚未放行時確認頁會擋下送出並說明原因。n8n 側還沒補這個欄位之前不影響現行流程，
+    //    補上去才會生效——別把它當成「已經在擋了」。
     CONFIRM_LOOKUP: "/pps-confirm-lookup",
 
     // 訂單確認頁送出「選擇方案／要不要升級」→ resume WF2 的客戶等待節點。
