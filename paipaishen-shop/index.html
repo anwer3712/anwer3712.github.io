@@ -1558,15 +1558,12 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
             </div></div>
             <div class="fcol"><label>付款方式</label><div class="opts" id="payOpts"></div>
               <p style="font-size:13px;color:var(--muted);margin-top:6px">訂製是先出報價單再付款，這裡先讓我們知道你打算怎麼付；正式金額以報價單為準。</p></div>
-            <!-- 2026-08-10 使用者裁決（交接卡 §5-3 原文「只有 LINE／電話」的本意）：
-                 這一欄是**二擇一**——手機號碼或 LINE ID，留一個就好，不強迫兩個都給。
+            <!-- 2026-08-12 使用者裁決：拿掉 LINE ID 選項，只留手機號碼必填（取代 2026-08-10 二擇一版、
+                 以及 08-11 那次「拿掉 inputmode 讓 LINE ID 打得進去」的修法——LINE 選項本身沒了，
+                 那個修法的前提不存在，數字鍵盤（inputmode=tel）對純手機欄位是正確、想要的行為）。
                  欄名 contact 不動——n8n 進件與進度查詢驗證（比對末四碼）都認這個鍵，改名要連 n8n 一起改。
-                 type 維持 text：填 LINE ID 的人用 type=tel 會被瀏覽器的數字鍵盤卡住。
-                 ⚠ inputmode="tel" 也不能留（2026-08-11 使用者回報「只能填數字不能填英文」）——
-                 它不是「先給數字鍵盤」的軟提示：手機上叫出來的是純數字撥號鍵盤，**沒有字母鍵**，
-                 而且不少機型不給切換入口，填 LINE ID 的人等於被鎖死在數字上。
-                 這一欄改成二擇一之後就不該再有 inputmode，讓系統給預設鍵盤（數字字母都打得出來）。 -->
-            <div class="fcol"><label>聯絡方式：手機號碼 或 LINE ID（二擇一）<span class="req">必填</span></label><input type="text" name="contact" required maxlength="60" placeholder="例 0912-345-678 或 LINE ID；用於建檔與確認設計，末四碼也是訂單進度查詢的驗證碼"></div>
+                 type 改 tel：不必再遷就 LINE ID 輸入，手機號碼用數字鍵盤更順手。 -->
+            <div class="fcol"><label>手機號碼<span class="req">必填</span></label><input type="tel" name="contact" required maxlength="60" inputmode="tel" placeholder="例 0912-345-678；用於建檔與確認設計，末四碼也是訂單進度查詢的驗證碼"></div>
             <div class="fcol"><label>Email<span class="req">必填</span></label><input type="email" name="email" required maxlength="120" placeholder="用於接收命盤解析、報價單與出貨通知信">
               <p style="font-size:13px;color:var(--muted);margin-top:6px"><button type="button" class="email-help" id="emailHelpCustom">沒有 Email？點我，改用 LINE 收設計稿與報價單</button></p>
             </div>
