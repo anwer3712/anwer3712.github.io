@@ -24,7 +24,7 @@
      ⚠ 2026-08-09：CONTACT.tel 填進去之後，這裡要補 "telephone":"+886..."（LocalBusiness 的電話
      走 telephone，不是 sameAs）。現在 tel 是空的，先不放空字串——空的 telephone 對爬蟲是壞資料。 -->
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"LocalBusiness","name":"拍拍深五行水晶設計研究所","description":"以八字文化符號結合心理學的個人化五行水晶手串訂製，量化配珠、五派裁決、白名單選石、透明可追溯。","image":"https://anwer3712.github.io/paipaishen-shop/photos/w2.jpg","url":"https://anwer3712.github.io/paipaishen-shop/","areaServed":["桃園","龍潭","中壢"],"sameAs":["https://line.me/ti/p/~17singasong","https://instagram.com/IGSINGASONG"],"priceRange":"NT$300–NT$1500"}
+{"@context":"https://schema.org","@type":"LocalBusiness","name":"拍拍深五行水晶設計研究所","description":"以八字文化符號結合心理學的個人化五行水晶手串訂製，量化配珠、五派裁決、白名單選石、透明可追溯。","image":"https://anwer3712.github.io/paipaishen-shop/photos/w2.jpg","url":"https://anwer3712.github.io/paipaishen-shop/","areaServed":["桃園","龍潭","中壢"],"sameAs":["https://line.me/R/ti/p/%40262pxjdl","https://instagram.com/IGSINGASONG"],"priceRange":"NT$300–NT$1500"}
 </script>
 
 <style>
@@ -948,6 +948,14 @@ pre.ord{white-space:pre-wrap;text-align:left;background:#F6F1E6;border:1px solid
 .keep{display:flex;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow-sm)}
 .keep .ic{font-size:26px;flex:0 0 auto}
 .channels{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+/* QR 三張並排；手機一行放得下兩張，第三張換行置中（不縮到掃不到）。
+   圖用 image-rendering:pixelated——LINE 官方那張是 360px 純黑白點陣，
+   縮放時預設的平滑演算法會把定位點糊掉，相機就對不上。 */
+.qrs{display:flex;gap:22px;flex-wrap:wrap;justify-content:center;margin-top:26px}
+.qrs figure{margin:0;text-align:center;width:150px}
+.qrs img{width:132px;height:132px;object-fit:contain;background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:10px;padding:6px;image-rendering:pixelated}
+.qrs figcaption{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.6}
+.qrs figcaption b{display:block;font-size:13px;color:inherit;word-break:break-all}
 /* 「把方法攤開給你看」原本用 --abyss(#101828 深藍)。那個藍沒有承載任何語意——
    深淵在敘事裡是 .opener／hero，這一段講的是方法與運算，屬「過程」＝木。
    2026-08-05 使用者指定改深綠，明度維持同一階（#0F271B 相對亮度 .0207，
@@ -1777,6 +1785,29 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
       </figure>
       <div class="head reveal" style="margin-top:40px;margin-bottom:14px"><h2 style="font-size:24px">來找我們</h2></div>
       <div class="channels" id="channels"></div>
+      <!-- QR 三張（2026-08-14 使用者要求）：官網原本只有帳號文字，客戶要自己打 ID。
+           圖檔在 photos/qr/，來源 D:\ALL-AI\05_BUSINESS\qr\。
+           ⚠ qr_line.png 是官方帳號 @262pxjdl 那張（來源檔名 262pxjdl.png）；
+             來源目錄裡另有一張舊的 qr_line.png 是個人帳號 17singasong，不要拿錯。
+           帳號字串一律留給 JS 從 config.js 填（data-contact），不抄進這裡。 -->
+      <div class="qrs" id="qrs">
+        <figure>
+          <a data-contact-link="line" target="_blank" rel="noopener">
+            <img src="photos/qr/qr_line.png" alt="官方 LINE 加好友 QR code" width="132" height="132" loading="lazy">
+          </a>
+          <figcaption>官方 LINE<b data-contact="line"></b></figcaption>
+        </figure>
+        <figure>
+          <a data-contact-link="ig" target="_blank" rel="noopener">
+            <img src="photos/qr/qr_ig.png" alt="Instagram QR code" width="132" height="132" loading="lazy">
+          </a>
+          <figcaption>Instagram<b data-contact="ig"></b></figcaption>
+        </figure>
+        <figure>
+          <img src="photos/qr/qr_linkgoods.png" alt="LINKGOODS 賣場 QR code" width="132" height="132" loading="lazy">
+          <figcaption>LINKGOODS<b data-contact="linkgoods"></b></figcaption>
+        </figure>
+      </div>
     </div>
   </section>
 </div>
@@ -2507,6 +2538,29 @@ fetch('news.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(j=>{ if(A
 // 靜態 HTML 裡要印 LINE 帳號的地方一律標 data-line，由這裡從 config.js 填；
 // 不要把帳號字串抄進 HTML——換帳號時抄過的那幾處一定會被漏掉。
 document.querySelectorAll('[data-line]').forEach(e=>{ e.textContent = (CONFIG.CONTACT||{}).line || ''; });
+// data-contact="<CONTACT 的 key>"：QR 圖說那三行帳號也走同一條路，不要各自抄一份。
+document.querySelectorAll('[data-contact]').forEach(e=>{
+  e.textContent = (CONFIG.CONTACT||{})[e.dataset.contact] || '';
+});
+/* LINE 有兩種帳號、兩種網址：官方帳號 ID 以 @ 開頭走 /R/ti/p/（@ 要 encode 成 %40，
+   不 encode 的話多數 App 內建瀏覽器會把它當成 mailto 的分隔字元丟掉後半段）；
+   舊的個人帳號 ID 沒有 @，走 /ti/p/~。2026-08-14 從 17singasong 換成 @262pxjdl 時，
+   只改 config.js 那個字串而網址還寫死 ~ 的話，加好友連結會直接 404。 */
+function lineLink(id){
+  const s = String(id||'');
+  if(!s) return '';
+  return s.charAt(0)==='@' ? 'https://line.me/R/ti/p/'+encodeURIComponent(s)
+                           : 'https://line.me/ti/p/~'+encodeURIComponent(s);
+}
+(function qrLinks(){
+  const c = CONFIG.CONTACT||{};
+  const url = { line: lineLink(c.line), ig: c.ig ? 'https://instagram.com/'+encodeURIComponent(c.ig) : '' };
+  document.querySelectorAll('[data-contact-link]').forEach(a=>{
+    const u = url[a.dataset.contactLink];
+    // 沒有網址就讓那張 QR 只是張圖（LINKGOODS 就是這種），不要留一顆點了沒反應的連結。
+    if(u) a.href = u; else a.removeAttribute('target');
+  });
+})();
 // tel: 的 href 只吃數字與開頭的 +（03-4xx-xxxx 這種好念的寫法直接丟進 href，部分撥號程式會吃掉整串）。
 // ponytail: 不做號碼格式驗證——這個值來自 config.js，是店長自己填的，不是使用者輸入。
 function telDigits(s){ return String(s).replace(/[^\d+]/g,''); }
@@ -2516,12 +2570,12 @@ function telDigits(s){ return String(s).replace(/[^\d+]/g,''); }
      排在後面等於還是要他先看懂 LINE 那顆。tel: 不加 target=_blank——
      它交給撥號程式，不是開分頁，開了會留一個空白頁在後面。 */
   if(c.tel) out.push(`<a class="btn2" href="tel:${esc(telDigits(c.tel))}">電話：${esc(c.tel)}</a>`);
-  if(c.line) out.push(`<a class="btn2" href="https://line.me/ti/p/~${esc(c.line)}" target="_blank" rel="noopener">LINE：${esc(c.line)}</a>`);
+  if(c.line) out.push(`<a class="btn2" href="${esc(lineLink(c.line))}" target="_blank" rel="noopener">LINE：${esc(c.line)}</a>`);
   if(c.ig) out.push(`<a class="btn2" href="https://instagram.com/${esc(c.ig)}" target="_blank" rel="noopener">IG：${esc(c.ig)}</a>`);
   if(c.shopee) out.push(`<a class="btn2" href="${esc(c.shopee)}" target="_blank" rel="noopener">蝦皮賣場</a>`);
   $('#channels').innerHTML = out.join('');
   const fl=[]; if(c.tel) fl.push(`<a href="tel:${esc(telDigits(c.tel))}">電話：${esc(c.tel)}</a>`);
-  if(c.line) fl.push(`<a href="https://line.me/ti/p/~${esc(c.line)}" target="_blank" rel="noopener">LINE：${esc(c.line)}</a>`);
+  if(c.line) fl.push(`<a href="${esc(lineLink(c.line))}" target="_blank" rel="noopener">LINE：${esc(c.line)}</a>`);
   if(c.ig) fl.push(`<a href="https://instagram.com/${esc(c.ig)}" target="_blank" rel="noopener">IG：${esc(c.ig)}</a>`);
   if(c.shopee) fl.push(`<a href="${esc(c.shopee)}" target="_blank" rel="noopener">蝦皮賣場</a>`);
   $('#footLinks').innerHTML = fl.join('');
@@ -3433,7 +3487,7 @@ function noEmailHelp(){
   openChat();
   botSay('沒有 Email 也可以訂 🙌\n加我們的官方 LINE，之後設計草稿、報價單、出貨通知都用 LINE 傳給你，不用信箱。');
   if(CONFIG.CONTACT && CONFIG.CONTACT.line)
-    botLink('👉 點這裡加入官方 LINE（'+CONFIG.CONTACT.line+'）','https://line.me/ti/p/~'+CONFIG.CONTACT.line);
+    botLink('👉 點這裡加入官方 LINE（'+CONFIG.CONTACT.line+'）', lineLink(CONFIG.CONTACT.line));
   botSay('加好後跟我們說「我要訂製」或「我要買現貨」，客服會幫你把訂單填完。\n手機號碼記得留給我們——出貨的物流單一定要有連絡電話。');
 }
 $('#chatBall').addEventListener('click',()=>{ const p=$('#chatPanel');
