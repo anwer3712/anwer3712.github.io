@@ -173,6 +173,13 @@ document.querySelectorAll('[data-line]').forEach(e=>{ e.textContent = LINE_ID; }
 
 const params = new URLSearchParams(location.search);
 const orderToken = params.get('token') || '';
+/* 2026-08-15：報價信信尾的方案鈕深連結帶 &plan=&upgrade= 進來，這頁要照著先勾好。
+   信裡白紙黑字寫「方案與升級已經照你按的那顆先勾好」——不接這段就是騙人：
+   客戶按「主方案＋錦囊組＋水晶升級」進來卻停在推薦方案、升級沒勾，
+   一路按送出，送出去的與收款通知寫的都是另一個組合。
+   值進來就是不可信的外部輸入：plan 對不上任何一案時當作沒帶，不能讓畫面變成一格都沒勾。 */
+const wantPlan = params.get('plan') || '';
+const wantUpgrade = ['1','true','yes'].indexOf(String(params.get('upgrade')||'').toLowerCase()) >= 0;
 
 let ORDER = null, selectedPlan = null, selectedUpgrade = false;
 
@@ -282,7 +289,8 @@ function render(){
 
   // 預設選項與 selectedPlan 一起決定：沒有任何方案標推薦時，以前是「畫面上一格都沒勾、
   // 金額卻已經照第一案算好」，客戶會以為自己漏選。
-  selectedPlan = ORDER.plans.find(p=>p.recommended) || ORDER.plans[0];
+  selectedPlan = ORDER.plans.find(p=>String(p.id)===wantPlan)
+              || ORDER.plans.find(p=>p.recommended) || ORDER.plans[0];
   $('#planList').innerHTML = ORDER.plans.map(p => `
     <label class="plan-card">
       <input type="radio" name="plan" value="${esc(p.id)}" ${p===selectedPlan?'checked':''}>
@@ -293,18 +301,22 @@ function render(){
       </div>
     </label>`).join('');
 
-  if(ORDER.upgrade && ORDER.upgrade.groups && ORDER.upgrade.groups.length){
-    $('#upgradeSection').style.display = 'block';
-    $('#upgAmtTxt').textContent = '＋NT$'+ORDER.upgrade.amount.toLocaleString()+'（整單一次）';
-    $('#upgradeGroups').innerHTML = ORDER.upgrade.groups.map((g,i)=>`
+  // 閘門是「有沒有金額」，不是「有沒有照片」。以前看 groups.length：老闆挑了升級卻沒上傳
+  // 前後對照照片時，這一區整個不出現——客戶按了含升級的鈕進來也沒得勾，
+  // 送出的金額比信裡少一筆。錢的選項不能被照片有無決定。
+  if(ORDER.upgrade){
+    selectedUpgrade = wantUpgrade;
+    $('#upgradeGroups').innerHTML = (ORDER.upgrade.groups||[]).map((g,i)=>`
       <div class="upg-group">
         <div class="upg-photos"><div class="ph-box">升級前</div><div class="ph-box">升級後</div></div>
         <div class="upg-info"><b>第 ${i+1} 組・${esc(g.stone)}</b><p>${esc(g.reason)}</p></div>
       </div>`).join('');
+    document.querySelector(`input[name=upg][value="${selectedUpgrade?'yes':'no'}"]`).checked = true;
   }
 
   document.querySelectorAll('input[name=plan]').forEach(r=>r.addEventListener('change',()=>{
-    selectedPlan = ORDER.plans.find(p=>p.id===r.value); updateTotal();
+    // String()：後端 plans[].id 有時是數字，嚴格比對會找不到那一案而讓 selectedPlan 變 undefined
+    selectedPlan = ORDER.plans.find(p=>String(p.id)===r.value); updateTotal();
   }));
   document.querySelectorAll('input[name=upg]').forEach(r=>r.addEventListener('change',()=>{
     selectedUpgrade = (r.value==='yes'); updateTotal();
@@ -333,9 +345,25 @@ function previewHold(){
     : `這是報價信放行前的預覽：方案與金額可以先看，但信還沒寄給客戶，所以送出確認先關著。放行之後從客戶收到的信點進來才能送出；要直接改內容請加 LINE ${LINE_ID}。`;
 }
 
+/* 2026-08-15：升級變成主方案／錦囊組各一筆（各 0 或 300）。只要主方案就只收主方案那筆，
+   加購第二條才把兩筆都算進去——與 WF2 收款通知那顆的算法同一條規則（mult>=2 才加 bag），
+   兩邊算不一樣就會出現「頁面顯示 999、老闆收到的應收 1,299」。
+   舊單只有 amount：全算在主方案那筆，加購錦囊組不會憑空多收 300。 */
+function upgradeFor(plan){
+  const u = ORDER.upgrade; if(!u) return 0;
+  const hasSplit = u.main_amount !== undefined || u.bag_amount !== undefined;
+  const main = hasSplit ? (+u.main_amount || 0) : (+u.amount || 0);
+  const bag  = hasSplit ? (+u.bag_amount  || 0) : 0;
+  return ((plan && +plan.mult >= 2) ? main + bag : main);
+}
 function updateTotal(){
+  const amt = upgradeFor(selectedPlan);
+  // 升級區跟著方案開關：這一案沒有升級可加就整區收起來，免得畫面上留一個 ＋NT$0 的選項。
+  $('#upgradeSection').style.display = amt > 0 ? 'block' : 'none';
+  $('#upgAmtTxt').textContent = '＋NT$' + amt.toLocaleString()
+    + (selectedPlan && +selectedPlan.mult >= 2 ? '（兩條一起升）' : '（這一條）');
   let t = ORDER.base * (selectedPlan ? selectedPlan.mult : 1);
-  if(selectedUpgrade && ORDER.upgrade) t += ORDER.upgrade.amount;
+  if(selectedUpgrade) t += amt;
   $('#cfTotal').textContent = 'NT$ ' + t.toLocaleString();
 }
 

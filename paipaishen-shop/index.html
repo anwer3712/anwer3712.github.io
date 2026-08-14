@@ -627,7 +627,11 @@ table.mt tr th:first-child::after,table.mt tr td:first-child::after{content:"";p
 @media(prefers-reduced-motion:reduce){ .wshot img,.wshot .wz,.wstep{transition:none} }
 /* 這條在送出鈕正上方，是全站最下游的 CTA 區。原本用 --abyss 深色，與「最下方最亮」
    的情緒弧線方向相反（愈接近成交愈暗），2026-08-01 改為金色光端，文字改深墨確保對比。 */
-.est{position:sticky;bottom:12px;margin-top:20px;background:var(--grad-gold);color:var(--abyss);border:1px solid rgba(201,162,75,.5);border-radius:14px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;box-shadow:var(--shadow)}
+/* 2026-08-14 使用者回報：原本 position:sticky 讓試算列在「選完手圍＋珠徑」之後就一直黏在螢幕下方，
+   客戶看到金額就直接按送出，跳過下面的視覺體感、取貨方式、付款方式。改 static＝捲到問卷最後
+   才看得到，順序回到「填完 → 看價 → 送出」。estLift 的 IntersectionObserver 不受影響（它觀察的是
+   元素進不進畫面，跟定位方式無關），兩顆浮動鈕仍會在試算列露臉時讓位。 */
+.est{position:static;margin-top:20px;background:var(--grad-gold);color:var(--abyss);border:1px solid rgba(201,162,75,.5);border-radius:14px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;box-shadow:var(--shadow)}
 .est .amt{font-family:var(--serif);font-size:26px;color:var(--abyss)}
 /* #5C4A22 對金色漸層暗端(--jin)只有 3.79，未達 AA 正文 4.5。改深棕 #3A2E12＝5.80，
    仍與上方金額的 --abyss 藍黑有色相差，層級不會糊掉。 */
@@ -3083,14 +3087,19 @@ est();
   }),{threshold:0}).observe(art);
 })();
 
-/* 試算列在畫面上時，把兩顆浮動鈕頂上去（CSS 那邊 body.est-on，見 .chatball 上方註解）。
-   高度現量：試算列在窄螢幕會換行變兩層，寫死一個數字遲早對不上。 */
+/* 填問卷時把兩顆浮動鈕讓開（CSS 那邊 body.est-on，見 .chatball 上方註解）。
+   高度現量：試算列在窄螢幕會換行變兩層，寫死一個數字遲早對不上。
+   ⚠ 2026-08-14 觀察對象從 .est 改成整個 #order 區塊。原本 .est 是 sticky＝問卷一進畫面就常駐，
+   所以「觀察 .est」等於「觀察整份問卷」；這一輪把 .est 改成 static（金額最後才出現）之後，
+   若還盯著 .est，兩顆浮動鈕就只在問卷最後一段才讓位——2026-08-09 修掉的「章節球壓住手圍 select」
+   會整個復活。觀察 #order、量 .est 的高度，兩件事分開，讓位範圍跟改版前一致。 */
 (function estLift(){
-  const bar = $('.est'); if(!bar || !('IntersectionObserver' in window)) return;
+  const bar = $('.est'), zone = $('#order') || bar;
+  if(!bar || !('IntersectionObserver' in window)) return;
   new IntersectionObserver(es=>es.forEach(e=>{
     document.body.style.setProperty('--est-lift', (bar.offsetHeight + 12) + 'px');
     document.body.classList.toggle('est-on', e.isIntersecting);
-  }),{threshold:0}).observe(bar);
+  }),{threshold:0}).observe(zone);
 })();
 
 /* ═══════════ 作品集：雙軸 chip 過濾（FLIP）＋ lightbox ═══════════ */
