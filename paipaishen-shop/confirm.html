@@ -49,6 +49,12 @@ button{font-family:inherit;}
 .sec-head2.sm h2{font-size:17px;font-weight:700;letter-spacing:.08em;}
 .sec-lead{font-size:13px;color:var(--ink2);font-weight:300;margin-bottom:14px;}
 
+/* 2026-08-15d：報價內容（信件版 HTML 直接搬過來）。它自帶 inline style 與 max-width:600px，
+   這裡只負責把「桌機才看得下去」的部分收進行動裝置：表格自己橫向捲，不要讓整頁跟著橫捲。 */
+.quote-body{font-size:14px;line-height:1.7;}
+.quote-body>div{max-width:100% !important;}
+.quote-body table{max-width:100%;}
+.quote-body img{max-width:100%;height:auto;}
 .plan-card{display:flex;gap:12px;border:1.5px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px;cursor:pointer;background:#fff;transition:.15s;}
 .plan-card:hover{border-color:var(--dawn2);}
 .plan-card:has(input:checked){border-color:var(--rose);background:#EAF7F1;}
@@ -123,6 +129,12 @@ footer{padding:26px 20px 96px;text-align:center;}
   <div id="demoBadge" class="msg warn hide">目前顯示的是示範資料——我們沒讀到你的訂單，可能是報價信還沒放行、連結過期或系統忙線。實際頁面會依你的訂單呈現；請加 LINE <b data-line></b> 讓店長幫你確認。</div>
   <div id="holdBox" class="msg warn hide"></div>
 
+  <!-- 2026-08-15d：報價內容整份搬到這頁（信件只剩一顆連結鈕）。
+       內容由 WF2 產生、CONFIRM_LOOKUP 回傳，是我們自己的 HTML，不是使用者輸入。 -->
+  <section class="cf-card" id="quoteSection" style="display:none">
+    <div id="quoteBody" class="quote-body"></div>
+  </section>
+
   <section class="cf-card" id="planSection" style="display:none">
     <div class="sec-head2 sm"><span class="chapter-mark">一</span><div><h2>選擇你的方案</h2></div></div>
     <p class="sec-lead">兩個方案都是依你的命盤設計，差別在涵蓋範圍；標「推薦」的是店長依你的問卷內容建議的方向，最後仍由你決定。</p>
@@ -157,7 +169,7 @@ footer{padding:26px 20px 96px;text-align:center;}
 </footer>
 
 <div class="cf-bar" id="cfBar">
-  <div class="cf-bar-amt"><small>目前選擇金額</small><b id="cfTotal">—</b></div>
+  <div class="cf-bar-amt"><small>目前選擇金額</small><b id="cfTotal">—</b><small id="cfShip"></small></div>
   <button class="btn2" id="discussBtn" type="button">先討論</button>
   <button class="btn" id="confirmBtn" type="button" disabled>送出確認</button>
 </div>
@@ -198,7 +210,9 @@ function demoOrder(){
       desc:'在主方案之外，再設計一條輔助用途的第二條手串，呼應同一份命盤、補強不同面向的顆數配置。' }
   ];
   return {
+    // 示範資料也要有運費，否則離線退化時畫面又變回「不含運費」那個版本
     ok:true, order_no:'S20260717-0007（示範）', qty, base,
+    ship_fee: (CONFIG.PRICE||{}).shipHome || 0, ship:'宅配到府',
     plans,
     upgrade:{ amount: CONFIG.PRICE.upgradeHigh, groups:[
       { stone:'黃玉髓 → 金髮晶', reason:'金髮晶髮絲紋理較清晰、色澤較飽和，同屬金屬色系。' },
@@ -273,7 +287,7 @@ async function loadOrder(){
 function deadEnd(){
   $('#loadingBox').classList.add('hide');
   $('#demoBadge').classList.add('hide');
-  ['#planSection','#upgradeSection','#noteSection'].forEach(s=>{ $(s).style.display='none'; });
+  ['#quoteSection','#planSection','#upgradeSection','#noteSection'].forEach(s=>{ $(s).style.display='none'; });
   $('#doneBox').className = 'msg warn';
   $('#doneBox').textContent = `這頁現在讀不到訂單內容，沒辦法在這裡選方案——可能是報價信還沒放行，或連結已過期。請加 LINE ${LINE_ID} 告訴店長，我們直接幫你確認，效力相同。`;
   $('#confirmBtn').disabled = true;
@@ -284,6 +298,24 @@ function deadEnd(){
 function render(){
   $('#loadingBox').classList.add('hide');
   $('#orderNoShow').textContent = ORDER.order_no;
+
+  /* 2026-08-15d：報價內容整份在這一頁上（信件只剩一顆「開啟我的訂單確認頁」）。
+     來源是 WF2『Code 定案信件+resumeUrl』自己組的 HTML——我們的內容，不是使用者輸入，
+     所以直接 innerHTML。讀不到就整區收起來，退化成舊樣子（只有方案選擇），
+     不要留一塊空白卡片在畫面上。 */
+  if(ORDER.quote_html){
+    $('#quoteBody').innerHTML = ORDER.quote_html;
+    // 那份 HTML 是照 600px 桌機寬排的。手機上讓表格各自橫向捲，
+    // 不能讓整個 body 跟著橫捲——底部那條固定的金額列會跟著飄掉。
+    $('#quoteBody').querySelectorAll('table').forEach(t=>{
+      const box = document.createElement('div');
+      box.style.overflowX = 'auto';
+      t.parentNode.insertBefore(box, t);
+      box.appendChild(t);
+    });
+    $('#quoteSection').style.display = 'block';
+  }
+
   $('#planSection').style.display = 'block';
   $('#noteSection').style.display = 'block';
 
@@ -364,7 +396,16 @@ function updateTotal(){
     + (selectedPlan && +selectedPlan.mult >= 2 ? '（兩條一起升）' : '（這一條）');
   let t = ORDER.base * (selectedPlan ? selectedPlan.mult : 1);
   if(selectedUpgrade) t += amt;
+  /* 2026-08-15c：運費。以前這裡不加，畫面上的數字比報價信按鈕上的少 60～130
+     （信裡 mainPriceTable／planButtons 一直都含運費），跟老闆收到的應收也對不起來
+     （WF2『Code 準備收款通知』的 due = base×N + ship_fee + 升級）。
+     三處金額要嘛全含運費、要嘛全不含，不能只有中間這一段不含。
+     ship_fee 由 CONFIRM_LOOKUP 回傳（2026-08-15c 補上）；舊快取／舊單讀不到就是 0，
+     退回舊行為而不是報錯。 */
+  const ship = +ORDER.ship_fee || 0;
+  t += ship;
   $('#cfTotal').textContent = 'NT$ ' + t.toLocaleString();
+  $('#cfShip').textContent = ship ? ('已含運費 ' + (ORDER.ship || '') + ' NT$' + ship) : '';
 }
 
 // 訊息一律寫進 textContent，瀏覽器自己會處理跳脫；再套 esc() 反而會讓 & 變成 &amp; 印在畫面上。
