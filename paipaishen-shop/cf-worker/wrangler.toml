@@ -1,0 +1,21 @@
+name = "pps-intake-buffer"
+main = "worker.js"
+compatibility_date = "2026-08-15"
+
+# KV：訂製問卷的暫存佇列。id 由 `wrangler kv namespace create PPSQ` 產生後填進來。
+kv_namespaces = [
+  { binding = "PPSQ", id = "11d9adbc56234d5280f6857f85f7b418" }
+]
+
+# 只綁這三條路徑。其餘 /webhook/* 照舊直接走 Tunnel 進家裡的 n8n，Worker 完全不碰，
+# 爆炸半徑就只有進件這一支。
+routes = [
+  { pattern = "n8n.anwer3712.com/webhook/pps-intake",      zone_name = "anwer3712.com" },
+  { pattern = "n8n.anwer3712.com/webhook/pps2-shop-order", zone_name = "anwer3712.com" },
+  { pattern = "n8n.anwer3712.com/webhook/pps-queue-drain", zone_name = "anwer3712.com" },
+  { pattern = "n8n.anwer3712.com/webhook/pps-queue-ack",   zone_name = "anwer3712.com" },
+]
+
+# DRAIN_KEY 是 secret，不寫在這個檔：
+#   wrangler secret put DRAIN_KEY
+# 同一組值要寫進 D:\ALL-AI\n8n-stack\.env 的 PPS_DRAIN_KEY。

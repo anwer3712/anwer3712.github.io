@@ -2899,7 +2899,11 @@ async function submitShopOrder(e){
   if(email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){
     $('#coOut').innerHTML='<div class="msg warn">Email 格式看起來不對，請再檢查一次。</div>'; $('#coEmail').focus(); return; }
   const sub = cart.reduce((s,x)=>s+x.price*x.qty,0), shipping=+shipOpt.dataset.fee||0;
-  const o = { items:cart.map(x=>({id:x.id,name:x.name,price:x.price,qty:x.qty})), subtotal:sub, shipping,
+  /* temp_id：離線佇列補收時的去重依據（INTAKE_DRAIN 比對 pps2_shop_orders.raw->>'temp_id'）。
+     沒有它，補收成功但 ack 失敗的那一輪會重複建單＋重複扣庫存。後端不讀這欄，跟著 raw 走。 */
+  const _d=new Date(), _ymd=_d.getFullYear()+String(_d.getMonth()+1).padStart(2,'0')+String(_d.getDate()).padStart(2,'0');
+  const o = { temp_id:'S'+_ymd+'-'+Math.random().toString(36).slice(2,5).toUpperCase(),
+    items:cart.map(x=>({id:x.id,name:x.name,price:x.price,qty:x.qty})), subtotal:sub, shipping,
     ship_method:shipOpt.value, ship_label:shipOpt.textContent, pay_method:payOpt.value, pay_label:payOpt.textContent.replace('（即將開放）',''),
     name, contact, email, ship_addr, note:$('#coNote').value.trim() };
   const btn=e.target; btn.classList.add('busy'); btn.disabled=true;
@@ -2911,6 +2915,16 @@ async function submitShopOrder(e){
                  寫「已寄出」就是在猜（同交接卡指出的舊雷：出貨通知一律跳「已發送」但其實吞掉了失敗）。
                  這裡只講「會寄到哪」——那是不管信有沒有寄成功都成立的事實。 -->
             <p style="color:var(--muted);font-size:14px">訂單確認與收款資訊會寄到 ${esc(email)}，請留意信箱（含垃圾郵件匣）。</p></div>`;
+    $('#cartFoot').innerHTML='';
+  } else if(res && res.queued){
+    /* 主機不在線，訂單已由 Cloudflare 邊緣佇列收下，開機後補收。
+       ⚠ 現貨是「補收當下才扣庫存」，所以這裡只能說收到、不能說成立——
+         真的賣完了後端會回 out_of_stock，那時由老闆人工聯絡客戶（INTAKE_DRAIN 的缺貨分支）。
+       同樣刻意不給「複製到 LINE」：已經收下了，再貼一次就是重複下單。 */
+    cart.length=0; renderCart();
+    $('#cartItems').innerHTML='<div class="done"><div class="big">📥</div><h3 style="margin:10px 0">訂單已收到</h3>'
+      + '<p style="color:var(--muted);font-size:14px">系統正在喚醒中，你的訂單已經在我們手上。'
+      + '我們會盡快確認庫存與金額後與你聯繫，不需要重複送出。</p></div>';
     $('#cartFoot').innerHTML='';
   } else if(res && res.error==='out_of_stock'){
     $('#coOut').innerHTML='<div class="msg warn">不好意思，部分商品剛好被搶購一空，請調整數量後再送出。</div>';
@@ -3064,6 +3078,12 @@ F.addEventListener('submit', async e=>{
     $('#doneMsg').textContent='問卷已送出！我們會在 1 個工作天內與你聯繫確認設計。';
     $('#orderNoTxt').textContent=res.order_no; $('#orderNoBox').style.display='block';
     try{ localStorage.setItem('pps_last_order', JSON.stringify({no:res.order_no, vf:(o.contact||'').slice(-4)})); }catch(_){}
+  } else if(res && res.queued){
+    /* 主機不在線，但問卷已經被 Cloudflare 邊緣的佇列收下了（見 cf-worker/README.md）。
+       編號發不出來是因為那是後端建單當下才由 postgres 發的號，補收時才會有。
+       ⚠ 這裡刻意**不**顯示下面那塊「複製到 LINE」：單子已經在我們手上，再叫客戶貼一次
+       就是同一張單進來兩次——補收的 temp_id 去重只擋補收自己重跑，擋不住人工重貼。 */
+    $('#doneMsg').textContent='問卷已收到！系統正在喚醒中，我們會在 1 個工作天內與你聯繫確認設計，訂單編號屆時一併通知。';
   } else {
     $('#doneMsg').textContent='已為你整理好訂單內容。';
     $('#fallback').style.display='block'; $('#orderText').textContent=txt;
