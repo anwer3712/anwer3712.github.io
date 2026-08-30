@@ -3073,10 +3073,16 @@ F.addEventListener('submit', async e=>{
   const path = mode==='couple' ? CONFIG.PATHS.INTAKE_COUPLE : CONFIG.PATHS.INTAKE_SINGLE;
   let res=null;
   try{ res = await api(path, { order:o }); }catch(_){ res=null; }
-  F.style.display='none'; $('#done').style.display='block';
+  F.style.display='none';
+  const done=$('#done'), orderNoBox=$('#orderNoBox'), fallback=$('#fallback');
+  done.classList.remove('hide'); done.style.display='block';
+  /* 三個完成區塊的初始 HTML 都帶 .hide（display:none!important）。只改 inline style
+     會被 !important 壓住；且「再填一份」後結果可能不同，所以每次先清掉上次分支。 */
+  [orderNoBox,fallback].forEach(el=>{ el.classList.add('hide'); el.style.display='none'; });
   if(res && res.ok && res.order_no){
     $('#doneMsg').textContent='問卷已送出！我們會在 1 個工作天內與你聯繫確認設計。';
-    $('#orderNoTxt').textContent=res.order_no; $('#orderNoBox').style.display='block';
+    $('#orderNoTxt').textContent=res.order_no;
+    orderNoBox.classList.remove('hide'); orderNoBox.style.display='block';
     try{ localStorage.setItem('pps_last_order', JSON.stringify({no:res.order_no, vf:(o.contact||'').slice(-4)})); }catch(_){}
   } else if(res && res.queued){
     /* 主機不在線，但問卷已經被 Cloudflare 邊緣的佇列收下了（見 cf-worker/README.md）。
@@ -3086,7 +3092,7 @@ F.addEventListener('submit', async e=>{
     $('#doneMsg').textContent='問卷已收到！系統正在喚醒中，我們會在 1 個工作天內與你聯繫確認設計，訂單編號屆時一併通知。';
   } else {
     $('#doneMsg').textContent='已為你整理好訂單內容。';
-    $('#fallback').style.display='block'; $('#orderText').textContent=txt;
+    fallback.classList.remove('hide'); fallback.style.display='block'; $('#orderText').textContent=txt;
   }
   scrollTo({top:$('#order').getBoundingClientRect().top+scrollY-90,behavior:reduce?'auto':'smooth'});
 });
@@ -3094,7 +3100,7 @@ $('#copyBtn').addEventListener('click',async e=>{
   try{ await navigator.clipboard.writeText($('#orderText').textContent); e.target.textContent='已複製 ✔'; }
   catch(_){ const r=document.createRange(); r.selectNode($('#orderText')); getSelection().removeAllRanges(); getSelection().addRange(r); document.execCommand('copy'); e.target.textContent='已複製 ✔'; }
 });
-$('#againBtn').addEventListener('click',()=>{ $('#done').style.display='none'; F.style.display='block'; F.reset(); $('#submitBtn').disabled=false; $('#submitBtn').classList.remove('busy'); $('#submitBtn').textContent='填好了，送出'; est(); });
+$('#againBtn').addEventListener('click',()=>{ $('#done').classList.add('hide'); $('#done').style.display='none'; F.style.display='block'; F.reset(); $('#submitBtn').disabled=false; $('#submitBtn').classList.remove('busy'); $('#submitBtn').textContent='填好了，送出'; est(); });
 est();
 
 /* 五行環捲出視窗就暫停（見 .spin 那段註解）。用 IntersectionObserver 而不是 scroll 事件：
