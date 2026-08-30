@@ -48,7 +48,8 @@ const CONFIG = {
     SHOP_ORDER: "/pps2-shop-order"
   },
 
-  timeoutMs: 12000,
+  // 排盤首段含 AI 報告，實測約 17 秒；保留足夠等待時間，避免訂單已入庫但前台誤判失敗。
+  timeoutMs: 60000,
 
   // 作品集「更多作品」外連鈕；空字串＝自動隱藏鈕（裁決11 更正：不用 iCloud，改 Google 相簿）
   ICLOUD_ALBUM_URL: "https://photos.app.goo.gl/FJinVXNHojKZMNbw5",
