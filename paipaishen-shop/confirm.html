@@ -185,40 +185,38 @@ document.querySelectorAll('[data-line]').forEach(e=>{ e.textContent = LINE_ID; }
 
 const params = new URLSearchParams(location.search);
 const orderToken = params.get('token') || '';
-/* 2026-08-15：報價信信尾的方案鈕深連結帶 &plan=&upgrade= 進來，這頁要照著先勾好。
-   信裡白紙黑字寫「方案與升級已經照你按的那顆先勾好」——不接這段就是騙人：
-   客戶按「主方案＋錦囊組＋水晶升級」進來卻停在推薦方案、升級沒勾，
-   一路按送出，送出去的與收款通知寫的都是另一個組合。
-   值進來就是不可信的外部輸入：plan 對不上任何一案時當作沒帶，不能讓畫面變成一格都沒勾。 */
-const wantPlan = params.get('plan') || '';
+/* 深連結最多只能預選後端已簽發 offer 裡存在的 plan_id；價格與商品內容不讀網址。 */
+const wantPlan = params.get('plan_id') || '';
 const wantUpgrade = ['1','true','yes'].indexOf(String(params.get('upgrade')||'').toLowerCase()) >= 0;
 
 let ORDER = null, selectedPlan = null, selectedUpgrade = false;
 
-/* 示範資料：正式 API（CONFIG.PATHS.CONFIRM_LOOKUP）接通前，讓這頁隨時能本地預覽 */
+/* 無訂單 token 時才使用的純前端示範；正式訂單查不到時一律 fail closed。 */
 function demoOrder(){
-  const qty = +(params.get('qty') || 1);
-  const w = '18', b = 10;
-  const base = CONFIG.PRICE.rows[w][CONFIG.PRICE.beads.indexOf(b)];
-  const plans = qty >= 2 ? [
-    { id:'2', label:'② 雙條', mult:2, desc:'兩條手串，各自對應命盤設計的核心配置。' },
-    { id:'3', label:'③ 完整三條（含本源重置）', mult:3, recommended:true,
-      desc:'在兩條主方案之外，再加一條本源重置手串——選用最柔和的晶石組合，設計給夜間睡前或靜心時段佩戴。' }
-  ] : [
-    { id:'1', label:'① 主方案', mult:1, desc:'依你的命盤設計的主方案，一條手串涵蓋核心配置。' },
-    { id:'2', label:'② 主方案＋錦囊組', mult:2, recommended:true,
-      desc:'在主方案之外，再設計一條輔助用途的第二條手串，呼應同一份命盤、補強不同面向的顆數配置。' }
-  ];
   return {
-    // 示範資料也要有運費，否則離線退化時畫面又變回「不含運費」那個版本
-    ok:true, order_no:'S20260717-0007（示範）', qty, base,
-    ship_fee: (CONFIG.PRICE||{}).shipHome || 0, ship:'宅配到府',
-    plans,
-    upgrade:{ amount: CONFIG.PRICE.upgradeHigh, groups:[
-      { stone:'黃玉髓 → 金髮晶', reason:'金髮晶髮絲紋理較清晰、色澤較飽和，同屬金屬色系。' },
-      { stone:'粉水晶 → 阿賽斯特萊石', reason:'同屬火色系，質地更通透，表面光澤更均勻。' },
-      { stone:'綠東陵 → 葡萄石', reason:'同屬木色系，內含物較少、色澤更均勻一致。' }
-    ]}
+    ok:true,
+    order_no:'DEMO（示範）',
+    offer_version:'demo.1',
+    product_mode:'personal',
+    currency:'TWD',
+    shipping:{ label:'宅配到府', amount:60 },
+    plans:[
+      {
+        plan_id:'personal.main.v1', label:'① 主方案',
+        desc:'依命盤、困擾與核心功能設計的一條日常主方案。',
+        items:[{ role:'main', label:'主方案', bracelet_count:1 }],
+        server_total:960, server_total_upgraded:1260, upgrade_amount:300
+      },
+      {
+        plan_id:'personal.main_bag.v1', label:'② 主方案＋錦囊組', recommended:true,
+        desc:'主方案之外，再加一條可分時段單獨佩戴的錦囊組。',
+        items:[
+          { role:'main', label:'主方案', bracelet_count:1 },
+          { role:'bag', label:'錦囊組', bracelet_count:1 }
+        ],
+        server_total:1860, server_total_upgraded:2460, upgrade_amount:600
+      }
+    ]
   };
 }
 
@@ -248,23 +246,30 @@ async function submitTo(path, body){
   }catch(_){ return { ok:false, error:'' }; }
 }
 
-/* 後端回來的東西一律先驗形狀：要 ok:true、至少一個方案、mult 與 base 都是數字。
-   以前只看 j.ok 就往下渲染，碰到「單子在、方案階梯還沒算出來」的回應（老闆從預審信
-   點進來時就是這樣）會在 render() 的 plans.map 炸掉；那個例外沒人接，
-   $('#confirmBtn').disabled=false 那行永遠跑不到，鈕就一直是 disabled——
-   畫面上不顯示任何錯誤，按下「送出確認」完全沒反應。 */
+/* 後端回來的 offer 必須有版本、商品模式、唯一 plan_id、角色與兩種權威總額。 */
 function usableOrder(o){
   return !!o && o.ok === true
+      && typeof o.offer_version === 'string' && o.offer_version.trim()
+      && (o.product_mode === 'personal' || o.product_mode === 'couple')
       && Array.isArray(o.plans) && o.plans.length > 0
-      && o.plans.every(p => p && p.id != null && Number.isFinite(+p.mult))
-      && Number.isFinite(+o.base);
+      && new Set(o.plans.map(p=>p && p.plan_id)).size === o.plans.length
+      && o.plans.every(p => p && typeof p.plan_id === 'string' && p.plan_id
+        && Array.isArray(p.items) && p.items.length > 0
+        && new Set(p.items.map(item=>item && item.role)).size === p.items.length
+        && p.items.every(item => item && typeof item.role === 'string' && item.role
+          && Number.isInteger(+item.bracelet_count) && +item.bracelet_count > 0)
+        && Number.isFinite(+p.server_total) && +p.server_total >= 0
+        && Number.isFinite(+p.server_total_upgraded)
+        && +p.server_total_upgraded >= +p.server_total
+        && Number.isFinite(+p.upgrade_amount) && +p.upgrade_amount >= 0
+        && Math.abs((+p.server_total + +p.upgrade_amount) - +p.server_total_upgraded) < 0.000001);
 }
 
 async function loadOrder(){
   try{
     if(!CONFIG.N8N_BASE || !orderToken) throw new Error('no-token-or-offline');
     // CONFIRM_LOOKUP 已於 P2a 接線（CONFIRM_訂單確認頁查詢 workflow），路徑與回應鍵名見 config.js。
-    // 抓不到就退化成 demoOrder() 的示範資料，不是「還沒接」——別再照舊註解判斷狀態。
+    // 正式 token 查不到完整 offer 時 fail closed；只有沒有 token 的公開預覽才顯示 demo。
     const r = await postJSON(CONFIG.PATHS.CONFIRM_LOOKUP, { order_token: orderToken });
     if(!r.ok) throw new Error('http '+r.status);
     const j = await r.json();
@@ -272,18 +277,14 @@ async function loadOrder(){
     if(!usableOrder(o)) throw new Error('bad payload');
     ORDER = o;
   }catch(_){
-    // demoOrder() 讀 CONFIG.PRICE，價目表改欄位時它自己也會炸——所以不能再放在 catch 裡裸奔，
-    // 一炸就整個 loadOrder 中斷，同樣留下一顆 disabled 的鈕。
-    try{
-      ORDER = demoOrder();
-      $('#demoBadge').classList.remove('hide');
-    }catch(_e){ return deadEnd(); }
+    if(orderToken) return deadEnd();
+    ORDER = demoOrder();
+    $('#demoBadge').classList.remove('hide');
   }
   try{ render(); }catch(_e){ deadEnd(); }
 }
 
-/* 最後一道：連示範資料都渲染不出來時，寧可明講「這頁現在沒辦法選」並給 LINE，
-   也不要留一顆按下去沒反應的鈕在畫面上。 */
+/* 最後一道：正式 token 查不到或 offer 結構不完整時，明講「這頁現在沒辦法選」並給 LINE。 */
 function deadEnd(){
   $('#loadingBox').classList.add('hide');
   $('#demoBadge').classList.add('hide');
@@ -319,36 +320,29 @@ function render(){
   $('#planSection').style.display = 'block';
   $('#noteSection').style.display = 'block';
 
-  // 預設選項與 selectedPlan 一起決定：沒有任何方案標推薦時，以前是「畫面上一格都沒勾、
-  // 金額卻已經照第一案算好」，客戶會以為自己漏選。
-  selectedPlan = ORDER.plans.find(p=>String(p.id)===wantPlan)
+  // 網址只能預選 offer 內既有的 plan_id；不存在就用推薦案或第一案。
+  selectedPlan = ORDER.plans.find(p=>p.plan_id===wantPlan)
               || ORDER.plans.find(p=>p.recommended) || ORDER.plans[0];
-  $('#planList').innerHTML = ORDER.plans.map(p => `
+  $('#planList').innerHTML = ORDER.plans.map(p => {
+    const itemText = p.items.map(item=>item.label + ' × ' + item.bracelet_count).join('、');
+    return `
     <label class="plan-card">
-      <input type="radio" name="plan" value="${esc(p.id)}" ${p===selectedPlan?'checked':''}>
+      <input type="radio" name="plan" value="${esc(p.plan_id)}" ${p===selectedPlan?'checked':''}>
       <div class="plan-body">
         <div class="plan-title">${esc(p.label)}${p.recommended?' <span class="rec-tag">推薦</span>':''}</div>
         <p>${esc(p.desc)}</p>
-        <div class="plan-price">NT$ ${(ORDER.base*p.mult).toLocaleString()}</div>
+        <p style="font-size:13px;color:#666">${esc(itemText)}</p>
+        <div class="plan-price">NT$ ${(+p.server_total).toLocaleString()}</div>
       </div>
-    </label>`).join('');
+    </label>`;
+  }).join('');
 
-  // 閘門是「有沒有金額」，不是「有沒有照片」。以前看 groups.length：老闆挑了升級卻沒上傳
-  // 前後對照照片時，這一區整個不出現——客戶按了含升級的鈕進來也沒得勾，
-  // 送出的金額比信裡少一筆。錢的選項不能被照片有無決定。
-  if(ORDER.upgrade){
-    selectedUpgrade = wantUpgrade;
-    $('#upgradeGroups').innerHTML = (ORDER.upgrade.groups||[]).map((g,i)=>`
-      <div class="upg-group">
-        <div class="upg-photos"><div class="ph-box">升級前</div><div class="ph-box">升級後</div></div>
-        <div class="upg-info"><b>第 ${i+1} 組・${esc(g.stone)}</b><p>${esc(g.reason)}</p></div>
-      </div>`).join('');
-    document.querySelector(`input[name=upg][value="${selectedUpgrade?'yes':'no'}"]`).checked = true;
-  }
+  selectedUpgrade = wantUpgrade && (+selectedPlan.upgrade_amount > 0);
+  $('#upgradeGroups').innerHTML = '';
+  document.querySelector(`input[name=upg][value="${selectedUpgrade?'yes':'no'}"]`).checked = true;
 
   document.querySelectorAll('input[name=plan]').forEach(r=>r.addEventListener('change',()=>{
-    // String()：後端 plans[].id 有時是數字，嚴格比對會找不到那一案而讓 selectedPlan 變 undefined
-    selectedPlan = ORDER.plans.find(p=>String(p.id)===r.value); updateTotal();
+    selectedPlan = ORDER.plans.find(p=>p.plan_id===r.value); updateTotal();
   }));
   document.querySelectorAll('input[name=upg]').forEach(r=>r.addEventListener('change',()=>{
     selectedUpgrade = (r.value==='yes'); updateTotal();
@@ -377,35 +371,24 @@ function previewHold(){
     : `這是報價信放行前的預覽：方案與金額可以先看，但信還沒寄給客戶，所以送出確認先關著。放行之後從客戶收到的信點進來才能送出；要直接改內容請加 LINE ${LINE_ID}。`;
 }
 
-/* 2026-08-15：升級變成主方案／錦囊組各一筆（各 0 或 300）。只要主方案就只收主方案那筆，
-   加購第二條才把兩筆都算進去——與 WF2 收款通知那顆的算法同一條規則（mult>=2 才加 bag），
-   兩邊算不一樣就會出現「頁面顯示 999、老闆收到的應收 1,299」。
-   舊單只有 amount：全算在主方案那筆，加購錦囊組不會憑空多收 300。 */
-function upgradeFor(plan){
-  const u = ORDER.upgrade; if(!u) return 0;
-  const hasSplit = u.main_amount !== undefined || u.bag_amount !== undefined;
-  const main = hasSplit ? (+u.main_amount || 0) : (+u.amount || 0);
-  const bag  = hasSplit ? (+u.bag_amount  || 0) : 0;
-  return ((plan && +plan.mult >= 2) ? main + bag : main);
-}
+/* 顯示金額只讀後端 offer 的總額。前端不再持有 base、mult 或商品價格公式。 */
 function updateTotal(){
-  const amt = upgradeFor(selectedPlan);
-  // 升級區跟著方案開關：這一案沒有升級可加就整區收起來，免得畫面上留一個 ＋NT$0 的選項。
+  const amt = selectedPlan ? (+selectedPlan.upgrade_amount || 0) : 0;
   $('#upgradeSection').style.display = amt > 0 ? 'block' : 'none';
-  $('#upgAmtTxt').textContent = '＋NT$' + amt.toLocaleString()
-    + (selectedPlan && +selectedPlan.mult >= 2 ? '（兩條一起升）' : '（這一條）');
-  let t = ORDER.base * (selectedPlan ? selectedPlan.mult : 1);
-  if(selectedUpgrade) t += amt;
-  /* 2026-08-15c：運費。以前這裡不加，畫面上的數字比報價信按鈕上的少 60～130
-     （信裡 mainPriceTable／planButtons 一直都含運費），跟老闆收到的應收也對不起來
-     （WF2『Code 準備收款通知』的 due = base×N + ship_fee + 升級）。
-     三處金額要嘛全含運費、要嘛全不含，不能只有中間這一段不含。
-     ship_fee 由 CONFIRM_LOOKUP 回傳（2026-08-15c 補上）；舊快取／舊單讀不到就是 0，
-     退回舊行為而不是報錯。 */
-  const ship = +ORDER.ship_fee || 0;
-  t += ship;
+  if(amt <= 0){
+    selectedUpgrade = false;
+    const no = document.querySelector('input[name=upg][value="no"]');
+    if(no) no.checked = true;
+  }
+  $('#upgAmtTxt').textContent = '＋NT$' + amt.toLocaleString();
+  const t = selectedPlan
+    ? +(selectedUpgrade ? selectedPlan.server_total_upgraded : selectedPlan.server_total)
+    : 0;
+  const shipping = ORDER.shipping || {};
   $('#cfTotal').textContent = 'NT$ ' + t.toLocaleString();
-  $('#cfShip').textContent = ship ? ('已含運費 ' + (ORDER.ship || '') + ' NT$' + ship) : '';
+  $('#cfShip').textContent = +shipping.amount
+    ? ('已含運費 ' + (shipping.label || '') + ' NT$' + (+shipping.amount).toLocaleString())
+    : '';
 }
 
 // 訊息一律寫進 textContent，瀏覽器自己會處理跳脫；再套 esc() 反而會讓 & 變成 &amp; 印在畫面上。
@@ -418,8 +401,8 @@ function say(kind, text){
 $('#confirmBtn').addEventListener('click', async ()=>{
   if(!selectedPlan) return;   // 沒方案可送就不送；正常流程走不到這，deadEnd() 已先鎖住鈕
   const btn = $('#confirmBtn'); btn.disabled = true; btn.textContent = '送出中…';
-  // 欄位鍵名已於 P2a 定案（CONFIRM_訂單確認頁送出 workflow）＝{token,order_token,plan,upgrade,note,confirm}，見 config.js。
-  const payload = { order_token: orderToken, plan: selectedPlan.id, upgrade: selectedUpgrade, note: $('#cfNote').value.trim(), confirm: true };
+  // 僅送選擇，不送金額；CONFIRM_RESUME 會從資料庫 offer 重取方案與總額。
+  const payload = { order_token: orderToken, plan_id: selectedPlan.plan_id, upgrade: selectedUpgrade, note: $('#cfNote').value.trim(), confirm: true };
   const { ok, error } = await submitTo(CONFIG.PATHS.CONFIRM_RESUME, payload);
   say(ok ? 'ok' : 'warn', ok
     ? '已送出你的選擇！我們會依此安排製作，謝謝你。'
