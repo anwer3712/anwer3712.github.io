@@ -1913,7 +1913,8 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
           <tr><td>聯絡方式（LINE／電話）</td><td>確認設計、約面交，也是訂單查詢的驗證碼來源</td><td>出貨後 2 年</td></tr>
           <tr><td>Email</td><td>寄命盤解析、報價單與出貨通知</td><td>出貨後 2 年</td></tr>
           <tr><td>物流方式</td><td>出貨</td><td>出貨後 2 年</td></tr>
-          <tr><td>訂單編號、金額</td><td>對帳</td><td><b>7 年</b>（帳簿憑證年限，這段期間不能刪）</td></tr>
+          <tr><td>收件地址／取貨門市</td><td>宅配寄送或超商店到店取貨；面交不收</td><td>出貨後 2 年</td></tr>
+          <tr><td>訂單編號、金額</td><td>對帳</td><td><b>7 年</b>（本店對帳與保存政策）</td></tr>
         </table></div>
         <p style="color:var(--muted);font-size:13px;margin-top:10px">系統另外會存下命盤運算的中間結果與產出的報告內容（出貨後 2 年）、設計初稿與成品照（2 年）、你在確認關卡的回覆（2 年）、物流單號（2 年）。</p>
       </div>
@@ -1922,7 +1923,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
         <h3 style="font-family:var(--serif);font-size:20px;margin-bottom:10px">二、我們不收什麼</h3>
         <ul style="color:var(--muted);font-size:14px;line-height:1.9;padding-left:1.2em;list-style:disc">
           <li><b>出生地。</b>真太陽時一律以東經 120° 計算，不需要也不收——少收一個欄位就少一分外洩風險。</li>
-          <li><b>身分證字號、地址門牌。</b>取貨走超商店到店或面交，不建檔。</li>
+          <li><b>身分證字號。</b>不收、不建檔。<b>收件地址。</b>僅在你選宅配時收集；選超商店到店時收取貨門市，面交不收。</li>
           <li><b>付款卡號。</b>收款走轉帳與面交現金，站上不經手任何卡號。</li>
           <li><b>第三方廣告追蹤與分析。</b>目前沒有啟用。程式裡留著 GA4 與 Meta Pixel 的載入器，但識別碼是空的、不會載入；哪天啟用，這一頁會先更新。</li>
         </ul>
@@ -1963,15 +1964,12 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
         <p style="color:var(--muted);font-size:14px">你可以要求我們查詢、更正或刪除你的個人資料。用你原本下單的聯絡方式告訴我們就行，<b>我們在兩週內處理完</b>。</p>
         <div class="mt-wrap"><table class="mt">
           <tr><th>你要求</th><th>我們做什麼</th><th>會留下什麼</th></tr>
-          <tr><td>刪除個人資料</td><td>清空姓名、聯絡方式、Email、生日、出生時間、自由填寫欄位；情侶單連伴侶那一份一起清</td><td>訂單編號、金額、時間戳（帳簿憑證，7 年內不能刪）</td></tr>
+          <tr><td>刪除個人資料</td><td>清空姓名、聯絡方式、Email、生日、出生時間、自由填寫欄位；情侶單連伴侶那一份一起清</td><td>訂單編號、金額、時間戳等必要帳務紀錄</td></tr>
           <tr><td>完全刪除</td><td>連訂單紀錄一起刪掉</td><td>什麼都不留</td></tr>
         </table></div>
-        <p style="color:var(--muted);font-size:13px;margin-top:10px">「完全刪除」只在該筆訂單超過帳簿保存年限（7 年）之後才做得到；還在年限內的，我們只能做到上面那一列。每一次執行都會留下操作紀錄（誰、什麼時候、刪了哪一筆），紀錄本身不含被刪掉的內容。</p>
+        <p style="color:var(--muted);font-size:13px;margin-top:10px">「完全刪除」只在該筆訂單超過本店 7 年保存期後才做得到；還在期限內的，會先清除可分離的個人資料。每一次執行都會留下操作紀錄（誰、什麼時候、刪了哪一筆），紀錄本身不含被刪掉的內容。</p>
       </div>
 
-      <div class="reveal" style="margin-top:30px;padding-top:18px;border-top:1px solid var(--line)">
-        <p style="color:var(--muted);font-size:13px">我們曾經在站上寫過「不儲存你的姓名、確切生日、聯絡方式」。那句話是錯的，三樣都有存，已於 2026-07-30 移除。留這一段是為了讓你知道我們改過什麼。</p>
-      </div>
     </div>
   </section>
 </div>
