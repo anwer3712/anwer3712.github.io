@@ -24,7 +24,7 @@
      ⚠ 2026-08-09：CONTACT.tel 填進去之後，這裡要補 "telephone":"+886..."（LocalBusiness 的電話
      走 telephone，不是 sameAs）。現在 tel 是空的，先不放空字串——空的 telephone 對爬蟲是壞資料。 -->
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"LocalBusiness","name":"拍拍深五行水晶設計研究所","description":"以八字文化符號結合心理學的個人化五行水晶手串訂製，量化配珠、五派裁決、白名單選石、透明可追溯。","image":"https://anwer3712.github.io/paipaishen-shop/photos/w2.jpg","url":"https://anwer3712.github.io/paipaishen-shop/","areaServed":["桃園","龍潭","中壢"],"sameAs":["https://line.me/R/ti/p/%40262pxjdl","https://instagram.com/IGSINGASONG"],"priceRange":"NT$300–NT$1500"}
+{"@context":"https://schema.org","@type":"LocalBusiness","name":"拍拍深五行水晶設計研究所","description":"以八字文化符號結合心理學的個人化五行水晶手串訂製，量化配珠、五派裁決、白名單選石、透明可追溯。","image":"https://anwer3712.github.io/paipaishen-shop/photos/w2.jpg","url":"https://anwer3712.github.io/paipaishen-shop/","areaServed":["桃園","龍潭","中壢"],"sameAs":["https://lin.ee/74cUrLS","https://instagram.com/IGSINGASONG"],"priceRange":"NT$300–NT$1500"}
 </script>
 
 <style>
@@ -1808,10 +1808,8 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
       </figure>
       <div class="head reveal" style="margin-top:40px;margin-bottom:14px"><h2 style="font-size:24px">來找我們</h2></div>
       <div class="channels" id="channels"></div>
-      <!-- QR 三張（2026-08-14 使用者要求）：官網原本只有帳號文字，客戶要自己打 ID。
-           圖檔在 photos/qr/，來源 D:\ALL-AI\05_BUSINESS\qr\。
-           ⚠ qr_line.png 是官方帳號 @262pxjdl 那張（來源檔名 262pxjdl.png）；
-             來源目錄裡另有一張舊的 qr_line.png 是個人帳號 17singasong，不要拿錯。
+      <!-- QR 三張：官方 LINE QR 由店長提供的原始檔覆蓋 photos/qr/qr_line.png。
+           圖說與點擊連結均由 config.js 的 CONTACT 統一提供，避免帳號、QR、網址不同步。
            帳號字串一律留給 JS 從 config.js 填（data-contact），不抄進這裡。 -->
       <div class="qrs" id="qrs">
         <figure>
@@ -2566,11 +2564,13 @@ document.querySelectorAll('[data-line]').forEach(e=>{ e.textContent = (CONFIG.CO
 document.querySelectorAll('[data-contact]').forEach(e=>{
   e.textContent = (CONFIG.CONTACT||{})[e.dataset.contact] || '';
 });
-/* LINE 有兩種帳號、兩種網址：官方帳號 ID 以 @ 開頭走 /R/ti/p/（@ 要 encode 成 %40，
+/* LINE 有兩種帳號、兩種網址：若 config 指定 line_url（官方提供短連結）必優先使用；否則官方帳號 ID 以 @ 開頭走 /R/ti/p/（@ 要 encode 成 %40，
    不 encode 的話多數 App 內建瀏覽器會把它當成 mailto 的分隔字元丟掉後半段）；
-   舊的個人帳號 ID 沒有 @，走 /ti/p/~。2026-08-14 從 17singasong 換成 @262pxjdl 時，
-   只改 config.js 那個字串而網址還寫死 ~ 的話，加好友連結會直接 404。 */
+   舊的個人帳號 ID 沒有 @，走 /ti/p/~。未設定 line_url 的舊資料仍可相容使用；
+   新帳號一律以 LINE 提供的短連結為準。 */
 function lineLink(id){
+  const explicit = (typeof CONFIG!=='undefined' && CONFIG.CONTACT && CONFIG.CONTACT.line_url) || '';
+  if(explicit) return explicit;
   const s = String(id||'');
   if(!s) return '';
   return s.charAt(0)==='@' ? 'https://line.me/R/ti/p/'+encodeURIComponent(s)

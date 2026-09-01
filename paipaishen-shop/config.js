@@ -183,10 +183,10 @@ const CONFIG = {
   // tel：老年客層打不了 LINE，這是他們唯一走得通的路。填了才會出現「電話」鈕，
   //      顯示用原字串（含 - 好念），href 由前台去掉非數字組 tel:。
   //      ⚠ 填入後記得同步 index.html 開頭 JSON-LD 的 telephone（那是全站唯一容許抄第二份的地方）。
-  // line：2026-08-14 換成官方帳號 @262pxjdl（原 17singasong 是個人帳號）。
-  //       前台組連結用 lineLink()——@ 開頭走官方帳號網址，沒有 @ 才是舊的個人 ID 網址。
+  // line：官方 LINE 帳號。line_url 是 LINE 提供的加入好友短連結；有值時前台必優先使用，
+  //       不可由 ID 反推舊式 line.me 網址，避免導到過期帳號。
   // linkgoods：只用來顯示 QR（qr/qr_linkgoods.png），沒有已知的帳號網址格式，不組連結。
-  CONTACT: { line:"@262pxjdl", tel:"", ig:"IGSINGASONG", linkgoods:"ANWER3712", shopee:"" },
+  CONTACT: { line:"@983evonf", line_url:"https://lin.ee/74cUrLS", tel:"", ig:"IGSINGASONG", linkgoods:"ANWER3712", shopee:"" },
 
   // 追蹤碼空槽：後台填入 ID 後前台才動態注入（預設空＝不載入任何外部腳本）
   GA4_ID: "",
