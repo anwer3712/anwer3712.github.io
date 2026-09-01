@@ -10,19 +10,19 @@
 <title>訂單確認｜拍拍深五行水晶設計研究所</title>
 <style>
 :root{
-  --warm:#FFFFFF;--warm2:#F7F9FA;--dawn:#F7F9FA;--dawn2:#C9D6DF;--morandi:#E3EAF0;
-  --rose:#34A97B;--rose-d:#0E8F5E;--ink:#10233A;--ink2:#5A6B7C;--gold:#0E8F5E;--line:#E3EAF0;--ok:#7FA98F;
-  --serif:"Noto Serif TC","Songti TC","Microsoft JhengHei","PingFang TC",serif;
+  --warm:#FBF9F4;--warm2:#F4EFE3;--dawn:#101828;--dawn2:#C9A24B;--morandi:#E7E1D4;
+  --rose:#C9A24B;--rose-d:#1B4165;--ink:#2A3342;--ink2:#647084;--gold:#C9A24B;--line:#E7E1D4;--ok:#7FA98F;
+  --serif:"Iansui 094","Noto Serif TC","Songti TC","Microsoft JhengHei","PingFang TC",serif;
   --sans:system-ui,-apple-system,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:var(--sans);color:var(--ink);background:var(--warm);line-height:1.85;padding-bottom:86px;}
+body{font-family:var(--sans);color:var(--ink);background:var(--warm);line-height:1.85;padding-bottom:86px;font-synthesis:none;text-rendering:optimizeLegibility;}
 h1,h2{font-family:var(--serif);}
 .wrap{max-width:680px;margin:0 auto;padding:0 20px;}
 a{color:inherit;}
 button{font-family:inherit;}
 
-.nav{background:rgba(255,255,255,.94);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50;}
+.nav{background:rgba(251,249,244,.94);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50;}
 .nav-in{max-width:680px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;}
 .nav-brand{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;letter-spacing:.12em;text-decoration:none;}
 .nav-brand .seal-mini{width:22px;height:22px;flex:none;}
@@ -30,12 +30,12 @@ button{font-family:inherit;}
 .back-link{font-size:12.5px;color:var(--ink2);text-decoration:none;}
 .back-link:hover{color:var(--rose-d);}
 
-.cf-hero{background:linear-gradient(165deg,var(--dawn) 0%,var(--warm) 80%);padding:34px 0 26px;text-align:center;}
+.cf-hero{background:radial-gradient(circle at 50% -35%,rgba(232,201,122,.32),transparent 46%),linear-gradient(145deg,var(--dawn),#182236 72%);padding:34px 0 26px;text-align:center;}
 .cf-hero .kicker{font-size:11px;letter-spacing:.4em;color:var(--rose);margin-bottom:10px;}
-.cf-hero h1{font-size:clamp(22px,5vw,28px);font-weight:700;letter-spacing:.08em;}
-.cf-hero p.lead{font-size:13.5px;color:var(--ink2);font-weight:300;margin-top:10px;max-width:30em;margin-left:auto;margin-right:auto;}
-.order-tag{margin-top:14px;font-size:12.5px;color:var(--ink2);}
-.order-tag b{color:var(--rose-d);letter-spacing:.06em;}
+.cf-hero h1{font-size:clamp(22px,5vw,28px);font-weight:700;letter-spacing:.08em;color:#FFF9EB;}
+.cf-hero p.lead{font-size:13.5px;color:#D8E0EA;font-weight:300;margin-top:10px;max-width:30em;margin-left:auto;margin-right:auto;}
+.order-tag{margin-top:14px;font-size:12.5px;color:#C7D0DE;}
+.order-tag b{color:#F2D98D;letter-spacing:.06em;}
 
 .cf-main{padding:22px 20px 20px;}
 .msg{padding:12px 14px;border-radius:10px;font-size:13px;margin-bottom:16px;}
@@ -87,11 +87,12 @@ textarea:focus{outline:2px solid var(--dawn2);border-color:var(--dawn2);}
 .cf-bar-amt small{display:block;font-size:10px;color:var(--ink2);letter-spacing:.06em;}
 .cf-bar-amt b{font-size:17px;color:var(--rose-d);white-space:nowrap;}
 .btn,.btn2{border:0;border-radius:11px;font:inherit;font-size:13px;letter-spacing:.08em;cursor:pointer;padding:11px 16px;text-align:center;text-decoration:none;white-space:nowrap;}
-.btn{background:var(--rose-d);color:#fff;font-weight:700;}
-.btn:hover{background:#0A6E48;}
+.btn{background:linear-gradient(105deg,#E8C97A,var(--gold));color:#2B1E05;font-weight:700;box-shadow:0 8px 18px rgba(201,162,75,.28);}
+.btn:hover{background:var(--gold);transform:translateY(-1px);}
 .btn:disabled{opacity:.6;cursor:default;}
 .btn2{background:#fff;border:1.5px solid var(--ink);color:var(--ink);}
 .btn2:hover{background:var(--ink);color:#fff;}
+button:focus-visible,a:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid rgba(201,162,75,.7);outline-offset:3px;}
 
 footer{padding:26px 20px 96px;text-align:center;}
 .foot-brand{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700;letter-spacing:.1em;}
@@ -101,6 +102,7 @@ footer{padding:26px 20px 96px;text-align:center;}
 @media(min-width:560px){
   .cf-bar{left:50%;transform:translateX(-50%);max-width:680px;border-radius:16px 16px 0 0;}
 }
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>

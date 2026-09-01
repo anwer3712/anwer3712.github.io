@@ -42,8 +42,8 @@
   --muted:#6A7280; --line:#E7E1D4; --card:#fff; --rose-d:#B06A72;
   --maxw:1120px; --r:16px; --r-sm:10px; --sp:clamp(16px,4vw,28px);
   --shadow:0 12px 34px rgba(16,24,40,.10); --shadow-sm:0 4px 14px rgba(16,24,40,.07);
-  --serif:"Noto Serif TC","Songti TC","PMingLiU",serif;
-  --sans:"Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
+  --serif:"Iansui 094","Noto Serif TC","Songti TC","PMingLiU",serif;
+  --sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
   --t:.26s cubic-bezier(.22,.61,.36,1);
 
   /* 情緒弧線漸層 — 只組合既有色票，不新增顏色（沿用「不自創色」）。
@@ -65,7 +65,7 @@ html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
    先前在 Claude 的 Browser pane 量到「16 條全部 inactive」是量測假象——那個 pane
    隱藏時頁面不 compositing，ViewTimeline 就不更新。量捲動驅動動畫一定要用會
    compositing 的瀏覽器（tests/ 那幾支 Playwright 腳本），不要用隱藏視窗的 DevTools。 */
-body{font-family:var(--sans);color:var(--ink);background:var(--paper);line-height:1.75;font-size:16px;overflow-x:hidden}
+body{font-family:var(--sans);color:var(--ink);background:var(--paper);line-height:1.75;font-size:16px;overflow-x:hidden;font-synthesis:none;text-rendering:optimizeLegibility}
 h1,h2,h3,h4{font-family:var(--serif);font-weight:600;line-height:1.3;color:var(--ink)}
 a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
@@ -373,6 +373,12 @@ section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
 .decon li::before{content:"";position:absolute;left:6px;top:11px;width:9px;height:9px;border-radius:50%;background:var(--glow);box-shadow:0 0 10px 2px rgba(232,201,122,.6)}
 @keyframes decon{to{opacity:1;transform:none}}
 .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+.hero-note{margin:14px 0 0;color:#D6DCE7;font-size:13px;letter-spacing:.035em}
+.hope-rail{display:flex;gap:0;flex-wrap:wrap;margin-top:26px;padding-top:18px;border-top:1px solid rgba(232,201,122,.24);color:#DDE3ED}
+.hope-rail span{position:relative;display:flex;align-items:center;gap:8px;padding:0 18px 0 0;margin:0 18px 8px 0;font-size:12px;letter-spacing:.04em}
+.hope-rail span:not(:last-child)::after{content:"";position:absolute;right:0;width:1px;height:15px;background:rgba(232,201,122,.35)}
+.hope-rail i{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;font-style:normal;font-size:9px;color:#271c06;background:var(--glow);box-shadow:0 0 14px rgba(232,201,122,.42)}
+
 .hero-art{display:flex;justify-content:center}
 .hero-art svg{width:100%;max-width:400px;height:auto;filter:drop-shadow(0 18px 40px rgba(0,0,0,.4))}
 /* 16s／圈。60s → 24s → 16s：使用者三度回報看不出在轉，同一輪也查到真根因是
@@ -1021,6 +1027,8 @@ body.est-on .tocball,body.est-on .tocpanel{display:none}
 .chatball::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(232,201,122,.5);animation:pulseGlow 2.2s 6}
 .chatball:hover{transform:scale(1.08)}
 .chatball svg{width:30px;height:30px}
+.chat-guidance{display:flex;gap:9px;align-items:flex-start;padding:10px 14px;background:#F4EFE3;border-bottom:1px solid var(--line);color:#4A5361;font-size:12px;line-height:1.55}
+.chat-guidance span{color:var(--glow-deep);font-size:16px;line-height:1}.chat-guidance b{display:block;color:var(--ink);font-size:12px}
 .chatpanel{position:fixed;right:20px;bottom:20px;z-index:145;width:min(370px,92vw);height:min(560px,80vh);background:#fff;border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.3);display:none;flex-direction:column;overflow:hidden}
 .chatpanel.on{display:flex;animation:tabIn .3s ease}
 .chat-head{background:linear-gradient(120deg,var(--abyss),var(--abyss-2));color:#EDE7DA;padding:15px 18px;display:flex;align-items:center;gap:10px}
@@ -1033,9 +1041,14 @@ body.est-on .tocball,body.est-on .tocpanel{display:none}
 .bub.user{background:var(--glow-soft);align-self:flex-end;border-bottom-right-radius:4px}
 .bub.typing{display:flex;gap:4px}
 .bub.typing i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite}
+.chat-offer{align-self:flex-start;max-width:88%;padding:11px 12px;border:1px solid #D9C27B;border-radius:12px;background:linear-gradient(135deg,#FFFDF7,#F7F0DD);box-shadow:0 5px 14px rgba(34,41,54,.08)}
+.chat-offer p{margin:0 0 8px;font-size:12px;line-height:1.55;color:var(--ink2)}
+.chat-offer button{border:0;border-radius:8px;padding:8px 11px;background:var(--abyss);color:#FFF7E3;font:inherit;font-size:12px;font-weight:700;letter-spacing:.04em;cursor:pointer}
+.chat-offer button:hover{background:var(--shui)}
 .bub.typing i:nth-child(2){animation-delay:.2s}.bub.typing i:nth-child(3){animation-delay:.4s}
 @keyframes blink{0%,60%,to{opacity:.3}30%{opacity:1}}
 .chat-quick{padding:6px 12px;display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid var(--line)}
+.chatpanel button:focus-visible,.chatpanel input:focus-visible{outline:3px solid rgba(232,201,122,.72);outline-offset:2px}
 .chat-quick button{font-size:12px;background:#F3EEE2;border:none;border-radius:20px;padding:5px 11px;cursor:pointer;transition:background var(--t)}
 .chat-quick button:hover{background:var(--glow-soft)}
 .chat-input{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
@@ -1094,6 +1107,7 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
      使用者看不出格式該怎麼填。窄螢幕改一行一個。 */
   .track-form input{flex-basis:100%}
   .frow{grid-template-columns:1fr}
+  .hope-rail{justify-content:center}.hope-rail span{margin-right:12px;padding-right:12px}
   .g3-aes{grid-template-columns:1fr}
   .prods{grid-template-columns:1fr}
   .gal{grid-template-columns:repeat(2,1fr);gap:9px}
@@ -1102,6 +1116,7 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
   .cartBtn{padding:8px}
 }
 /* 觸控目標 */
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.chatpanel.on,.chatball::after{animation:none!important}.chatball,.chat-quick button,.chat-offer button{transition:none!important}}
 @media(pointer:coarse){ .nav-links a,.seg button,.chip-f,.pg-btn,.email-help{min-height:44px;display:inline-flex;align-items:center}
   /* 2026-08-09 三角色複審量到的漏網：訂製頁那兩個裸 <summary>（想知道顆數怎麼算？／
      展開完整底價矩陣）只有 25–26px 高，手指按不準；.acc summary 本來就有 padding，
@@ -1220,16 +1235,20 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
     <div class="wrap">
       <div class="hero-copy">
         <p class="tag-eyebrow">八字文化 × 心理學</p>
-        <h1>看見深淵，<br>然後<span class="gl">點亮那道光</span>。</h1>
-        <p class="lead">重點從來不是深淵。是光。我們用八字引擎看見你的慣性，用一串珠子，陪你把節奏調回來。</p>
+        <h1>低潮裡，<br>也有一盞<span class="gl">往前的光</span>。</h1>
+        <p class="lead">即使走進深處，我們仍在你身旁，照亮下一步。用八字文化看見你的慣性，讓一串珠子成為回到自己節奏的日常提醒。</p>
         <ul class="decon">
           <li><b>理解困局</b>　八字引擎照見性格裡的慣性與壓抑——那些讓你重複卡關的地方。</li>
           <li><b>陪伴提醒</b>　它不是改命的魔法，是物理性的陪伴；目光落上時，校準一下步調。</li>
           <li><b>心理導航</b>　它點亮的是你內心原本就具備、卻被暫時遺忘的潛能。</li>
         </ul>
         <div class="hero-cta">
-          <a class="btn" href="#custom">說說你的狀況 →</a>
-          <a class="btn-ghost" href="#shop">先看看現貨</a>
+          <a class="btn" href="#custom">從這裡，替自己點一盞燈 →</a>
+          <a class="btn-ghost" href="#shop">先看看已完成的光</a>
+        </div>
+        <p class="hero-note">不用一次想清楚。先從一句近況開始，我們陪你找到下一步。</p>
+        <div class="hope-rail" aria-label="訂製旅程">
+          <span><i>01</i>說說現在的你</span><span><i>02</i>看見適合的方向</span><span><i>03</i>把提醒戴回日常</span>
         </div>
       </div>
       <div class="hero-art">
@@ -2030,7 +2049,8 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
   <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="9" fill="#2b1e05" opacity=".22"/><path d="M9 13h14M9 17h9" stroke="#2b1e05" stroke-width="2" stroke-linecap="round"/></svg>
 </button>
 <div class="chatpanel" id="chatPanel" role="dialog" aria-label="AI 客服 小串">
-  <div class="chat-head"><span class="av"></span><div><b>小串</b><small>線上・秒回</small></div><button class="x" id="chatClose" aria-label="關閉">✕</button></div>
+  <div class="chat-head"><span class="av"></span><div><b>小串</b><small>先聽你說，再陪你找方向</small></div><button class="x" id="chatClose" aria-label="關閉">✕</button></div>
+  <div class="chat-guidance"><span aria-hidden="true">✦</span><p><b>不必先懂怎麼選</b>告訴我你在意的事，我會用站上方案與流程替你整理下一步。</p></div>
   <div class="chat-body" id="chatBody"></div>
   <div class="chat-quick" id="chatQuick"></div>
   <div class="chat-input"><input id="chatInput" placeholder="打字問我，例如「價格怎麼算」" maxlength="200"><button id="chatSend" type="button">送出</button></div>
@@ -3486,7 +3506,27 @@ function localBrain(qtext){
   // 宅配只有現貨結帳選得到，訂製問卷的取貨 radio 目前只有店到店／面交——講清楚免得訂製客戶問了選不到
   if(has('地址','面交','自送','店到店','運費','宅配')) return '物流：宅配到府 +130（現貨結帳可選）；店到店 +60；中壢–龍潭面交免運（約時間地點）。';
   if(has('訂','買','下單','開始','怎麼訂')) return '切到「訂製服務」分頁，一步步填，約 3 分鐘；送出會拿到訂單編號，之後都能線上查進度。';
+  if(has('小串','錦囊','輕量')) return '小串適合想先從較輕量方式開始的人。最後可選內容與總額仍以確認頁的正式方案為準；我可以先帶你到訂製入口。';
   return null;
+}
+function chatOfferFor(qtext){
+  const q=qtext.toLowerCase();
+  const has=(...ws)=>ws.some(w=>q.includes(w));
+  if(has('情侶','對串','兩人','另一半')) return {tab:'custom',label:'帶我看情侶對串 →',detail:'先到訂製頁選擇「情侶對串」，再依兩人的狀況慢慢填。'};
+  if(has('小串','錦囊','不知道選','不確定','怎麼選','想買','下單','訂製','開始')) return {tab:'custom',label:'從訂製入口開始 →',detail:'不用先決定方案；先留下近況，設計與正式選項會在後續流程中說明。'};
+  if(has('現貨','立刻','快速','送禮')) return {tab:'shop',label:'先看看現貨商品 →',detail:'想先看看完成品，可以從現貨開始；需要更貼近近況的方向，再回到訂製。'};
+  return null;
+}
+function botOffer(offer){
+  if(!offer) return;
+  const card=document.createElement('div'), note=document.createElement('p'), btn=document.createElement('button');
+  card.className='chat-offer'; note.textContent=offer.detail; btn.type='button'; btn.textContent=offer.label;
+  btn.addEventListener('click',()=>{
+    const link=document.querySelector('.nav-top[href="#'+offer.tab+'"]');
+    if(link) link.click(); else location.hash='#'+offer.tab;
+    $('#chatInput').focus();
+  });
+  card.append(note,btn); $('#chatBody').appendChild(card); $('#chatBody').scrollTop=$('#chatBody').scrollHeight;
 }
 async function chatSend(text){
   text=(text||$('#chatInput').value).trim(); if(!text) return;
@@ -3496,9 +3536,11 @@ async function chatSend(text){
   if(CONFIG.N8N_BASE){ try{ const r=await api(CONFIG.PATHS.CHAT,{ message:text, history:chatHist.slice(-8,-1) }); if(r&&r.ok&&r.reply) reply=r.reply; }catch(_){ reply=null; } }
   typing.remove();
   botSay(reply || local || ('這題我想請店長親自回答你 🙏\n加 LINE：'+CONFIG.CONTACT.line+'（點聯絡通道也可以）。\n也可以換個問法，例如「價格怎麼算」「多久收到」。'));
+  botOffer(chatOfferFor(text));
 }
-const QUICK=['價格怎麼算','多久收到','情侶對串','怎麼保養'];
-$('#chatQuick').innerHTML = QUICK.map(q=>`<button type="button">${q}</button>`).join('');
+const QUICK=['我不知道選哪種','小串怎麼選','價格怎麼算','情侶對串','多久收到'];
+const quickHost=$('#chatQuick');
+QUICK.forEach(q=>{ const b=document.createElement('button'); b.type='button'; b.textContent=q; quickHost.appendChild(b); });
 $('#chatQuick').addEventListener('click',e=>{ if(e.target.tagName==='BUTTON') chatSend(e.target.textContent); });
 // openChat() 抽出來單獨用：純開啟、不是 toggle，給「沒有 Email」引導鈕呼叫——
 // 用 toggle 的話，客服面板本來就開著時點下去會被關掉，變成反效果。
