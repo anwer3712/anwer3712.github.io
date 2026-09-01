@@ -1902,21 +1902,21 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
         <p style="color:var(--muted);font-size:14px">訂製問卷送出的欄位如下。情侶對串時，同一份欄位也需要伴侶那一份。</p>
         <div class="mt-wrap"><table class="mt">
           <tr><th>資料</th><th>為什麼需要</th><th>保留到什麼時候</th></tr>
-          <tr><td>姓名／暱稱</td><td>訂單識別、報告抬頭、面交確認身分</td><td>出貨後 2 年</td></tr>
-          <tr><td>生理性別</td><td>八字排盤需要，不作行銷分群</td><td>出貨後 2 年</td></tr>
-          <tr><td>國曆生日</td><td>命盤的主要輸入，沒有它整份推論算不出來</td><td>出貨後 2 年</td></tr>
-          <tr><td>出生時間（可不填）</td><td>提高命盤精度；不填會走三柱模式並在報告揭露</td><td>出貨後 2 年</td></tr>
-          <tr><td>手圍、珠徑</td><td>決定顆數與成品尺寸</td><td>出貨後 2 年</td></tr>
-          <tr><td>核心功能、視覺體感</td><td>決定配比方向與外觀取向</td><td>出貨後 2 年</td></tr>
+          <tr><td>姓名／暱稱</td><td>訂單識別、報告抬頭、面交確認身分</td><td>出貨後 2 年自動清除</td></tr>
+          <tr><td>生理性別</td><td>八字排盤需要，不作行銷分群</td><td>出貨後 2 年自動清除</td></tr>
+          <tr><td>國曆生日</td><td>命盤的主要輸入，沒有它整份推論算不出來</td><td>出貨後 2 年自動清除</td></tr>
+          <tr><td>出生時間（可不填）</td><td>提高命盤精度；不填會走三柱模式並在報告揭露</td><td>出貨後 2 年自動清除</td></tr>
+          <tr><td>手圍、珠徑</td><td>決定顆數與成品尺寸</td><td>出貨後 2 年自動清除</td></tr>
+          <tr><td>核心功能、視覺體感</td><td>決定配比方向與外觀取向</td><td>出貨後 2 年自動清除</td></tr>
           <tr><td><b>痛點／希望調整（自由填）</b></td><td>文案與配石取向</td><td><b>出貨滿 1 年清空</b></td></tr>
-          <tr><td>關係階段（情侶）</td><td>影響雙人係數</td><td>出貨後 2 年</td></tr>
-          <tr><td>聯絡方式（LINE／電話）</td><td>確認設計、約面交，也是訂單查詢的驗證碼來源</td><td>出貨後 2 年</td></tr>
-          <tr><td>Email</td><td>寄命盤解析、報價單與出貨通知</td><td>出貨後 2 年</td></tr>
-          <tr><td>物流方式</td><td>出貨</td><td>出貨後 2 年</td></tr>
-          <tr><td>收件地址／取貨門市</td><td>宅配寄送或超商店到店取貨；面交不收</td><td>出貨後 2 年</td></tr>
-          <tr><td>訂單編號、金額</td><td>對帳</td><td><b>7 年</b>（本店對帳與保存政策）</td></tr>
+          <tr><td>關係階段（情侶）</td><td>影響雙人係數</td><td>出貨後 2 年自動清除</td></tr>
+          <tr><td>聯絡方式（LINE／電話）</td><td>確認設計、約面交，也是訂單查詢的驗證碼來源</td><td>出貨後 2 年自動清除</td></tr>
+          <tr><td>Email</td><td>寄命盤解析、報價單與出貨通知</td><td>出貨後 2 年自動清除</td></tr>
+          <tr><td>物流方式</td><td>出貨</td><td>出貨後 2 年自動清除</td></tr>
+          <tr><td>收件地址／取貨門市</td><td>宅配寄送或超商店到店取貨；面交不收</td><td>出貨後 2 年自動清除</td></tr>
+          <tr><td>訂單編號、金額</td><td>對帳；僅保留必要帳務欄位</td><td><b>該會計年度結束後 5 年</b></td></tr>
         </table></div>
-        <p style="color:var(--muted);font-size:13px;margin-top:10px">系統另外會存下命盤運算的中間結果與產出的報告內容（出貨後 2 年）、設計初稿與成品照（2 年）、你在確認關卡的回覆（2 年）、物流單號（2 年）。</p>
+        <p style="color:var(--muted);font-size:13px;margin-top:10px">出貨滿 2 年時，系統會自動清除命盤運算中間結果、報告內容、設計初稿與成品照、確認回覆、物流資料及可識別的履約資料；僅留下訂單編號、金額、付款狀態與必要時間戳至法定帳務保存期屆滿。</p>
       </div>
 
       <div class="reveal" style="margin-top:30px">
@@ -1967,7 +1967,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
           <tr><td>刪除個人資料</td><td>清空姓名、聯絡方式、Email、生日、出生時間、自由填寫欄位；情侶單連伴侶那一份一起清</td><td>訂單編號、金額、時間戳等必要帳務紀錄</td></tr>
           <tr><td>完全刪除</td><td>連訂單紀錄一起刪掉</td><td>什麼都不留</td></tr>
         </table></div>
-        <p style="color:var(--muted);font-size:13px;margin-top:10px">「完全刪除」只在該筆訂單超過本店 7 年保存期後才做得到；還在期限內的，會先清除可分離的個人資料。每一次執行都會留下操作紀錄（誰、什麼時候、刪了哪一筆），紀錄本身不含被刪掉的內容。</p>
+        <p style="color:var(--muted);font-size:13px;margin-top:10px">「完全刪除」會在該筆資料所屬會計年度結束後滿 5 年自動執行；還在期限內的，會先清除可分離的個人資料。每一次人工執行都會留下操作紀錄（誰、什麼時候、刪了哪一筆），紀錄本身不含被刪掉的內容。</p>
       </div>
 
     </div>
