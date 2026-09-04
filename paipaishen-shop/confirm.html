@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src https://n8n.anwer3712.com; base-uri 'none'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data: https://drive.google.com https://*.googleusercontent.com; style-src 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src https://n8n.anwer3712.com; base-uri 'none'; form-action 'self'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='6' r='4' fill='%23C9B37E'/%3E%3Ccircle cx='25.5' cy='12.9' r='4' fill='%237FA98F'/%3E%3Ccircle cx='21.9' cy='24.1' r='4' fill='%235C7A99'/%3E%3Ccircle cx='10.1' cy='24.1' r='4' fill='%23C98A92'/%3E%3Ccircle cx='6.5' cy='12.9' r='4' fill='%23C2A063'/%3E%3C/svg%3E">
@@ -205,13 +205,13 @@ function demoOrder(){
     plans:[
       {
         plan_id:'personal.main.v1', label:'① 主方案',
-        desc:'依命盤、困擾與核心功能設計的一條日常主方案。',
+        desc:'依命格不足、用神／喜神、流年與你填寫的重點配置；選珠同時納入你確認的視覺條件。',
         items:[{ role:'main', label:'主方案', bracelet_count:1 }],
         server_total:960, server_total_upgraded:1260, upgrade_amount:300
       },
       {
         plan_id:'personal.main_bag.v1', label:'② 主方案＋錦囊組', recommended:true,
-        desc:'主方案之外，再加一條可分時段單獨佩戴的錦囊組。',
+        desc:'兩案依據相同；錦囊組放寬主方案的視覺限制，改用另一組晶石補足命格與流年課題。',
         items:[
           { role:'main', label:'主方案', bracelet_count:1 },
           { role:'bag', label:'錦囊組', bracelet_count:1 }
