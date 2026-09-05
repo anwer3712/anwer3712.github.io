@@ -63,14 +63,11 @@ button{font-family:inherit;}
 .plan-title{font-size:15px;font-weight:700;letter-spacing:.03em;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .rec-tag{font-size:10px;background:var(--gold);color:#fff;padding:2px 9px;border-radius:10px;letter-spacing:.1em;font-weight:500;}
 .plan-body p{font-size:12.5px;color:var(--ink2);font-weight:300;margin:6px 0;}
-.plan-price{font-size:18px;font-weight:700;color:var(--rose-d);}
+.order-summary{border-top:1px solid var(--line);margin-top:20px;padding-top:16px;font-size:13px;}
+.order-summary p{margin-bottom:6px;color:var(--ink2);}
+.order-total{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-weight:700;}
+.order-total output{font-size:22px;color:var(--rose-d);}
 
-.upg-group{display:flex;gap:14px;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;background:var(--warm2);flex-wrap:wrap;}
-.upg-photos{display:flex;gap:8px;flex:none;}
-.ph-box{width:72px;height:72px;border:1.5px dashed var(--rose);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--rose);text-align:center;background:#fff;letter-spacing:.05em;line-height:1.4;padding:4px;}
-.upg-info{flex:1;min-width:150px;}
-.upg-info b{font-size:13px;display:block;margin-bottom:4px;letter-spacing:.02em;}
-.upg-info p{font-size:12px;color:var(--ink2);font-weight:300;}
 .upgrade-choice{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
 .opt{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;font-size:13px;transition:.15s;}
 .opt:has(input:checked){border-color:var(--rose);background:#EAF7F1;}
@@ -137,26 +134,26 @@ footer{padding:26px 20px 96px;text-align:center;}
     <div id="quoteBody" class="quote-body"></div>
   </section>
 
-  <section class="cf-card" id="planSection" style="display:none">
-    <div class="sec-head2 sm"><span class="chapter-mark">一</span><div><h2>選擇你的方案</h2></div></div>
-    <p class="sec-lead">兩個方案都是依你的命盤設計，差別在涵蓋範圍；標「推薦」的是店長依你的問卷內容建議的方向，最後仍由你決定。</p>
-    <div class="plan-list" id="planList"></div>
-  </section>
-
-  <section class="cf-card" id="upgradeSection" style="display:none">
-    <div class="sec-head2 sm"><span class="chapter-mark">二</span><div><h2>晶石升級建議</h2></div></div>
-    <p class="sec-lead">店長依你的命盤挑了幾種可以升級的晶石，附上前後對照與理由；要不要加購都可以。</p>
-    <div class="upgrade-groups" id="upgradeGroups"></div>
-    <div class="upgrade-choice">
-      <label class="opt"><input type="radio" name="upg" value="yes"><span><b>要升級</b><span class="d" id="upgAmtTxt">＋NT$300（整單一次）</span></span></label>
-      <label class="opt"><input type="radio" name="upg" value="no" checked><span><b>不需要，維持原方案</b><span class="d">原方案的晶石也都在白名單內，不影響設計完整性</span></span></label>
-    </div>
-  </section>
-
   <section class="cf-card" id="noteSection" style="display:none">
-    <div class="sec-head2 sm"><span class="chapter-mark">三</span><div><h2>想補充的話</h2></div></div>
-    <label>備註（自由填，非必填）</label>
+    <div class="sec-head2 sm"><div><h2>想補充的話</h2></div></div>
+    <label for="cfNote">備註（自由填，非必填）</label>
     <textarea id="cfNote" maxlength="300" placeholder="有想跟店長討論的地方，也可以先寫在這裡"></textarea>
+  </section>
+
+  <section class="cf-card" id="planSection" style="display:none">
+    <div class="sec-head2 sm"><div><h2>選擇你的方案</h2></div></div>
+    <p class="sec-lead">主方案回應你的核心功能與痛點；需要補足命格缺口與個人特質不足，也可以加選錦囊組。</p>
+    <div class="plan-list" id="planList"></div>
+    <div id="upgradeSection" style="display:none">
+      <h3 style="font-size:15px;margin-top:18px">晶石升級推薦</h3>
+      <p class="sec-lead">依上方設計說明，選擇要升級的配置。</p>
+      <div class="upgrade-choice" id="upgradeChoices"></div>
+    </div>
+    <div class="order-summary">
+      <p id="orderShipping"></p>
+      <p id="orderDeepReport"></p>
+      <div class="order-total"><span>訂單總價</span><output id="orderTotal" aria-live="polite">—</output></div>
+    </div>
   </section>
 
   <div id="doneBox" class="msg ok hide"></div>
@@ -191,7 +188,7 @@ const orderToken = params.get('token') || '';
 const wantPlan = params.get('plan_id') || '';
 const wantUpgrade = ['1','true','yes'].indexOf(String(params.get('upgrade')||'').toLowerCase()) >= 0;
 
-let ORDER = null, selectedPlan = null, selectedUpgrade = false;
+let ORDER = null, selectedPlan = null, selectedChoice = null;
 
 /* 無訂單 token 時才使用的純前端示範；正式訂單查不到時一律 fail closed。 */
 function demoOrder(){
@@ -207,7 +204,12 @@ function demoOrder(){
         plan_id:'personal.main.v1', label:'① 主方案',
         desc:'依命格不足、用神／喜神、流年與你填寫的重點配置；選珠同時納入你確認的視覺條件。',
         items:[{ role:'main', label:'主方案', bracelet_count:1 }],
-        server_total:960, server_total_upgraded:1260, upgrade_amount:300
+        server_total:960, server_total_upgraded:1260, upgrade_amount:300,
+        deep_report:{label:'深度推論報告',amount:0,selected:false},
+        upgrade_choices:[
+          {choice_id:'none',label:'維持原配置',roles:[],upgrade_amount:0,server_total:960},
+          {choice_id:'main',label:'主方案晶石升級',roles:['main'],upgrade_amount:300,server_total:1260}
+        ]
       },
       {
         plan_id:'personal.main_bag.v1', label:'② 主方案＋錦囊組', recommended:true,
@@ -216,7 +218,14 @@ function demoOrder(){
           { role:'main', label:'主方案', bracelet_count:1 },
           { role:'bag', label:'錦囊組', bracelet_count:1 }
         ],
-        server_total:1860, server_total_upgraded:2460, upgrade_amount:600
+        server_total:1860, server_total_upgraded:2460, upgrade_amount:600,
+        deep_report:{label:'深度推論報告',amount:0,selected:false},
+        upgrade_choices:[
+          {choice_id:'none',label:'維持原配置',roles:[],upgrade_amount:0,server_total:1860},
+          {choice_id:'main',label:'主方案晶石升級',roles:['main'],upgrade_amount:300,server_total:2160},
+          {choice_id:'bag',label:'錦囊組晶石升級',roles:['bag'],upgrade_amount:300,server_total:2160},
+          {choice_id:'both',label:'主方案＋錦囊組晶石升級',roles:['main','bag'],upgrade_amount:600,server_total:2460}
+        ]
       }
     ]
   };
@@ -264,7 +273,16 @@ function usableOrder(o){
         && Number.isFinite(+p.server_total_upgraded)
         && +p.server_total_upgraded >= +p.server_total
         && Number.isFinite(+p.upgrade_amount) && +p.upgrade_amount >= 0
-        && Math.abs((+p.server_total + +p.upgrade_amount) - +p.server_total_upgraded) < 0.000001);
+        && Math.abs((+p.server_total + +p.upgrade_amount) - +p.server_total_upgraded) < 0.000001
+        && Array.isArray(p.upgrade_choices) && p.upgrade_choices.length > 0
+        && new Set(p.upgrade_choices.map(c=>c && c.choice_id)).size === p.upgrade_choices.length
+        && p.upgrade_choices.some(c=>c && c.choice_id === 'none' && Array.isArray(c.roles) && c.roles.length === 0 && +c.upgrade_amount === 0)
+        && p.upgrade_choices.every(c=>c && typeof c.choice_id === 'string' && c.choice_id
+          && Array.isArray(c.roles) && new Set(c.roles).size === c.roles.length
+          && c.roles.every(role=>p.items.some(item=>item.role === role))
+          && Number.isFinite(+c.upgrade_amount) && +c.upgrade_amount >= 0
+          && Number.isFinite(+c.server_total)
+          && Math.abs((+p.server_total + +c.upgrade_amount) - +c.server_total) < 0.000001));
 }
 
 async function loadOrder(){
@@ -334,24 +352,34 @@ function render(){
         <div class="plan-title">${esc(p.label)}${p.recommended?' <span class="rec-tag">推薦</span>':''}</div>
         <p>${esc(p.desc)}</p>
         <p style="font-size:13px;color:#666">${esc(itemText)}</p>
-        <div class="plan-price">NT$ ${(+p.server_total).toLocaleString()}</div>
       </div>
     </label>`;
   }).join('');
 
-  selectedUpgrade = wantUpgrade && (+selectedPlan.upgrade_amount > 0);
-  $('#upgradeGroups').innerHTML = '';
-  document.querySelector(`input[name=upg][value="${selectedUpgrade?'yes':'no'}"]`).checked = true;
+  selectedChoice = selectedPlan.upgrade_choices.find(c=>c.choice_id === 'none');
+  if(wantUpgrade) selectedChoice = selectedPlan.upgrade_choices.find(c=>+c.server_total === +selectedPlan.server_total_upgraded) || selectedChoice;
+  renderUpgradeChoices();
 
   document.querySelectorAll('input[name=plan]').forEach(r=>r.addEventListener('change',()=>{
-    selectedPlan = ORDER.plans.find(p=>p.plan_id===r.value); updateTotal();
-  }));
-  document.querySelectorAll('input[name=upg]').forEach(r=>r.addEventListener('change',()=>{
-    selectedUpgrade = (r.value==='yes'); updateTotal();
+    selectedPlan = ORDER.plans.find(p=>p.plan_id===r.value);
+    const roles = selectedChoice.roles.filter(role=>selectedPlan.items.some(item=>item.role===role));
+    selectedChoice = selectedPlan.upgrade_choices.find(c=>c.roles.length===roles.length && c.roles.every(role=>roles.includes(role)))
+                  || selectedPlan.upgrade_choices.find(c=>c.choice_id==='none');
+    renderUpgradeChoices(); updateTotal();
   }));
   $('#confirmBtn').disabled = false;
   updateTotal();
   previewHold();
+}
+
+function renderUpgradeChoices(){
+  $('#upgradeChoices').innerHTML = selectedPlan.upgrade_choices.map(c=>`
+    <label class="opt"><input type="radio" name="upg" value="${esc(c.choice_id)}" ${c===selectedChoice?'checked':''}>
+      <span><b>${esc(c.label)}</b><span class="d">${+c.upgrade_amount > 0 ? '＋NT$' + (+c.upgrade_amount).toLocaleString() : '不加價'}</span></span>
+    </label>`).join('');
+  document.querySelectorAll('input[name=upg]').forEach(r=>r.addEventListener('change',()=>{
+    selectedChoice = selectedPlan.upgrade_choices.find(c=>c.choice_id===r.value); updateTotal();
+  }));
 }
 
 /* 報價信放行前，WF2 的客戶等待節點還沒開始等——這時候按送出，resume 打過去也不會成立。
@@ -375,22 +403,17 @@ function previewHold(){
 
 /* 顯示金額只讀後端 offer 的總額。前端不再持有 base、mult 或商品價格公式。 */
 function updateTotal(){
-  const amt = selectedPlan ? (+selectedPlan.upgrade_amount || 0) : 0;
-  $('#upgradeSection').style.display = amt > 0 ? 'block' : 'none';
-  if(amt <= 0){
-    selectedUpgrade = false;
-    const no = document.querySelector('input[name=upg][value="no"]');
-    if(no) no.checked = true;
-  }
-  $('#upgAmtTxt').textContent = '＋NT$' + amt.toLocaleString();
-  const t = selectedPlan
-    ? +(selectedUpgrade ? selectedPlan.server_total_upgraded : selectedPlan.server_total)
-    : 0;
+  $('#upgradeSection').style.display = selectedPlan.upgrade_choices.length > 1 ? 'block' : 'none';
+  const t = selectedChoice ? +selectedChoice.server_total : 0;
   const shipping = ORDER.shipping || {};
+  const deep = selectedPlan.deep_report;
   $('#cfTotal').textContent = 'NT$ ' + t.toLocaleString();
-  $('#cfShip').textContent = +shipping.amount
-    ? ('已含運費 ' + (shipping.label || '') + ' NT$' + (+shipping.amount).toLocaleString())
-    : '';
+  $('#orderTotal').textContent = 'NT$ ' + t.toLocaleString();
+  $('#orderShipping').textContent = '配送（沿用原訂單）：' + (shipping.label || '原配送方式') + '，運費 NT$' + (+shipping.amount || 0).toLocaleString();
+  $('#orderDeepReport').textContent = deep
+    ? (deep.label || '深度推論報告') + '（沿用原訂單）：' + (deep.selected ? '已選購，NT$' + (+deep.amount).toLocaleString() : '未選購，NT$0')
+    : '深度推論報告：沿用原訂單設定';
+  $('#cfShip').textContent = '已含原訂單運費及已選購報告';
 }
 
 // 訊息一律寫進 textContent，瀏覽器自己會處理跳脫；再套 esc() 反而會讓 & 變成 &amp; 印在畫面上。
@@ -404,11 +427,11 @@ $('#confirmBtn').addEventListener('click', async ()=>{
   if(!selectedPlan) return;   // 沒方案可送就不送；正常流程走不到這，deadEnd() 已先鎖住鈕
   const btn = $('#confirmBtn'); btn.disabled = true; btn.textContent = '送出中…';
   // 僅送選擇，不送金額；CONFIRM_RESUME 會從資料庫 offer 重取方案與總額。
-  const payload = { order_token: orderToken, plan_id: selectedPlan.plan_id, upgrade: selectedUpgrade, note: $('#cfNote').value.trim(), confirm: true };
+  const payload = { order_token: orderToken, plan_id: selectedPlan.plan_id, upgrade_choice_id: selectedChoice.choice_id, note: $('#cfNote').value.trim(), confirm: true };
   const { ok, error } = await submitTo(CONFIG.PATHS.CONFIRM_RESUME, payload);
   say(ok ? 'ok' : 'warn', ok
     ? '已送出你的選擇！我們會依此安排製作，謝謝你。'
-    : `${error || '這次沒送出去，可能是連結過期或系統忙線'}——你的選擇是「${selectedPlan.label}${selectedUpgrade?'＋升級':''}」。可以再按一次「重新送出」，或加 LINE ${LINE_ID} 告知店長，效力相同。`);
+    : `${error || '這次沒送出去，可能是連結過期或系統忙線'}——你的選擇是「${selectedPlan.label}／${selectedChoice.label}」。可以再按一次「重新送出」，或加 LINE ${LINE_ID} 告知店長，效力相同。`);
   // 沒送出去就把鈕還給客戶。以前不管成敗都標「已送出」並鎖著，明明沒送成功卻連重試都不行。
   btn.disabled = ok;
   btn.textContent = ok ? '已送出' : '重新送出';
