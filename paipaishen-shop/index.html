@@ -2920,7 +2920,7 @@ async function submitShopOrder(e){
   /* temp_id：離線佇列補收時的去重依據（INTAKE_DRAIN 比對 pps2_shop_orders.raw->>'temp_id'）。
      沒有它，補收成功但 ack 失敗的那一輪會重複建單＋重複扣庫存。後端不讀這欄，跟著 raw 走。 */
   const _d=new Date(), _ymd=_d.getFullYear()+String(_d.getMonth()+1).padStart(2,'0')+String(_d.getDate()).padStart(2,'0');
-  const o = { temp_id:'S'+_ymd+'-'+Math.random().toString(36).slice(2,5).toUpperCase(),
+  const o = { temp_id:'S'+_ymd+'-'+crypto.randomUUID(),
     items:cart.map(x=>({id:x.id,name:x.name,price:x.price,qty:x.qty})), subtotal:sub, shipping,
     ship_method:shipOpt.value, ship_label:shipOpt.textContent, pay_method:payOpt.value, pay_label:payOpt.textContent.replace('（即將開放）',''),
     name, contact, email, ship_addr, note:$('#coNote').value.trim() };
@@ -3049,7 +3049,7 @@ function collect(){
   const g=n=>{ const el=F[n]; if(!el) return ''; if(el.type==='checkbox') return el.checked; return (el.value||'').trim(); };
   const rv=n=>{ const el=F.querySelector(`[name="${n}"]:checked`); return el?el.value:''; };
   const d=new Date(), ymd=d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
-  const o={ type:mode, ts:d.toISOString(), temp_id:'T'+ymd+'-'+Math.random().toString(36).slice(2,5).toUpperCase(),
+  const o={ type:mode, ts:d.toISOString(), temp_id:'T'+ymd+'-'+crypto.randomUUID(),
     A:{ name:g('a_name'),gender:g('a_gender'),birth:g('a_birth'),btime:g('a_btime')||'無時辰',wrist:g('a_wrist'),bead:g('a_bead'),core:rv('a_core'),pain:g('a_pain'),vis:rv('a_vis'),deep:g('a_deep') },
     // ship 送的是中文名（沿用原契約，n8n 端讀的是這個字串）。2026-08-05 多了「宅配到府」。
     // pay/pay_label 是新欄位＝客戶的付款偏好；n8n 現在沒讀它也不會壞（多帶欄位是被忽略的），

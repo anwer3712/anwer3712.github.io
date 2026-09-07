@@ -236,10 +236,12 @@ function demoOrder(){
 async function postJSON(path, body){
   const ctl = new AbortController(); const t = setTimeout(()=>ctl.abort(), CONFIG.timeoutMs);
   try{
-    return await fetch(CONFIG.N8N_BASE + path, {
+    const r = await fetch(CONFIG.N8N_BASE + path, {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ token: CONFIG.SITE_TOKEN, ...body }), signal: ctl.signal
     });
+    const data = await r.json().catch(error=>{ if(ctl.signal.aborted) throw error; return null; });
+    return { ok:r.ok, status:r.status, data };
   }finally{ clearTimeout(t); }
 }
 
@@ -251,7 +253,7 @@ async function submitTo(path, body){
   try{
     if(!CONFIG.N8N_BASE) return { ok:false, error:'' };
     const r = await postJSON(path, body);
-    const j = await r.json().catch(()=>null);
+    const j = r.data;
     if(!r.ok) return { ok:false, error:'' };
     return { ok: !!(j && j.ok), error: (j && j.error) || '' };
   }catch(_){ return { ok:false, error:'' }; }
@@ -292,7 +294,7 @@ async function loadOrder(){
     // 正式 token 查不到完整 offer 時 fail closed；只有沒有 token 的公開預覽才顯示 demo。
     const r = await postJSON(CONFIG.PATHS.CONFIRM_LOOKUP, { order_token: orderToken });
     if(!r.ok) throw new Error('http '+r.status);
-    const j = await r.json();
+    const j = r.data;
     const o = Array.isArray(j) ? j[0] : j;   // n8n 回「所有項目」時會多包一層陣列
     if(!usableOrder(o)) throw new Error('bad payload');
     ORDER = o;
