@@ -149,6 +149,12 @@ footer{padding:26px 20px 96px;text-align:center;}
       <p class="sec-lead">依上方設計說明，選擇要升級的配置。</p>
       <div class="upgrade-choice" id="upgradeChoices"></div>
     </div>
+    <h3 style="font-size:15px;margin-top:18px">配送方式</h3>
+    <p class="sec-lead">已預選你先前填寫的方式，可在送出前調整。</p>
+    <div class="upgrade-choice" id="shippingChoices"></div>
+    <div id="shippingAddressField" style="margin-top:12px"><label for="shippingAddress">收件地址／超商門市資料</label><input id="shippingAddress" type="text" maxlength="500" autocomplete="street-address" style="width:100%" placeholder="宅配填完整地址；店到店填超商名稱及門市名稱／店號"></div>
+    <h3 style="font-size:15px;margin-top:18px">深度推論報告</h3>
+    <div class="upgrade-choice" id="deepReportChoices"></div>
     <div class="order-summary">
       <p id="orderShipping"></p>
       <p id="orderDeepReport"></p>
@@ -188,27 +194,28 @@ const orderToken = params.get('token') || '';
 const wantPlan = params.get('plan_id') || '';
 const wantUpgrade = ['1','true','yes'].indexOf(String(params.get('upgrade')||'').toLowerCase()) >= 0;
 
-let ORDER = null, selectedPlan = null, selectedChoice = null;
+let ORDER = null, selectedPlan = null, selectedChoice = null, selectedShipping = null, selectedDeepReport = null;
 
 /* 無訂單 token 時才使用的純前端示範；正式訂單查不到時一律 fail closed。 */
 function demoOrder(){
-  return {
+  const demo = {
     ok:true,
     order_no:'DEMO（示範）',
     offer_version:'demo.1',
     product_mode:'personal',
     currency:'TWD',
-    shipping:{ label:'宅配到府', amount:60 },
+    shipping:{ label:'宅配到府', amount:130 },
+    shipping_address:'示範收件地址（請勿用此頁建立正式訂單）',
     plans:[
       {
         plan_id:'personal.main.v1', label:'① 主方案',
         desc:'依命格不足、用神／喜神、流年與你填寫的重點配置；選珠同時納入你確認的視覺條件。',
         items:[{ role:'main', label:'主方案', bracelet_count:1 }],
-        server_total:960, server_total_upgraded:1260, upgrade_amount:300,
+        server_total:1030, server_total_upgraded:1330, upgrade_amount:300,
         deep_report:{label:'深度推論報告',amount:0,selected:false},
         upgrade_choices:[
-          {choice_id:'none',label:'維持原配置',roles:[],upgrade_amount:0,server_total:960},
-          {choice_id:'main',label:'主方案晶石升級',roles:['main'],upgrade_amount:300,server_total:1260}
+          {choice_id:'none',label:'維持原配置',roles:[],upgrade_amount:0,server_total:1030},
+          {choice_id:'main',label:'主方案晶石升級',roles:['main'],upgrade_amount:300,server_total:1330}
         ]
       },
       {
@@ -218,17 +225,26 @@ function demoOrder(){
           { role:'main', label:'主方案', bracelet_count:1 },
           { role:'bag', label:'錦囊組', bracelet_count:1 }
         ],
-        server_total:1860, server_total_upgraded:2460, upgrade_amount:600,
+        server_total:1930, server_total_upgraded:2530, upgrade_amount:600,
         deep_report:{label:'深度推論報告',amount:0,selected:false},
         upgrade_choices:[
-          {choice_id:'none',label:'維持原配置',roles:[],upgrade_amount:0,server_total:1860},
-          {choice_id:'main',label:'主方案晶石升級',roles:['main'],upgrade_amount:300,server_total:2160},
-          {choice_id:'bag',label:'錦囊組晶石升級',roles:['bag'],upgrade_amount:300,server_total:2160},
-          {choice_id:'both',label:'主方案＋錦囊組晶石升級',roles:['main','bag'],upgrade_amount:600,server_total:2460}
+          {choice_id:'none',label:'維持原配置',roles:[],upgrade_amount:0,server_total:1930},
+          {choice_id:'main',label:'主方案晶石升級',roles:['main'],upgrade_amount:300,server_total:2230},
+          {choice_id:'bag',label:'錦囊組晶石升級',roles:['bag'],upgrade_amount:300,server_total:2230},
+          {choice_id:'both',label:'主方案＋錦囊組晶石升級',roles:['main','bag'],upgrade_amount:600,server_total:2530}
         ]
       }
     ]
   };
+  // 示範資料的固定價目；正式訂單只使用伺服器簽發的組合總額。
+  demo.shipping_choices = [{choice_id:'home',label:'宅配到府',amount:130},{choice_id:'store',label:'店到店',amount:60},{choice_id:'self',label:'中壢–龍潭面交',amount:0}];
+  demo.default_shipping_choice_id = 'home';
+  demo.plans.forEach(p=>{
+    p.deep_report_choices = [{choice_id:'none',label:'不加購深度推論報告',roles:[],amount:0},{choice_id:'main',label:'主方案深度推論報告',roles:['main'],amount:300}];
+    p.default_deep_report_choice_id = 'none';
+    p.total_choices = demo.shipping_choices.flatMap(s=>p.deep_report_choices.flatMap(d=>p.upgrade_choices.map(u=>({shipping_choice_id:s.choice_id,deep_report_choice_id:d.choice_id,upgrade_choice_id:u.choice_id,server_total:u.server_total-130+s.amount+d.amount}))));
+  });
+  return demo;
 }
 
 /* 三支請求都要有 timeout。查詢本來就有；送出那兩支以前沒有——n8n 一掛住就永遠不回，
@@ -264,6 +280,8 @@ function usableOrder(o){
   return !!o && o.ok === true
       && typeof o.offer_version === 'string' && o.offer_version.trim()
       && (o.product_mode === 'personal' || o.product_mode === 'couple')
+      && validPricedChoices(o.shipping_choices)
+      && o.shipping_choices.some(c=>c.choice_id===o.default_shipping_choice_id)
       && Array.isArray(o.plans) && o.plans.length > 0
       && new Set(o.plans.map(p=>p && p.plan_id)).size === o.plans.length
       && o.plans.every(p => p && typeof p.plan_id === 'string' && p.plan_id
@@ -276,6 +294,9 @@ function usableOrder(o){
         && +p.server_total_upgraded >= +p.server_total
         && Number.isFinite(+p.upgrade_amount) && +p.upgrade_amount >= 0
         && Math.abs((+p.server_total + +p.upgrade_amount) - +p.server_total_upgraded) < 0.000001
+        && validPricedChoices(p.deep_report_choices)
+        && p.deep_report_choices.some(c=>c.choice_id===p.default_deep_report_choice_id)
+        && p.deep_report_choices.every(c=>Array.isArray(c.roles) && new Set(c.roles).size===c.roles.length && c.roles.every(role=>p.items.some(item=>item.role===role)))
         && Array.isArray(p.upgrade_choices) && p.upgrade_choices.length > 0
         && new Set(p.upgrade_choices.map(c=>c && c.choice_id)).size === p.upgrade_choices.length
         && p.upgrade_choices.some(c=>c && c.choice_id === 'none' && Array.isArray(c.roles) && c.roles.length === 0 && +c.upgrade_amount === 0)
@@ -284,7 +305,29 @@ function usableOrder(o){
           && c.roles.every(role=>p.items.some(item=>item.role === role))
           && Number.isFinite(+c.upgrade_amount) && +c.upgrade_amount >= 0
           && Number.isFinite(+c.server_total)
-          && Math.abs((+p.server_total + +c.upgrade_amount) - +c.server_total) < 0.000001));
+          && Math.abs((+p.server_total + +c.upgrade_amount) - +c.server_total) < 0.000001)
+        && validTotalChoices(o,p));
+}
+
+function validPricedChoices(choices){
+  return Array.isArray(choices) && choices.length>0
+    && new Set(choices.map(c=>c && c.choice_id)).size===choices.length
+    && choices.every(c=>c && typeof c.choice_id==='string' && c.choice_id && typeof c.label==='string'
+      && typeof c.amount==='number' && Number.isFinite(c.amount) && c.amount>=0);
+}
+function totalChoiceKey(c){ return JSON.stringify([c.shipping_choice_id,c.deep_report_choice_id,c.upgrade_choice_id]); }
+function validTotalChoices(o,p){
+  return Array.isArray(p.total_choices) && p.total_choices.length>0
+    && p.total_choices.every(c=>c && typeof c.server_total==='number' && Number.isFinite(c.server_total) && c.server_total>=0
+      && o.shipping_choices.some(s=>s.choice_id===c.shipping_choice_id)
+      && p.deep_report_choices.some(d=>d.choice_id===c.deep_report_choice_id)
+      && p.upgrade_choices.some(u=>u.choice_id===c.upgrade_choice_id))
+    && new Set(p.total_choices.map(totalChoiceKey)).size===p.total_choices.length;
+}
+function selectedTotalChoice(){
+  if(!selectedPlan || !selectedShipping || !selectedDeepReport || !selectedChoice)return null;
+  return selectedPlan.total_choices.find(c=>c.shipping_choice_id===selectedShipping.choice_id
+    && c.deep_report_choice_id===selectedDeepReport.choice_id && c.upgrade_choice_id===selectedChoice.choice_id) || null;
 }
 
 async function loadOrder(){
@@ -359,15 +402,24 @@ function render(){
   }).join('');
 
   selectedChoice = selectedPlan.upgrade_choices.find(c=>c.choice_id === 'none');
+  selectedShipping = ORDER.shipping_choices.find(c=>c.choice_id===ORDER.default_shipping_choice_id);
+  $('#shippingAddress').value = ORDER.shipping_address || '';
+  $('#shippingAddress').addEventListener('input',updateTotal);
+  selectedDeepReport = selectedPlan.deep_report_choices.find(c=>c.choice_id===selectedPlan.default_deep_report_choice_id);
   if(wantUpgrade) selectedChoice = selectedPlan.upgrade_choices.find(c=>+c.server_total === +selectedPlan.server_total_upgraded) || selectedChoice;
   renderUpgradeChoices();
+  renderOrderChoices();
 
   document.querySelectorAll('input[name=plan]').forEach(r=>r.addEventListener('change',()=>{
+    const previousDeep = selectedDeepReport;
     selectedPlan = ORDER.plans.find(p=>p.plan_id===r.value);
     const roles = selectedChoice.roles.filter(role=>selectedPlan.items.some(item=>item.role===role));
     selectedChoice = selectedPlan.upgrade_choices.find(c=>c.roles.length===roles.length && c.roles.every(role=>roles.includes(role)))
                   || selectedPlan.upgrade_choices.find(c=>c.choice_id==='none');
-    renderUpgradeChoices(); updateTotal();
+    const deepRoles = previousDeep.roles.filter(role=>selectedPlan.items.some(item=>item.role===role));
+    selectedDeepReport = selectedPlan.deep_report_choices.find(c=>c.roles.length===deepRoles.length && c.roles.every(role=>deepRoles.includes(role)))
+      || selectedPlan.deep_report_choices.find(c=>c.choice_id===selectedPlan.default_deep_report_choice_id);
+    renderUpgradeChoices(); renderOrderChoices(); updateTotal();
   }));
   $('#confirmBtn').disabled = false;
   updateTotal();
@@ -382,6 +434,15 @@ function renderUpgradeChoices(){
   document.querySelectorAll('input[name=upg]').forEach(r=>r.addEventListener('change',()=>{
     selectedChoice = selectedPlan.upgrade_choices.find(c=>c.choice_id===r.value); updateTotal();
   }));
+}
+
+function renderOrderChoices(){
+  function options(target,name,choices,selected,onChange){
+    $(target).innerHTML=choices.map(c=>`<label class="opt"><input type="radio" name="${name}" value="${esc(c.choice_id)}" ${c===selected?'checked':''}><span><b>${esc(c.label)}</b><span class="d">NT$${c.amount.toLocaleString()}</span></span></label>`).join('');
+    document.querySelectorAll(`input[name=${name}]`).forEach(r=>r.addEventListener('change',()=>{onChange(choices.find(c=>c.choice_id===r.value));updateTotal();}));
+  }
+  options('#shippingChoices','shipping',ORDER.shipping_choices,selectedShipping,c=>selectedShipping=c);
+  options('#deepReportChoices','deepReport',selectedPlan.deep_report_choices,selectedDeepReport,c=>selectedDeepReport=c);
 }
 
 /* 報價信放行前，WF2 的客戶等待節點還沒開始等——這時候按送出，resume 打過去也不會成立。
@@ -406,16 +467,18 @@ function previewHold(){
 /* 顯示金額只讀後端 offer 的總額。前端不再持有 base、mult 或商品價格公式。 */
 function updateTotal(){
   $('#upgradeSection').style.display = selectedPlan.upgrade_choices.length > 1 ? 'block' : 'none';
-  const t = selectedChoice ? +selectedChoice.server_total : 0;
-  const shipping = ORDER.shipping || {};
-  const deep = selectedPlan.deep_report;
-  $('#cfTotal').textContent = 'NT$ ' + t.toLocaleString();
-  $('#orderTotal').textContent = 'NT$ ' + t.toLocaleString();
-  $('#orderShipping').textContent = '配送（沿用原訂單）：' + (shipping.label || '原配送方式') + '，運費 NT$' + (+shipping.amount || 0).toLocaleString();
-  $('#orderDeepReport').textContent = deep
-    ? (deep.label || '深度推論報告') + '（沿用原訂單）：' + (deep.selected ? '已選購，NT$' + (+deep.amount).toLocaleString() : '未選購，NT$0')
-    : '深度推論報告：沿用原訂單設定';
-  $('#cfShip').textContent = '已含原訂單運費及已選購報告';
+  const total = selectedTotalChoice();
+  $('#cfTotal').textContent = total ? 'NT$ ' + total.server_total.toLocaleString() : '—';
+  $('#orderTotal').textContent = $('#cfTotal').textContent;
+  $('#orderShipping').textContent = '配送：' + selectedShipping.label + '，運費 NT$' + selectedShipping.amount.toLocaleString();
+  $('#orderDeepReport').textContent = selectedDeepReport.label + '，NT$' + selectedDeepReport.amount.toLocaleString();
+  $('#cfShip').textContent = total ? '已含所選配送及報告費用' : '此組合目前無法報價，請調整選項或聯絡店長';
+  const needsAddress = selectedShipping.choice_id==='home' || selectedShipping.choice_id==='store';
+  $('#shippingAddressField').style.display = needsAddress ? 'block' : 'none';
+  $('#shippingAddress').required = needsAddress;
+  $('#confirmBtn').disabled = !total || (needsAddress && !$('#shippingAddress').value.trim());
+  if(total && needsAddress && !$('#shippingAddress').value.trim()) $('#cfShip').textContent = '請填收件地址或超商門市資料';
+  previewHold();
 }
 
 // 訊息一律寫進 textContent，瀏覽器自己會處理跳脫；再套 esc() 反而會讓 & 變成 &amp; 印在畫面上。
@@ -426,10 +489,10 @@ function say(kind, text){
 }
 
 $('#confirmBtn').addEventListener('click', async ()=>{
-  if(!selectedPlan) return;   // 沒方案可送就不送；正常流程走不到這，deadEnd() 已先鎖住鈕
+  if(!selectedTotalChoice() || $('#confirmBtn').disabled) return;
   const btn = $('#confirmBtn'); btn.disabled = true; btn.textContent = '送出中…';
   // 僅送選擇，不送金額；CONFIRM_RESUME 會從資料庫 offer 重取方案與總額。
-  const payload = { order_token: orderToken, plan_id: selectedPlan.plan_id, upgrade_choice_id: selectedChoice.choice_id, note: $('#cfNote').value.trim(), confirm: true };
+  const payload = { order_token: orderToken, plan_id: selectedPlan.plan_id, upgrade_choice_id: selectedChoice.choice_id, shipping_choice_id:selectedShipping.choice_id, deep_report_choice_id:selectedDeepReport.choice_id, shipping_address:selectedShipping.choice_id==='self' ? '' : $('#shippingAddress').value.trim(), note: $('#cfNote').value.trim(), confirm: true };
   const { ok, error } = await submitTo(CONFIG.PATHS.CONFIRM_RESUME, payload);
   say(ok ? 'ok' : 'warn', ok
     ? '已送出你的選擇！我們會依此安排製作，謝謝你。'
