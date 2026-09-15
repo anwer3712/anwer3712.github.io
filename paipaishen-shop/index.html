@@ -1479,7 +1479,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
               <tr><td><span class="dot5" style="background:var(--jin)"></span>承諾</td><td>金</td><td>守護當初的初衷</td></tr>
               <tr><td><span class="dot5" style="background:var(--shui)"></span>自由</td><td>水</td><td>親密中保留獨立</td></tr>
             </table>
-            <p style="color:var(--muted);font-size:13.5px;margin-top:10px">這七項是本系統自訂的五行對照，並非 Gottman 官方七維量表。Gottman 的健全關係屋是七層加上信任與承諾兩面牆；此處示意圖沒有個人測量意義。Repair_Score 計分定義尚未齊備，暫不據此給分或承諾自動加珠。</p>
+            <p style="color:var(--muted);font-size:13.5px;margin-top:10px">這七項是本系統自訂的五行對照，並非 Gottman 官方七維量表。Gottman 的健全關係屋是七層加上信任與承諾兩面牆；此處示意圖沒有個人測量意義。Repair_Score 已有本系統的計分規格；資料完整且經核定後才計算，分數不代表關係結果。</p>
           </div>
         </div>
       </div>
@@ -2712,7 +2712,7 @@ function base(w,b){ const r=CONFIG.PRICE.rows[w]; const i=CONFIG.PRICE.beads.ind
     const ticks=`<text x="${cx+6}" y="${(cy-R*.3+3).toFixed(1)}" font-size="8" fill="#6A7280">30</text>
       <text x="${cx+6}" y="${(cy-R*.6+3).toFixed(1)}" font-size="8" fill="#6A7280">60</text>
       <text x="${cx+6}" y="${(cy-R+3).toFixed(1)}" font-size="8" fill="#6A7280">100</text>`;
-    $('#radarIllus').innerHTML = `<svg viewBox="0 0 320 300" role="img" aria-label="Gottman 七維雷達圖，七軸依序為信任(水)、溝通(木)、親密(火)、安全感(土)、成長(木)、承諾(金)、自由(水)，各軸前有對應五行色點">
+    $('#radarIllus').innerHTML = `<svg viewBox="0 0 320 300" role="img" aria-label="本系統關係七維示意圖，非測驗結果；七軸依序為信任(水)、溝通(木)、熱情(火)、安全感(土)、成長(木)、承諾(金)、自由(水)">
       <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${line}"/><circle cx="${cx}" cy="${cy}" r="${R*.6}" fill="none" stroke="${line}"/><circle cx="${cx}" cy="${cy}" r="${R*.3}" fill="none" stroke="${line}"/>
       ${ticks}${axes}<polygon points="${poly}" fill="rgba(201,162,75,.28)" stroke="${acc}" stroke-width="2"/></svg>`;
   }
@@ -3513,8 +3513,8 @@ const FAQ_BUILTIN = [
     "k": "gottman",
     "g": "情侶",
     "q": "關係七維與 Gottman 理論有什麼關係？",
-    "a": "本系統用信任（水）、溝通（木）、熱情（火）、安全感（土）、成長（木）、承諾（金）、自由（水）做文化性的溝通提醒，並非 Gottman 官方量表或心理測驗。Gottman 健全關係屋為七層加信任與承諾兩面牆。七維與 Repair_Score 的計分定義尚待補齊，暫不提供未核實分數或承諾自動修復加珠。",
-    "t": "<p>本系統用信任（水）、溝通（木）、熱情（火）、安全感（土）、成長（木）、承諾（金）、自由（水）做文化性的溝通提醒，並非 Gottman 官方量表或心理測驗。Gottman 健全關係屋為七層加信任與承諾兩面牆。七維與 Repair_Score 的計分定義尚待補齊，暫不提供未核實分數或承諾自動修復加珠。</p>"
+    "a": "本系統用信任（水）、溝通（木）、熱情（火）、安全感（土）、成長（木）、承諾（金）、自由（水）做文化性的溝通提醒，並非 Gottman 官方量表或心理測驗。Gottman 健全關係屋為七層加信任與承諾兩面牆。七維與 Repair_Score 已有本系統的計分規格；只有資料完整且經核定時才提供計算結果，不提供未核實分數，計算結果也不代表實際關係走向。",
+    "t": "<p>本系統用信任（水）、溝通（木）、熱情（火）、安全感（土）、成長（木）、承諾（金）、自由（水）做文化性的溝通提醒，並非 Gottman 官方量表或心理測驗。Gottman 健全關係屋為七層加信任與承諾兩面牆。七維與 Repair_Score 已有本系統的計分規格；只有資料完整且經核定時才提供計算結果，不提供未核實分數，計算結果也不代表實際關係走向。</p>"
   },
   {
     "k": "couple-report",
@@ -3528,7 +3528,7 @@ const FAQ_BUILTIN = [
     "g": "流程",
     "q": "個人的九節報告有什麼？",
     "a": "所有訂單附完整基本報告；另加購的個人深度報告為九節：01 專屬命名。02 命格白話＋選石理由＋給你的話，融成一段。03 五派各自主張與裁決。04 五行分布彙總表，四欄逐欄解說，表後附「五行｜顆數｜在幫你什麼」白話小表。05 金句。06 你的主題。07 水晶配置一覽表，含佩戴說明。08 戴上之後，分心理、情緒生活、人際三層。09 提醒與未來藍圖，末接免責與署名。深度報告是基本報告之外的獨立交付，按上述九節呈現推導。",
-    "t": "<div class=\"mt-wrap\"><table class=\"mt\"><tr><th>節</th><th>內容</th></tr><tr><td>01</td><td>專屬命名</td></tr><tr><td>02</td><td>命格白話＋選石理由＋給你的話（融成一段）</td></tr><tr><td>03</td><td>五派各自主張與裁決</td></tr><tr><td>04</td><td>五行分布彙總表 — 四欄逐欄解說＋「五行｜顆數｜在幫你什麼」白話小表</td></tr><tr><td>05</td><td>金句</td></tr><tr><td>06</td><td>你的主題</td></tr><tr><td>07</td><td>水晶配置一覽表＋佩戴說明</td></tr><tr><td>08</td><td>戴上之後（心理／情緒生活／人際三層）</td></tr><tr><td>09</td><td>提醒與未來藍圖，末接免責與署名</td></tr></table></div><p>加購的深度命理推論報告（+300）是另外一份，寫的是這九節裝不下的推導過程。</p>"
+    "t": "<div class=\"mt-wrap\"><table class=\"mt\"><tr><th>節</th><th>內容</th></tr><tr><td>01</td><td>專屬命名</td></tr><tr><td>02</td><td>命格白話＋選石理由＋給你的話（融成一段）</td></tr><tr><td>03</td><td>五派各自主張與裁決</td></tr><tr><td>04</td><td>五行分布彙總表 — 四欄逐欄解說＋「五行｜顆數｜在幫你什麼」白話小表</td></tr><tr><td>05</td><td>金句</td></tr><tr><td>06</td><td>你的主題</td></tr><tr><td>07</td><td>水晶配置一覽表＋佩戴說明</td></tr><tr><td>08</td><td>戴上之後（心理／情緒生活／人際三層）</td></tr><tr><td>09</td><td>提醒與未來藍圖，末接免責與署名</td></tr></table></div><p>所有訂單附完整基本報告；另加購的個人深度報告（+300）是獨立交付的一份，按上述九節呈現推導。</p>"
   },
   {
     "k": "liunian",
@@ -3685,8 +3685,8 @@ function localBrain(qtext){
   if(has('流年','當年','年份','太歲','今年算')) return fa('liunian');
   if(has('原理','公式','數值','由來','怎麼算出','演算')) return '方法攤在「關於我們」的運算原理區：需求向量六分量（扶抑 0.30／缺口 0.28／調候 0.12／流年 0.12／盲派 0.10／意圖 0.08，意圖上限 15%）、五派交叉裁決（差 >20% 採高分者）、封頂 0.38 保底 0.03 與相生溢出、Hamilton 分配（誤差 ≤0.05）、禁鄰規則。流年那 0.12 讀的是你下單當年的年份，切到調候模式也一樣是 0.12。歡迎去看。';
   if(has('真人','店長','客服','聯絡','line','LINE')) return '真人服務走官方 LINE：'+CONFIG.CONTACT.line+'（回覆最快）。也可以 IG 私訊 '+CONFIG.CONTACT.ig+'。';
-  // 宅配只有現貨結帳選得到，訂製問卷的取貨 radio 目前只有店到店／面交——講清楚免得訂製客戶問了選不到
-  if(has('地址','面交','自送','店到店','運費','宅配')) return '物流：宅配到府 +130（現貨結帳可選）；店到店 +60；中壢–龍潭面交免運（約時間地點）。';
+  // 訂製與現貨均提供宅配、店到店與面交。
+  if(has('地址','面交','自送','店到店','運費','宅配')) return '物流：宅配到府 +130（訂製與現貨皆可選）；店到店 +60；中壢–龍潭面交免運（約時間地點）。';
   if(has('訂','買','下單','開始','怎麼訂')) return '切到「訂製服務」分頁，一步步填，約 3 分鐘；送出會拿到訂單編號，之後都能線上查進度。';
   if(has('小串','錦囊','輕量')) return '小串適合想先從較輕量方式開始的人。最後可選內容與總額仍以確認頁的正式方案為準；我可以先帶你到訂製入口。';
   return null;
