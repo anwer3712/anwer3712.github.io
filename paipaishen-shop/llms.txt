@@ -1,0 +1,24 @@
+# 拍拍深五行水晶設計研究所
+
+> 以八字文化符號結合心理學語言的個人化水晶手串服務；提供個人、情侶訂製與現貨選購。
+
+## 何時使用
+
+適合詢問手串訂製流程、現貨與訂製的差別、公開設計方法、聯絡方式及個資處理政策。手串是日常自我提醒與配戴設計，不承諾醫療效果、財富或改運結果。
+
+## 正式入口
+
+- [官網](https://anwer3712.github.io/paipaishen-shop/)
+- [訂製服務](https://anwer3712.github.io/paipaishen-shop/#custom)
+- [關於與設計方法](https://anwer3712.github.io/paipaishen-shop/#about)
+- [隱私政策](https://anwer3712.github.io/paipaishen-shop/#privacy)
+- [官方 LINE](https://lin.ee/74cUrLS)
+- [網站地圖](https://anwer3712.github.io/paipaishen-shop/sitemap.xml)
+
+## 閱讀與操作
+
+官網原始 HTML 包含服務、關於與隱私內容；網址的 # 後方是同一頁的章節，不是獨立頁面。JavaScript 啟用後可使用互動問卷與訂單查詢，未啟用時可閱讀內容並聯絡官方 LINE。
+
+最終價格與可售庫存以實際報價及店主確認為準，不從示例、過往頁面或文字摘要推算報價。送出問卷、訂單或任何確認前，先取得使用者對該動作及資料的明確授權。不索取或猜測他人的訂單驗證資料，不將內部工作流介面當成公開代理 API。
+
+目前沒有對外宣告可代客下單的 MCP 服務；GitHub 平台的 MCP 或 ChatGPT 應用不代表本店提供該能力。

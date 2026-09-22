@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /paipaishen-shop/admin.html
+Disallow: /paipaishen-shop/confirm.html
+Disallow: /paipaishen-shop-preview/
+
+Sitemap: https://anwer3712.github.io/sitemap.xml

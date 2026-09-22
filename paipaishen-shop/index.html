@@ -6,6 +6,8 @@
 <title>拍拍深五行水晶設計研究所｜八字文化 × 心理學的個人化手串</title>
 <meta name="description" content="拍拍深五行水晶設計研究所：以八字文化符號結合心理學的個人化手串訂製。量化配珠、五派裁決、白名單選石、透明可追溯。個人款修身、情侶對串治平，現貨與訂製皆可。">
 <meta name="theme-color" content="#101828">
+<meta name="is-agentic-site-type" content="store">
+<link rel="alternate" type="text/plain" href="llms.txt" title="網站與服務說明">
 <link rel="canonical" href="https://anwer3712.github.io/paipaishen-shop/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%23E8C97A' stroke-width='2.5'/%3E%3Ccircle cx='16' cy='5' r='3' fill='%239B3D46'/%3E%3Ccircle cx='27' cy='16' r='2.4' fill='%232D6A4F'/%3E%3Ccircle cx='16' cy='27' r='2.4' fill='%231B4165'/%3E%3Ccircle cx='5' cy='16' r='2.4' fill='%2396683A'/%3E%3C/svg%3E">
 <meta property="og:type" content="website">
@@ -176,7 +178,8 @@ body.est-on .tocpanel{bottom:calc(74px + var(--est-lift,116px))}
 
 /* ── Tab 切換：淡出＋光暈淡入 ── */
 main{min-height:70vh}
-.tab{display:none;animation:tabIn .4s ease both}
+.tab{display:block;animation:tabIn .4s ease both}
+.app-ready .tab:not(.active){display:none}
 .tab.active{display:block}
 @keyframes tabIn{from{opacity:0;transform:translateY(10px);filter:saturate(.8)}to{opacity:1;transform:none;filter:none}}
 section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
@@ -287,10 +290,11 @@ section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
 .head h2,.head p{text-wrap:balance}
 .hero .lead,.opener p,.jact .jm{text-wrap:pretty}
 .head p{color:var(--muted);font-size:16px}
-.reveal{opacity:0;translate:0 20px;transition:opacity .6s ease,translate .6s ease;transition-delay:calc(var(--i,0)*70ms)}
+.reveal{opacity:1;translate:0 0;transition:opacity .6s ease,translate .6s ease;transition-delay:calc(var(--i,0)*70ms)}
+.app-ready .reveal:not(.in){opacity:0;translate:0 20px}
 .reveal.in{opacity:1;translate:0 0}
 /* reduce 時直接給定稿狀態，不必等捲到才可見（IntersectionObserver 仍會跑，只是不再有位移／淡入） */
-@media(prefers-reduced-motion:reduce){ .reveal{opacity:1;translate:none;transition:none} }
+@media(prefers-reduced-motion:reduce){ .reveal,.app-ready .reveal:not(.in){opacity:1;translate:none;transition:none} }
 
 /* ═══ 動效語彙 第二層：互動（hover／focus 共用，觸控裝置不留殘影）═══ */
 /* 用 translate（第一層進場位移）與 transform（第二層 hover 上浮）分開兩個屬性，
@@ -1197,6 +1201,17 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
   .bead-tip-spin{animation:none}
   .tab{animation:none}
 }
+/* Content is readable first; enable interactive tabs only after startup succeeds. */
+.static-fallback{padding:20px var(--sp);border:1px solid var(--line);border-radius:var(--r);margin:20px auto}
+.static-fallback nav{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px}
+.static-fallback a{color:var(--ink);text-decoration:underline}
+.app-ready .static-fallback{display:none}
+html:not(.app-ready) .nav-links,html:not(.app-ready) .nav-custom-pill,
+html:not(.app-ready) .cartBtn,html:not(.app-ready) .burger,
+html:not(.app-ready) main button,html:not(.app-ready) main form,
+html:not(.app-ready) #order,html:not(.app-ready) #tab-track,
+html:not(.app-ready) #chatBall,html:not(.app-ready) #chatPanel,
+html:not(.app-ready) #tocBall,html:not(.app-ready) #tocPanel{display:none}
 </style>
 </head>
 <body>
@@ -1228,9 +1243,14 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
 </header>
 
 <main id="main">
+  <aside class="static-fallback wrap" aria-label="網站導覽與聯絡">
+    <nav aria-label="靜態導覽"><a href="#home">首頁</a><a href="#custom">訂製服務</a><a href="#about">關於我們</a><a href="#privacy">隱私政策</a></nav>
+    <p>你可以直接閱讀下方服務與隱私說明。線上訂製與訂單查詢需要啟用 JavaScript；也可以<a href="https://lin.ee/74cUrLS" target="_blank" rel="noopener">聯絡官方 LINE</a>由店長協助。</p>
+  </aside>
 
 <!-- ═══════════ 首頁 ═══════════ -->
 <div class="tab" id="tab-home">
+  <span id="home" aria-hidden="true"></span>
   <section class="hero">
     <div class="wrap">
       <div class="hero-copy">
@@ -1309,6 +1329,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
 
 <!-- ═══════════ 現貨商品 ═══════════ -->
 <div class="tab" id="tab-shop">
+  <span id="shop" aria-hidden="true"></span>
   <section class="opener">
     <div class="wrap">
       <p>有時候只是想手上有個東西可以摸，還不想解釋為什麼。</p>
@@ -1328,6 +1349,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
 
 <!-- ═══════════ 訂製服務 ═══════════ -->
 <div class="tab" id="tab-custom">
+  <span id="custom" aria-hidden="true"></span>
   <section class="opener">
     <div class="wrap">
       <p>願意把狀況講清楚的人，多半已經自己想過很多遍了。</p>
@@ -1625,6 +1647,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
 
 <!-- ═══════════ 作品集 ═══════════ -->
 <div class="tab" id="tab-works">
+  <span id="works" aria-hidden="true"></span>
   <section class="opener">
     <div class="wrap">
       <p>決定之前先看看別人手上的樣子，是合理的。</p>
@@ -1657,6 +1680,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
 
 <!-- ═══════════ 關於我們 ═══════════ -->
 <div class="tab" id="tab-about">
+  <span id="about" aria-hidden="true"></span>
   <section class="hero" style="padding:0">
     <div class="wrap" style="grid-template-columns:1fr;text-align:center;padding-top:60px;padding-bottom:50px">
       <div>
@@ -1835,6 +1859,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
 
 <!-- ═══════════ 常見問題 ═══════════ -->
 <div class="tab" id="tab-faq">
+  <span id="faq" aria-hidden="true"></span>
   <section class="opener">
     <div class="wrap">
       <p>會猶豫是正常的，這個領域誇大的說法太多。</p>
@@ -1853,6 +1878,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
 
 <!-- ═══════════ 訂單查詢 ═══════════ -->
 <div class="tab" id="tab-track">
+  <span id="track" aria-hidden="true"></span>
   <section class="opener">
     <div class="wrap">
       <p>東西交出去之後，最難熬的是不知道現在到哪。</p>
@@ -1885,6 +1911,7 @@ body.cms-on::after{content:"文案編輯模式";position:fixed;left:10px;bottom:
      ⚠ 沒有 nav 連結是刻意的：入口在頁尾與問卷送出鈕上方，
        但 TABS 有登記 privacy，所以 #privacy 直接可路由。 -->
 <div class="tab" id="tab-privacy">
+  <span id="privacy" aria-hidden="true"></span>
   <section class="opener">
     <div class="wrap">
       <p>算命這行最常見的隱私說法，是「我們不會留你的資料」。</p>
@@ -3768,6 +3795,7 @@ $('#emailHelpCustom').addEventListener('click',noEmailHelp);
 
 /* ═══════════ 啟動 ═══════════ */
 route(); observeReveals(); observeMotion(); cmsBoot();
+document.documentElement.classList.add('app-ready');
 </script>
 </body>
 </html>
