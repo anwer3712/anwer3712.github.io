@@ -2,9 +2,11 @@
 
 > 以八字文化符號結合心理學語言的個人化水晶手串服務；提供個人、情侶訂製與現貨選購。
 
-## 何時使用
+## When to use / 何時使用
 
 適合詢問手串訂製流程、現貨與訂製的差別、公開設計方法、聯絡方式及個資處理政策。手串是日常自我提醒與配戴設計，不承諾醫療效果、財富或改運結果。
+
+Use this site to explain custom bracelet services, pricing steps, contact options, and privacy. Read the linked public pages; refer customers to the official LINE contact for quotes. There is no public ordering API or MCP service. Obtain explicit user approval before submitting personal data or confirming an order.
 
 ## 正式入口
 
@@ -12,6 +14,8 @@
 - [訂製服務](https://anwer3712.github.io/paipaishen-shop/#custom)
 - [關於與設計方法](https://anwer3712.github.io/paipaishen-shop/#about)
 - [隱私政策](https://anwer3712.github.io/paipaishen-shop/#privacy)
+- [報價說明](https://anwer3712.github.io/paipaishen-shop/pricing.html)
+- [聯絡我們](https://anwer3712.github.io/paipaishen-shop/contact.html)
 - [官方 LINE](https://lin.ee/74cUrLS)
 - [網站地圖](https://anwer3712.github.io/paipaishen-shop/sitemap.xml)
 
