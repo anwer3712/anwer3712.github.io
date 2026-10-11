@@ -153,7 +153,10 @@ footer{padding:26px 20px 96px;text-align:center;}
     <p class="sec-lead">已預選你先前填寫的方式，可在送出前調整。</p>
     <div class="upgrade-choice" id="shippingChoices"></div>
     <div id="shippingAddressField" style="margin-top:12px"><label for="shippingAddress">收件地址／超商門市資料</label><input id="shippingAddress" type="text" maxlength="500" autocomplete="street-address" style="width:100%" placeholder="宅配填完整地址；店到店填超商名稱及門市名稱／店號"></div>
-    <h3 style="font-size:15px;margin-top:18px">深度推論報告</h3>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px">
+      <h3 style="font-size:15px;margin:0">深度推論報告</h3>
+      <button type="button" onclick="openSampleReportModal()" style="background:none;border:none;color:var(--rose-d);font-size:12.5px;cursor:pointer;text-decoration:underline;font-weight:600">📄 點此檢視報告試閱範例</button>
+    </div>
     <div class="upgrade-choice" id="deepReportChoices"></div>
     <div class="order-summary">
       <p id="orderShipping"></p>
@@ -164,6 +167,46 @@ footer{padding:26px 20px 96px;text-align:center;}
 
   <div id="doneBox" class="msg ok hide"></div>
 </main>
+
+
+<!-- 深度推論報告試閱彈窗 -->
+<div id="sampleModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(16,24,40,0.68);z-index:999;backdrop-filter:blur(4px);padding:20px;overflow-y:auto;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;max-width:620px;width:100%;max-height:88vh;overflow-y:auto;padding:22px;border:1px solid var(--line);box-shadow:0 12px 36px rgba(0,0,0,0.25);margin:auto;position:relative">
+    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:14px">
+      <h3 style="margin:0;font-size:17px;color:var(--rose-d);display:flex;align-items:center;gap:6px">📄 深度命理推論報告 · 內容試閱範例</h3>
+      <button type="button" onclick="closeSampleReportModal()" aria-label="關閉" style="border:none;background:none;font-size:24px;line-height:1;cursor:pointer;color:var(--ink2)">&times;</button>
+    </div>
+    <div style="font-size:13px;line-height:1.8;color:var(--ink)">
+      <div style="background:var(--warm2);padding:10px 14px;border-radius:10px;border-left:3px solid var(--gold);margin-bottom:14px">
+        💡 <b>加購交付說明：</b>加購深度推論報告後，於手串出貨時同步交付專屬線上永久查閱連結與 PDF 下載。報告結合<b>五派合參命理、正典數值模型與現代心理自我覺察</b>，全文約 8～12 頁，以下為精華章節示意：
+      </div>
+      <div style="background:#FAF8F5;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px">
+        <b style="color:var(--rose-d);font-size:14px">第①章・本命日主與五行權重分佈</b>
+        <p class="muted" style="font-size:12px;margin:3px 0 6px">分析生辰八字日元特質、五行生剋平衡（金/木/水/火/土權重分析表）。</p>
+        <div style="background:#fff;border:1px solid #eee;padding:8px 10px;border-radius:6px;font-family:monospace;font-size:12px">
+          📊 本命五行盤：日主【辛金】身稍弱 ｜ 喜用【水、木】 ｜ 忌神【火、土】<br>
+          • 金 18% ｜ 木 32% ｜ 水 28% ｜ 火 12% ｜ 土 10%
+        </div>
+      </div>
+      <div style="background:#FAF8F5;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px">
+        <b style="color:var(--rose-d);font-size:14px">第②章・當前歲運課題與流年節奏引動</b>
+        <p class="muted" style="font-size:12px;margin:3px 0 6px">針對當年度歲運交替帶來的氛圍變化，提示關鍵注意事項與生活步調調節重點。</p>
+        <p style="margin:0;font-size:12.5px">「今年歲運火行偏旺，易在溝通或決策上感到急進。手串特別選用水行黑曜石與木行綠幽靈，以水制火、以木通關，協助維持沉穩理性的心境…」</p>
+      </div>
+      <div style="background:#FAF8F5;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px">
+        <b style="color:var(--rose-d);font-size:14px">第③章・客製手串晶石特質與微觀配戴指引</b>
+        <p class="muted" style="font-size:12px;margin:3px 0 6px">詳細說明每顆天然晶石的礦物物理特性、色彩光譜心理投射與日常保養要點。</p>
+      </div>
+      <div style="background:#FAF8F5;border:1px solid var(--line);border-radius:10px;padding:12px 14px">
+        <b style="color:var(--rose-d);font-size:14px">第④章・生活作息與自我覺察調和方案</b>
+        <p class="muted" style="font-size:12px;margin:3px 0 6px">結合色彩學、生活作息節奏與環境整理建議，提供具體可落地的日常調和習慣。</p>
+      </div>
+    </div>
+    <div style="text-align:right;margin-top:16px;padding-top:12px;border-top:1px solid var(--line)">
+      <button type="button" class="btn sm" onclick="closeSampleReportModal()">關閉試閱視窗</button>
+    </div>
+  </div>
+</div>
 
 <footer>
   <div class="foot-brand">
@@ -186,6 +229,7 @@ const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>
 // LINE 帳號只有 config.js 一份。頁面上要印帳號的地方一律取這個變數或標 data-line，
 // 不要再把帳號字串抄進 HTML——換帳號時抄過的那幾處一定會被漏掉。
 const LINE_ID = (CONFIG.CONTACT||{}).line || '';
+const BOSS_EMAIL = (CONFIG.CONTACT||{}).email || 'anwer3712anwer@gmail.com';
 document.querySelectorAll('[data-line]').forEach(e=>{ e.textContent = LINE_ID; });
 
 const params = new URLSearchParams(location.search);
@@ -355,7 +399,7 @@ function deadEnd(){
   $('#demoBadge').classList.add('hide');
   ['#quoteSection','#planSection','#upgradeSection','#noteSection'].forEach(s=>{ $(s).style.display='none'; });
   $('#doneBox').className = 'msg warn';
-  $('#doneBox').textContent = `這頁現在讀不到訂單內容，沒辦法在這裡選方案——可能是報價信還沒放行，或連結已過期。請加 LINE ${LINE_ID} 告訴店長，我們直接幫你確認，效力相同。`;
+  $('#doneBox').innerHTML = `這頁現在讀不到訂單內容，沒辦法在這裡選方案——可能是報價信還沒放行，或連結已過期。<br>請直接回覆您收到的報價 Email，或點此 <a href="mailto:${BOSS_EMAIL}?subject=訂單確認諮詢" style="color:var(--rose-d);font-weight:700">寄信給店長 (${BOSS_EMAIL})</a>` + (LINE_ID ? `，或加 LINE ${LINE_ID}` : '') + `，我們會直接為您確認！`;
   $('#confirmBtn').disabled = true;
   $('#confirmBtn').textContent = '暫時無法送出';
   $('#cfTotal').textContent = '—';
@@ -390,13 +434,16 @@ function render(){
               || ORDER.plans.find(p=>p.recommended) || ORDER.plans[0];
   $('#planList').innerHTML = ORDER.plans.map(p => {
     const itemText = p.items.map(item=>item.label + ' × ' + item.bracelet_count).join('、');
+    const isBag = (p.plan_id||'').includes('bag') || (p.items||[]).some(it=>it.role==='bag');
+    const bagBadge = isBag ? `<div style="margin-top:8px;background:var(--warm2);border:1px solid var(--gold);padding:8px 12px;border-radius:10px;font-size:12.5px;color:var(--rose-d);line-height:1.6">💫 <b>雙串相生互補加乘建議：</b><br>• <b>主方案</b>：立體回應您當下最核心的訴求，穩固個人心境。<br>• <b>錦囊組</b>：放寬主方案的色系限制，專門調和您命盤的流年課題與盲區。<br>雙串可依日常穿著交替配戴，或一同配戴達到全方位五行平衡。</div>` : '';
     return `
     <label class="plan-card">
       <input type="radio" name="plan" value="${esc(p.plan_id)}" ${p===selectedPlan?'checked':''}>
       <div class="plan-body">
-        <div class="plan-title">${esc(p.label)}${p.recommended?' <span class="rec-tag">推薦</span>':''}</div>
+        <div class="plan-title">${esc(p.label)}${p.recommended?' <span class="rec-tag">推薦</span>':''}${isBag?' <span class="rec-tag" style="background:#5C7A99">💫 雙串互補加乘</span>':''}</div>
         <p>${esc(p.desc)}</p>
         <p style="font-size:13px;color:#666">${esc(itemText)}</p>
+        ${bagBadge}
       </div>
     </label>`;
   }).join('');
@@ -507,10 +554,23 @@ $('#discussBtn').addEventListener('click', async ()=>{
   const note = $('#cfNote').value.trim() || '想先討論';
   const { ok, error } = await submitTo(CONFIG.PATHS.CONFIRM_RESUME, { order_token: orderToken, confirm:'feedback', note });
   say(ok ? 'ok' : 'warn', ok
-    ? `已記錄你想先討論——也歡迎直接加 LINE ${LINE_ID}，店長會盡快回覆你。`
-    : `${error || '這次沒送出去，可能是連結過期或系統忙線'}。請直接加 LINE ${LINE_ID} 告訴店長你想先討論，效力相同。`);
+    ? `已記錄你想先討論——店長已收到即時通知，會優先透過 Email 或手機聯繫您討論。` + (LINE_ID ? `（若您有使用 LINE，亦可加 LINE ${LINE_ID} 聯繫）` : '')
+    : `${error || '這次沒送出去，可能是連結過期或系統忙線'}。請直接回覆報價信，或加 LINE ${LINE_ID} 告訴店長你想先討論，效力相同。`);
   btn.disabled = false;
 });
+
+
+function openSampleReportModal(){
+  const m = $('#sampleModal');
+  if(m){ m.style.display = 'flex'; }
+}
+function closeSampleReportModal(){
+  const m = $('#sampleModal');
+  if(m){ m.style.display = 'none'; }
+}
+if(typeof window !== 'undefined'){
+  window.addEventListener('keydown', e=>{ if(e.key === 'Escape') closeSampleReportModal(); });
+}
 
 loadOrder();
 </script>

@@ -95,11 +95,51 @@ header{position:sticky;top:0;z-index:100;background:rgba(251,249,244,.86);backdr
 .cartBtn{position:relative;margin-left:6px;background:none;border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;transition:border-color var(--t),transform var(--t)}
 .cartBtn:hover{border-color:var(--mu);transform:translateY(-1px)}
 .cartBtn .cnt{position:absolute;top:-7px;right:-7px;background:var(--rose-d);color:#fff;font-size:11px;min-width:18px;height:18px;line-height:18px;text-align:center;border-radius:9px;padding:0 4px}
-.burger{display:none;margin-left:auto;width:42px;height:42px;border:1px solid var(--line);background:none;border-radius:10px;cursor:pointer;flex-direction:column;gap:5px;align-items:center;justify-content:center}
+.burger{display:none;margin-left:6px;width:42px;height:42px;border:1px solid var(--line);background:none;border-radius:10px;cursor:pointer;flex-direction:column;gap:5px;align-items:center;justify-content:center}
 .burger i{width:20px;height:2px;background:var(--ink);transition:transform var(--t),opacity var(--t)}
 .burger.open i:nth-child(1){transform:translateY(7px) rotate(45deg)}
 .burger.open i:nth-child(2){opacity:0}
 .burger.open i:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+/* ── 訂製服務重點突顯（強調核心服務入口）── */
+.nav-item-custom a.nav-top{
+  font-weight:700;
+  background:rgba(201,162,75,.12);
+  border:1.5px solid var(--glow-deep);
+  border-radius:999px;
+  padding:6px 14px;
+  box-shadow:0 2px 8px rgba(201,162,75,.18);
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+}
+.nav-item-custom a.nav-top:hover{
+  background:linear-gradient(120deg,rgba(232,201,122,.32),rgba(201,162,75,.22));
+  box-shadow:0 4px 14px rgba(201,162,75,.32);
+  transform:translateY(-1px);
+}
+.nav-item-custom a.nav-top.on{
+  background:linear-gradient(120deg,var(--glow-deep),var(--glow));
+  color:#2B1E05;
+  border-color:var(--glow-deep);
+  box-shadow:0 4px 16px rgba(201,162,75,.4);
+}
+.nav-custom-badge{
+  font-size:10.5px;
+  font-weight:700;
+  letter-spacing:.04em;
+  color:#fff;
+  background:var(--huo);
+  padding:1px 6px;
+  border-radius:999px;
+  line-height:1.4;
+  vertical-align:middle;
+}
+.nav-item-custom a.nav-top.on .nav-custom-badge{
+  background:#2B1E05;
+  color:var(--glow-soft);
+}
+.nav-custom-pill{display:none}
 
 /* ═══ 章節導覽（2026-08-06 使用者要求 4）═══
    下卷式頁面的老問題：捲到一半想回某個標題，只能自己往回刮。給兩個入口——
@@ -1075,6 +1115,9 @@ footer .brand-f{display:flex;align-items:center;gap:10px;color:#EDE7DA;font-fami
   .nav-links.open{transform:none}
   .nav-links a{padding:13px 14px;font-size:16px}
   .nav-links a.on::after,.nav-under{display:none}
+  .nav-item-custom a.nav-top{border-radius:10px;background:rgba(201,162,75,.16);border-color:var(--glow-deep);margin:4px 0;padding:12px 14px}
+  .nav-custom-pill{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;background:linear-gradient(120deg,var(--glow-deep),var(--glow));color:#2B1E05;font-size:13.5px;font-weight:700;border-radius:999px;text-decoration:none;box-shadow:0 3px 10px rgba(201,162,75,.35);white-space:nowrap;margin-left:auto;border:1px solid rgba(255,255,255,.5);transition:transform var(--t)}
+  .nav-custom-pill:active{transform:scale(.96)}
   /* 手機沒有 hover：折疊改由 ▾ 鈕控制，且主連結與展開鈕分開——
      點文字＝直接去那一頁，點 ▾＝只展開章節，兩個意圖不要互相搶。 */
   .nav-item{flex-wrap:wrap}
@@ -1228,13 +1271,14 @@ html:not(.app-ready) #tocBall,html:not(.app-ready) #tocPanel{display:none}
     <nav class="nav-links" id="navLinks" aria-label="主要導覽">
       <div class="nav-item"><a class="nav-top" href="#home">首頁</a><button class="nav-exp" type="button" aria-expanded="false" aria-label="展開 首頁 的章節">▾</button><div class="nav-sub"></div></div>
       <div class="nav-item"><a class="nav-top" href="#shop">現貨商品</a><button class="nav-exp" type="button" aria-expanded="false" aria-label="展開 現貨商品 的章節">▾</button><div class="nav-sub"></div></div>
-      <div class="nav-item"><a class="nav-top" href="#custom">訂製服務</a><button class="nav-exp" type="button" aria-expanded="false" aria-label="展開 訂製服務 的章節">▾</button><div class="nav-sub"></div></div>
+      <div class="nav-item nav-item-custom"><a class="nav-top" href="#custom"><span>訂製服務</span><span class="nav-custom-badge">核心</span></a><button class="nav-exp" type="button" aria-expanded="false" aria-label="展開 訂製服務 的章節">▾</button><div class="nav-sub"></div></div>
       <div class="nav-item"><a class="nav-top" href="#works">作品集</a><button class="nav-exp" type="button" aria-expanded="false" aria-label="展開 作品集 的章節">▾</button><div class="nav-sub"></div></div>
       <div class="nav-item"><a class="nav-top" href="#about">關於我們</a><button class="nav-exp" type="button" aria-expanded="false" aria-label="展開 關於我們 的章節">▾</button><div class="nav-sub"></div></div>
       <div class="nav-item"><a class="nav-top" href="#faq">常見問題</a><button class="nav-exp" type="button" aria-expanded="false" aria-label="展開 常見問題 的章節">▾</button><div class="nav-sub"></div></div>
       <div class="nav-item"><a class="nav-top" href="#track">訂單查詢</a><button class="nav-exp" type="button" aria-expanded="false" aria-label="展開 訂單查詢 的章節">▾</button><div class="nav-sub"></div></div>
       <span class="nav-under" id="navUnder" aria-hidden="true"></span>
     </nav>
+    <a class="nav-custom-pill" href="#custom" aria-label="前往訂製服務">✨ 訂製服務</a>
     <button class="cartBtn" id="cartBtn" aria-label="購物車" title="購物車">🛒<span class="cnt" id="cartCnt" style="display:none">0</span></button>
     <button class="burger" id="burger" aria-label="開關選單" aria-expanded="false"><i></i><i></i><i></i></button>
   </div>
@@ -1252,7 +1296,7 @@ html:not(.app-ready) #tocBall,html:not(.app-ready) #tocPanel{display:none}
   <section class="hero">
     <div class="wrap">
       <div class="hero-copy">
-        <p class="tag-eyebrow">八字文化 × 心理學</p>
+        <p class="tag-eyebrow">八字文化 × 心理學 ｜ 核心手串訂製</p>
         <h1>低潮裡，<br>也有一盞<span class="gl">往前的光</span>。</h1>
         <p class="lead">即使走進深處，我們仍在你身旁，照亮下一步。用八字文化看見你的慣性，讓一串珠子成為回到自己節奏的日常提醒。</p>
         <ul class="decon">
@@ -1261,10 +1305,10 @@ html:not(.app-ready) #tocBall,html:not(.app-ready) #tocPanel{display:none}
           <li><b>心理導航</b>　它點亮的是你內心原本就具備、卻被暫時遺忘的潛能。</li>
         </ul>
         <div class="hero-cta">
-          <a class="btn" href="#custom">從這裡，替自己點一盞燈 →</a>
-          <a class="btn-ghost" href="#shop">先看看已完成的光</a>
+          <a class="btn hero-cta-custom" href="#custom">✨ 立即前往訂製服務（個人／情侶）→</a>
+          <a class="btn-ghost" href="#shop">先看看現貨商品</a>
         </div>
-        <p class="hero-note">不用一次想清楚。先從一句近況開始，我們陪你找到下一步。</p>
+        <p class="hero-note">✦ 核心服務：依你的生日排出一份配比，再照配比挑石頭；不用一次想清楚，我們陪你找到下一步。</p>
         <div class="hope-rail" aria-label="訂製旅程">
           <span><i>01</i>說說現在的你</span><span><i>02</i>看見適合的方向</span><span><i>03</i>把提醒戴回日常</span>
         </div>
@@ -1298,7 +1342,7 @@ html:not(.app-ready) #tocBall,html:not(.app-ready) #tocPanel{display:none}
     <div class="wrap">
       <div class="head reveal"><p class="tag-eyebrow">為什麼是我們</p><h2>五個，別人少做的堅持</h2><p>用明確規則整理文化推論，讓配比與選石理由可以核對。</p></div>
       <div class="vs">
-        <div class="adv lift reveal" style="--i:0"><div class="row"><span class="no">01</span><h3>工程級數據精確度</h3><span class="xy"><span class="x">量化</span> 而非 <span class="y">通靈</span></span></div><p>Hamilton 最大餘額法精算每一顆比例，配比設上限、循五行相生做溢出轉移。相同輸入，會得到相同輸出。</p></div>
+        <div class="adv lift reveal" style="--i:0"><div class="row"><span class="no">01</span><h3>工程級數據精確度</h3><span class="xy"><span class="x">量化</span> 而非 <span class="y">通靈</span></span></div><p>MILP 混合整數規劃精算每一顆穿線配置，主用神峰值保夾，循五行相生做溢出轉移。相同輸入，會得到相同輸出。</p></div>
         <div class="adv lift reveal" style="--i:1"><div class="row"><span class="no">02</span><h3>日常溝通提醒</h3><span class="xy"><span class="x">傾聽</span> 與 <span class="y">表達</span></span></div><p>把命理文化中的象徵轉成傾聽、表達與界線提醒；這套五行映射尚無實證效度，不是心理測驗。</p></div>
         <div class="adv lift reveal" style="--i:2"><div class="row"><span class="no">03</span><h3>真值仲裁與缺失懲罰</h3><span class="xy"><span class="x">真實</span> 而非 <span class="y">偽造</span></span></div><p>缺時辰就走三柱模式，不偷補子時。報告標示資料缺漏；100%／70% 是系統完整度係數，不代表預測準確率。</p></div>
         <div class="adv lift reveal" style="--i:3"><div class="row"><span class="no">04</span><h3>性別中立與多元適配</h3><span class="xy"><span class="x">現代</span> 而非 <span class="y">傳統</span></span></div><p>中立化十神代碼，不做男女二分。任何一種伴侶組合，同樣適用。同性伴侶友善。</p></div>
@@ -1319,7 +1363,9 @@ html:not(.app-ready) #tocBall,html:not(.app-ready) #tocPanel{display:none}
       <div class="head reveal"><h2>兩條路，都通往同一件事</h2><p>把注意力，帶回最初的自己。</p></div>
       <div class="grid g2">
         <div class="card lift reveal" style="text-align:center;--i:0"><div class="ic" style="margin:0 auto 14px">🛍️</div><h3>現貨商品</h3><p>設計好的成品，看得到、直接帶走。適合想快一點、或先體驗看看的你。</p><br><a class="btn2" href="#shop">先看看現貨 →</a></div>
-        <div class="card lift reveal" style="text-align:center;--i:1"><div class="ic" style="margin:0 auto 14px">✨</div><h3>個人化訂製</h3><p>從你的八字開始算，個人款修身、情侶對串治平。專屬報告與排珠設計。</p><br><a class="btn" href="#custom">說說你的狀況 →</a></div>
+        <div class="card lift reveal" style="text-align:center;--i:1;border:2px solid var(--glow);background:linear-gradient(180deg,#fff 0%,#FBF8EE 100%);box-shadow:0 12px 36px rgba(201,162,75,.18);position:relative">
+          <span style="position:absolute;top:12px;right:14px;background:var(--grad-gold);color:#2B1E05;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;letter-spacing:.08em">✦ 本店核心</span>
+          <div class="ic" style="margin:0 auto 14px">✨</div><h3>個人化訂製服務</h3><p>從你的八字開始算，個人款修身、情侶對串治平。專屬報告與排珠設計。</p><br><a class="btn" href="#custom">前往訂製服務・填寫問卷 →</a></div>
       </div>
     </div>
   </section>
@@ -1360,7 +1406,7 @@ html:not(.app-ready) #tocBall,html:not(.app-ready) #tocPanel{display:none}
     <div class="wrap">
       <!-- id/data-toc＝頁首「訂製服務 ▸ A 個人手串 ▸ 訂製介紹」的落點。
            data-toc 不只是標記：CSS 那條 main [data-toc]{scroll-margin-top:78px} 靠它閃開 sticky header。 -->
-      <div class="head reveal" id="cu-intro" data-toc="1"><p class="tag-eyebrow">個人化訂製</p><h2>從你的八字，長出一串專屬</h2></div>
+      <div class="head reveal" id="cu-intro" data-toc="1"><p class="tag-eyebrow" style="color:var(--glow-deep);font-weight:700">✦ 本店核心・個人化訂製服務</p><h2>從你的八字，長出一串專屬</h2></div>
       <!-- 訂製入口：原本是一顆 15px 灰字膠囊，使用者反映「很難找哪裡下單」。
            改成兩張說得出差別的可點卡片，並在正下方直接給進入問卷的入口。
            id/data-mode 一字不動——JS 用 closest('button') 與 dataset.mode 綁定，改名會斷。 -->
@@ -1386,10 +1432,10 @@ html:not(.app-ready) #tocBall,html:not(.app-ready) #tocPanel{display:none}
           <p style="font-size:19px;text-align:center;margin-bottom:18px"><b>不是挑你喜歡的石頭，是算出你缺的那一個</b></p>
           <p style="color:var(--muted);margin-bottom:14px">先從國曆生日排盤，時間換算採東經 120° 參考經度，不收出生地，因此不是依實際出生位置精算的真太陽時。缺出生時間時排除時柱並重新正規化，不假填時辰。報告的 100%／70% 是內部資料完整度係數，不是經統計驗證的準確率。</p>
           <p style="color:var(--muted);margin-bottom:14px">接著把五行分量量化成一組配比，再從 <b style="color:var(--ink)">94 種晶石白名單</b>裡取石。名單以外一律不用；每顆石頭只認一個主五行，不做「這顆什麼都補」的模糊歸類。</p>
-          <p style="color:var(--muted)">最後排珠：主珠取你最高的那個五行，強制置中；金與木、水與火不相鄰，中間一定隔一顆。<b style="color:var(--ink)">每一顆的位置都有理由，報告會逐顆說明為什麼放它。</b></p>
+          <p style="color:var(--muted)">最後排珠：<b>MILP 混合整數規劃</b>直接在整數空間求解實珠配置（19~23 顆）；主珠取你最高的那個五行，強制置中；金與木、水與火不相鄰，隔珠屬性於約束矩陣一併平衡。<b style="color:var(--ink)">每一顆的位置都有理由，報告會逐顆說明為什麼放它。</b></p>
         </div>
 
-        <p class="reveal" id="cu-aes" data-toc="1" style="max-width:620px;margin:0 auto 24px;font-family:var(--serif);font-style:italic;color:var(--ink);border-left:3px solid var(--glow);padding:2px 0 2px 16px">同一份配比，可以長成三種樣子。配比決定「放哪些石頭」，體感決定「看起來是什麼調性」——這兩件事是分開選的。</p>
+        <p class="reveal" id="cu-aes" data-toc="1" style="max-width:620px;margin:0 auto 24px;font-family:var(--serif);font-style:italic;color:var(--ink);border-left:3px solid var(--glow);padding:2px 0 2px 16px">貫徹雙軌解耦分解定理：主方案（尊崇意志款，美學陪伴）＋ 錦囊組（專業核心款，直擊深層命理），兩條加總承載全額 1.00 總應補五行。配比決定「放哪些石頭」，體感決定「看起來是什麼調性」——這兩件事是分開選的。</p>
         <div class="grid g3-aes" style="margin-bottom:40px">
           <div class="card aes-card lift reveal" style="--i:0">
             <img src="photos/brand/aes-1-light.webp" alt="輕盈流光系珠串樣本：簡約單色、多彩清透、流光組合" width="443" height="542" loading="lazy">
@@ -1429,7 +1475,7 @@ html:not(.app-ready) #tocBall,html:not(.app-ready) #tocPanel{display:none}
           <div class="illus reveal" id="rvIllus" aria-label="雙人配比五步流程圖解" style="--i:0"></div>
           <div class="reveal" style="--i:1">
             <h3 style="font-size:22px;margin-bottom:10px">兩個人的盤，不是各算各的</h3>
-            <p style="color:var(--muted)">先各自算出需求向量，再合成一份雙人向量：<b style="color:var(--ink)">RV = 0.4×你 ＋ 0.4×對方 ＋ 0.2×橋接元素</b>。</p>
+            <p style="color:var(--muted)">先各自算出需求向量，再合成一份雙人向量：<b style="color:var(--ink)">RV = 0.4×你 ＋ 0.4×對方 ＋ 0.2×橋接元素</b>。同時結合雙人 32 格衝突矩陣與自訂關係七維映射，全面分析互動缺口。</p>
             <p style="color:var(--muted);margin-top:10px">順序這裡要講明白：<b style="color:var(--ink)">流年是在合成之前、各自那一步就先算完的</b>。你們兩個人的基準盤各自先被當年的流年推過一輪，才拿去合成雙人向量。所以對串處理的不是「你們出生時」的兩張盤，是「你們今年」的兩張盤。同一對人隔一年再訂，配比可能改變，也可能得到相同的顆數配置。</p>
             <p style="color:var(--muted);margin-top:10px">但這只是第一步。合成完還要乘上關係階段的修正係數——熱戀期加重木（先把話說開）、育兒期加重火（撐住日常的熱度）、分居加重水（先把信任接回來；單純地理上的遠距是另一組係數，主次剛好相反）——再重新正規化，才得到真正拿去挑石頭的那份配比。</p>
             <p style="color:var(--muted);margin-top:10px">最後只從你們的<b style="color:var(--ink)">共同喜神</b>取石，不是各挑各的。所以就算配比相同，兩條串也可能長得不一樣：主珠取各自最高的那個五行，<b style="color:var(--ink)">各自置中</b>。</p>
@@ -1499,7 +1545,7 @@ html:not(.app-ready) #tocBall,html:not(.app-ready) #tocPanel{display:none}
               <tr><td><span class="dot5" style="background:var(--jin)"></span>承諾</td><td>金</td><td>守護當初的初衷</td></tr>
               <tr><td><span class="dot5" style="background:var(--shui)"></span>自由</td><td>水</td><td>親密中保留獨立</td></tr>
             </table>
-            <p style="color:var(--muted);font-size:13.5px;margin-top:10px">這七項是本系統自訂的五行對照，並非 Gottman 官方七維量表。Gottman 的健全關係屋是七層加上信任與承諾兩面牆；此處示意圖沒有個人測量意義。Repair_Score 已有本系統的計分規格；資料完整且經核定後才計算，分數不代表關係結果。</p>
+            <p style="color:var(--muted);font-size:13.5px;margin-top:10px">這七項是本系統自訂的五行對照，並非 Gottman 官方七維量表。Gottman 的健全關係屋是七層加上信任與承諾兩面牆；此處示意圖沒有個人測量意義。Repair_Score 已有本系統的計分規格；資料完整且經核定後才計算，分數不代表關係結果。七維評分最低之缺口維度（低於 35/40 分門檻者）對應之十神五行，自動注入情侶修復珠（Bridge Beads）之優先選石候選集合，完成情侶關係修復閉環。</p>
           </div>
         </div>
       </div>
@@ -1780,36 +1826,63 @@ html:not(.app-ready) #tocBall,html:not(.app-ready) #tocPanel{display:none}
     <div class="wrap" style="max-width:760px">
       <div class="head reveal"><h2>把方法攤開給你看</h2><p>「認識論誠實」不是口號。我們怎麼算、依據什麼，願意講清楚。</p></div>
       <div class="transp reveal">
-        <h3>需求向量：六個分量</h3>
-        <p style="margin-bottom:10px">六個分量各有固定權重，逐一加權相加，不是憑感覺配：</p>
-        <!-- color 跟 background:#fff 是一組的：這一段在 .transp（深綠底、淺字）裡面，
-             只給白底不給字色 → 淺字印在白底上＝這條公式整行看不到（同 table.mt 那個雷）。 -->
+        <!-- 核心版本標記與法源地位 -->
+        <div style="margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.15)">
+          <span style="display:inline-block;background:var(--glow-deep);color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:0.5px">版本規格 PPS-FUSION-OPTIMAL-20261010.1</span>
+          <p style="font-size:13.5px;color:rgba(255,255,255,0.85);margin-top:6px;line-height:1.6">接續 2026-10-04 數值映射正典與兩層凸優化求解器，經 Claude Council 五方極端思維深度審查定案之終極演算法。對接 10 本 NotebookLM 核心知識庫，全盤收斂七大工程與命理眉角。</p>
+        </div>
+
+        <h3>雙軌解耦分解定理：美學陪伴與深層修復</h3>
+        <p style="margin-bottom:10px">落實店長理念第一鐵律：<b>「主方案承載美學陪伴，錦囊組直擊深層命理無視覺限制，兩條加總承載全額 1.00 總應補五行」</b>。數學上嚴格滿足：</p>
+        <p style="margin-bottom:12px;font-family:var(--serif);background:#fff;color:var(--ink);border-left:3px solid var(--glow);padding:10px 14px;border-radius:0 10px 10px 0;overflow-x:auto"><b>F_raw ＝ 0.50·F_main ＋ 0.50·F_jinnang（合計恆等於 1.00）</b></p>
+        <ul style="margin-bottom:18px">
+          <li><b>主方案 F_main（尊崇意志款）</b>：五行邊界收斂於 [0.05, 0.35]，維持平穩流動，兼顧個人功能 P2 與穿搭視覺 P3。</li>
+          <li><b>錦囊組 F_jinnang（專業核心款）</b>：放寬邊界至 [0.03, 0.60]，主用神佔比可高達 50% 以上，無視覺色系限制定點爆破深層痛點。</li>
+          <li><b>客觀命理真實不可侵犯</b>：客戶意圖 U 增量強制為 0，不得篡改五行比例；意圖僅用於同主五行晶石挑選排序。</li>
+        </ul>
+
+        <h3>五大門派等席表態與兩層凸優化（Convex Fusion）</h3>
+        <p style="margin-bottom:6px">單一門派會有盲點。五大門派各佔基準席位 0.20，依典籍客觀推演輸出定性立場（主喜／次喜／中立／次忌／主忌），再依標準梯級投影矩陣轉換為基準值 q 與容許區間 [accept_lower, accept_upper]：</p>
+        <div class="mt-wrap"><table class="mt">
+          <tr><th>學派</th><th>典籍依據</th><th>主張重點</th></tr>
+          <tr><td>傳統格局派</td><td>沈孝瞻《子平真詮》</td><td>32 組成敗救應，格局成敗定喜忌</td></tr>
+          <tr><td>五行旺衰派</td><td>任鐵樵《滴天髓闡微》</td><td>日主得令得地得氣，日主旺衰 → 扶抑</td></tr>
+          <tr><td>調候用神派</td><td>余春台《窮通寶鑑》</td><td>120 格日干節月，寒暖燥濕 → 調候</td></tr>
+          <tr><td>盲派做功論</td><td>段建業《命理珍寶》</td><td>主位賓位體用，實戰象法，用神取捨</td></tr>
+          <tr><td>新派作用論</td><td>李涵辰《八字預測真踪》</td><td>兩次受制論、百神論、相鄰作用與動態流年</td></tr>
+        </table></div>
+        <p style="margin:12px 0 6px">兩派互斥時，比較各自的置信度分數：<b>差距超過 20% 採信高分的那一派</b>；分數接近時保留分歧，交由人工複核；這些是內部規則分數，不是臨床心理指標。</p>
+        <p style="margin:0 0 16px">注意表裡的最後一列：<b>流年在整套運算裡出現兩次</b>。一次是歷史式子裡那個固定 0.12 的分量，一次是「新派」立論的依據——它是唯一把時間變化當主軸的一派，所以五派吵架的時候，流年也在桌上有一票。這不是同一件事講兩遍，是兩個不同的入口。</p>
+
+        <h3>七大眉角收斂：終極演算法核心機制</h3>
+        <ul style="margin-bottom:18px">
+          <li><b>眉角一・極端調候格條件式躍遷</b>：生於仲夏（巳午未月）庚辛金、嚴冬（亥子丑月）甲乙木等《窮通寶鑑》120 格之大暑大寒生死格時，調候派權重自動由 0.20 躍遷至 0.36，其餘四派均分 0.16，全過程在凸優化框架內求解，確使學理救應權不被稀釋。</li>
+          <li><b>眉角二・主用神峰值保夾</b>：Minimax 折衷解追求各派最大偏離最小化，在衝突劇烈時易趨於均勻；演算法設有主用神峰值保夾，確使核心用神五行突破 25%~30%，在前台形成鮮明的主石視覺與五行重心，杜絕平庸均勻。</li>
+          <li><b>眉角四・MILP 實珠整數規劃（取代舊 Hamilton 取整）</b>：連續解轉成 19~23 顆實珠時，傳統取整易踩線衝突；演算法全面升級為<b>混合整數線性規劃（MILP）</b>，直接在整數空間尋優求解，根除離散衝突。</li>
+          <li><b>眉角五・非空交集折衷解安全閥</b>：當門派最大偏離度 t* ≤ 0.25 且無非法缺項時，折衷解自動賦予配珠權限並標記為 REVIEW_REQUIRED，兼顧嚴謹與產線順暢推進。</li>
+          <li><b>眉角六・排珠拓撲禁鄰隔珠一體化</b>：主珠（佔比最高五行）強制置中；金與木、水與火相鄰需隔珠緩衝。隔珠五行屬性於 MILP 約束矩陣一併平衡，避免事後插珠破壞原比例。</li>
+          <li><b>眉角七・情侶七維 Repair_Score 與修復珠閉環</b>：雙人 32 格衝突矩陣與關係七維計分聯動；七維評分最低之缺口維度（低於 35/40 門檻者）所對應十神五行，自動注入情侶修復珠（Bridge Beads）之優先選石候選集合。</li>
+        </ul>
+
+        <h3>Claude Council 審查機制與 NotebookLM 知識庫</h3>
+        <ul style="margin-bottom:18px">
+          <li><b>Claude Council 深度審查</b>：蒸餾 Liam Johnston / Promptible《Claude Council》心法（「Stop getting validated. Start getting vetted」——不要尋求附和驗證，要接受嚴格審查）。啟動五方極端思維顧問剖析（Contrarian 逆向批判、First-Principles 第一性原理、Expansionist 拓展視野、Outsider 局外觀察、Executor 執行交付），歷經雙盲匿名交叉互評與主席綜合裁決。</li>
+          <li><b>10 本 NotebookLM 核心筆記</b>：全量讀回並對接用神新派、盲派做功、調候派、旺衰派、傳統格局、七脈輪、情侶手串、個人一條龍、心理學排珠等 10 本核心知識庫。</li>
+          <li><b>老闆三項最高鐵律</b>：尊崇意志與專業核心完全解耦（主方案＋錦囊組＝1.00）、客觀命理真實不可侵犯（意圖 U 增量強制為 0）、拒絕黑箱與和稀泥（確定性數學求解器消滅隨機幻覺）。</li>
+        </ul>
+
+        <h3>需求向量：六個分量（歷史演進基礎）</h3>
+        <p style="margin-bottom:10px">系統早期（Phase 0）的六項加權公式，作為需求演進與流年 0.12 輸入的由來基礎：</p>
         <p style="margin-bottom:12px;font-family:var(--serif);background:#fff;color:var(--ink);border-left:3px solid var(--glow);padding:10px 14px;border-radius:0 10px 10px 0;overflow-x:auto"><b>F = 0.30·扶抑 ＋ 0.28·缺口 ＋ 0.12·調候 ＋ 0.12·流年 ＋ 0.10·盲派 ＋ 0.08·意圖</b></p>
         <ul style="margin-bottom:16px">
           <li>「意圖」放的是你的痛點與核心功能。<b>合計影響上限 15%</b>——你的想法有話語權，但命盤本身永遠是主體。</li>
           <li><b>「流年」占 0.12</b>：只讀出生那一刻的命盤，等於把你留在出生那年。所以式子裡固定留一格給流年——你下單當年的年份也讀進來一起算，算的是你<b>此刻</b>的五行處境，不是你出生時的樣子。它在這裡的身分是一個被讀進去的輸入變數，跟手圍、珠徑一樣；我們對它做的事只有「讀」。</li>
           <li><b>調候動態切換</b>：日主偏強、又生於極寒（亥子丑月）或極熱（巳午未月）時，調候分量由 0.12 升到 0.30，扶抑與缺口各降到 0.20。條件不符就維持上面的預設比例。<b>流年那一格在兩種模式下都是 0.12</b>，不隨調候起伏。</li>
         </ul>
-        <h3>五派各自表態，再硬仲裁</h3>
-        <p style="margin-bottom:4px">單一門派會有盲點，所以讓五派先各自對金木水火土給出喜忌主張，再做交叉裁決：</p>
-        <div class="mt-wrap"><table class="mt">
-          <tr><th>學派</th><th>主張重點</th></tr>
-          <tr><td>傳統格局派</td><td>格局成敗定喜忌</td></tr>
-          <tr><td>五行旺衰派</td><td>日主旺衰 → 扶抑</td></tr>
-          <tr><td>調候用神派</td><td>寒暖燥濕 → 調候</td></tr>
-          <tr><td>盲派</td><td>實戰象法，用神取捨</td></tr>
-          <tr><td>新派</td><td>新派規則、動態流年</td></tr>
-        </table></div>
-        <p style="margin:12px 0 6px">兩派互斥時，比較各自的置信度分數：<b>差距超過 20% 採信高分的那一派</b>；分數接近時保留分歧，交由人工複核；這些是內部規則分數，不是臨床心理指標。</p>
-        <p style="margin:0 0 20px">注意表裡的最後一列：<b>流年在整套運算裡出現兩次</b>。一次是上面式子裡那個固定 0.12 的分量，一次是「新派」立論的依據——它是唯一把時間變化當主軸的一派，所以五派吵架的時候，流年也在桌上有一票。這不是同一件事講兩遍，是兩個不同的入口。</p>
-        <h3>從比例到顆數：三道數學鎖</h3>
+
+        <h3>選石與定價鐵律</h3>
         <ul>
           <li><b>封頂與保底</b>：任一五行占比最多 <b>0.38</b>、最少 <b>0.03</b>。超出封頂的部分沿「相生」方向遞迴轉移，最多 4 次；忌神保留真實殘值，<b>禁止歸零</b>——算出來是多少就是多少。</li>
-          <li><b>Hamilton 最大餘額法</b>：比例乘上總顆數後禁止四捨五入，用最大餘額逐顆分配，<b>總誤差 ≤ 0.05</b>。議會分配席次用的是同一套數學。</li>
-          <li><b>物理排列鐵律</b>：主珠（占比最高的五行）強制置中；金與木、水與火不得相鄰，中間必須插一顆隔珠緩衝。</li>
-        </ul>
-        <h3>選石與定價</h3>
-        <ul>
           <li>只從 <b>94 種晶石白名單</b>取石，清單外一律不用。每顆石頭只認一個主五行，副五行不參與運算。白名單依主五行分色：金（白／灰／金屬色）、木（綠色系）、水（黑／深藍／藍紫）、火（紅／粉／紫／橙）、土（黃／棕／大地色）。</li>
           <li>運算完由命理師<b>逐單複核裁決</b>，初步規劃先給你過目、你點頭才動手——不交給機器直接拍板。</li>
           <li>底價由「手圍 × 珠徑」查矩陣，級距之間向上取級距；超出表格範圍一律人工報價，禁止外推。</li>
@@ -3660,9 +3733,20 @@ function prodLd(){
         <div id="reBox" style="display:none;margin-top:10px"><textarea id="reTxt" maxlength="300" placeholder="想調整哪裡？例：想要更深的藍、主珠想換……"></textarea><button class="btn2" id="reSend" type="button" style="margin-top:8px">送出調整需求</button></div>`;
       h+='</div>';
     }
-    // 2026-08-11 使用者裁決：拿掉「💬 給店家留言」。要說話的人會去找小串或 LINE，
-    // 多一個沒人看的留言箱只是讓客戶以為留了就有人回。訂單歷程原本跟留言箱擠在同一個
-    // design-box 裡，留言箱拿掉後它要自己一個框；沒有事件就整塊不出現，不留空盒子。
+    h+=`<div class="design-box" style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <h4 style="margin:0">💬 手串製作細節討論</h4>
+        <button class="btn sm ghost" id="actDiscToggle" type="button">想跟店長討論細節 ▾</button>
+      </div>
+      <div id="discBox" style="display:none;margin-top:10px">
+        <p class="muted" style="font-size:12.5px;margin:0 0 6px">手圍微調、晶石偏好、日常生活配戴習慣或有任何疑問，都可以先寫在這裡。店長收到後會即時收到通知，並為您留存於專屬檔案中。</p>
+        <textarea id="discTxt" maxlength="300" style="width:100%;min-height:70px;border-radius:8px;padding:8px 10px;border:1px solid var(--line);box-sizing:border-box" placeholder="例如：手圍測量有微調、想更換主珠/色系偏好、日常配戴疑問…"></textarea>
+        <div style="text-align:right;margin-top:8px">
+          <button class="btn2 sm" id="discSend" type="button">送出討論內容</button>
+        </div>
+      </div>
+    </div>`;
+    // 訂單歷程：展示客戶回覆、討論與調整紀錄
     if((r.events||[]).length) h+=`<div class="design-box"><h4>📋 訂單歷程</h4>
       <div class="evt-list" id="evtList">${r.events.map(ev=>`<div class="evt"><b>${esc(ev.kind)}</b> ${esc(ev.note||'')}<time>${esc((ev.at||'').slice(0,16).replace('T',' '))}</time></div>`).join('')}</div></div>`;
     out.innerHTML=h;
@@ -3673,6 +3757,8 @@ function prodLd(){
     if(q('actOk')) q('actOk').addEventListener('click',e=>{ if(confirm('確認同意此排珠提案？同意後即進入製作準備。')) act('approve','',e.target); });
     if(q('actRe')) q('actRe').addEventListener('click',()=>q('reBox').style.display='block');
     if(q('reSend')) q('reSend').addEventListener('click',e=>{ const t=q('reTxt').value.trim(); if(!t){alert('請填想調整的內容');return;} act('revise',t,e.target); });
+    if(q('actDiscToggle')) q('actDiscToggle').addEventListener('click',()=>{ const b=q('discBox'); if(b) b.style.display=b.style.display==='none'?'block':'none'; });
+    if(q('discSend')) q('discSend').addEventListener('click',e=>{ const t=(q('discTxt')&&q('discTxt').value||'').trim(); if(!t){alert('請填寫想討論的內容');return;} act('discuss',t,e.target); });
   }
   $('#tGo').addEventListener('click',query);
   $('#tVf').addEventListener('keydown',e=>{ if(e.key==='Enter') query(); });
@@ -3708,7 +3794,7 @@ function localBrain(qtext){
   if(has('退','換貨','取消','退款','鑑定')) return fa('return-policy');
   if(has('有效','有用','靈','神效','宿命','招','擋','發財','桃花','好運')) return fa('no-promise');
   if(has('流年','當年','年份','太歲','今年算')) return fa('liunian');
-  if(has('原理','公式','數值','由來','怎麼算出','演算')) return '方法攤在「關於我們」的運算原理區：需求向量六分量（扶抑 0.30／缺口 0.28／調候 0.12／流年 0.12／盲派 0.10／意圖 0.08，意圖上限 15%）、五派交叉裁決（差 >20% 採高分者）、封頂 0.38 保底 0.03 與相生溢出、Hamilton 分配（誤差 ≤0.05）、禁鄰規則。流年那 0.12 讀的是你下單當年的年份，切到調候模式也一樣是 0.12。歡迎去看。';
+  if(has('原理','公式','數值','由來','怎麼算出','演算')) return '方法攤在「關於我們」的運算原理區：最新定版 PPS-FUSION-OPTIMAL-20261010.1 終極演算法（五派等席兩層凸優化求解器、極端調候躍遷、主用神峰值保夾、主方案 0.50＋錦囊組 0.50 雙軌解耦、MILP 實珠整數規劃取代舊取整、排珠拓撲禁鄰隔珠一體化，以及 Claude Council 嚴審與 10 本 NotebookLM 知識庫）；歷史演進中「流年」占 0.12 讀的是下單年份，調候動態切換時流年不隨之起伏，五派交叉裁決時新派為第二入口。歡迎去看。';
   if(has('真人','店長','客服','聯絡','line','LINE')) return '真人服務走官方 LINE：'+CONFIG.CONTACT.line+'（回覆最快）。也可以 IG 私訊 '+CONFIG.CONTACT.ig+'。';
   // 訂製與現貨均提供宅配、店到店與面交。
   if(has('地址','面交','自送','店到店','運費','宅配')) return '物流：宅配到府 +130（訂製與現貨皆可選）；店到店 +60；中壢–龍潭面交免運（約時間地點）。';

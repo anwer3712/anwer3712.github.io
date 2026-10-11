@@ -89,6 +89,7 @@ const CONFIG = {
   STAGES: ["進件","已規劃","已報價","已匯款","製作中","已出貨","售後關懷"],
 
   NEWS: [
+    { d:"2026-10-10", tag:"算法", t:"終極演算法 PPS-FUSION-OPTIMAL-20261010.1 正式上線：五派兩層凸優化、主方案與錦囊組雙軌解耦、MILP 實珠整數規劃與 Claude Council 審查定案。" },
     { d:"2026-07-17", tag:"公告", t:"官網介面全新改版：問卷與訂單確認流程重新設計，行動裝置體驗優先。" },
     { d:"2026-07-01", tag:"作品", t:"六月訂製檔期作品陸續交付，作品集持續更新中。" },
     { d:"2026-06-16", tag:"服務", t:"情侶對串雙人合盤服務開放預約：兩人各一串、以合盤向量與橋接元素設計。" },
@@ -186,7 +187,7 @@ const CONFIG = {
   // line：官方 LINE 帳號。line_url 是 LINE 提供的加入好友短連結；有值時前台必優先使用，
   //       不可由 ID 反推舊式 line.me 網址，避免導到過期帳號。
   // linkgoods：只用來顯示 QR（qr/qr_linkgoods.png），沒有已知的帳號網址格式，不組連結。
-  CONTACT: { line:"@983evonf", line_url:"https://lin.ee/74cUrLS", tel:"", ig:"IGSINGASONG", linkgoods:"ANWER3712", shopee:"" },
+  CONTACT: { line:"@983evonf", line_url:"https://lin.ee/74cUrLS", tel:"", email:"anwer3712anwer@gmail.com", ig:"IGSINGASONG", linkgoods:"ANWER3712", shopee:"" },
 
   // 追蹤碼空槽：後台填入 ID 後前台才動態注入（預設空＝不載入任何外部腳本）
   GA4_ID: "",
