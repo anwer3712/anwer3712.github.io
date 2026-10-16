@@ -152,10 +152,79 @@ footer{padding:26px 20px 96px;text-align:center;}
     <h3 style="font-size:15px;margin-top:18px">配送方式</h3>
     <p class="sec-lead">已預選你先前填寫的方式，可在送出前調整。</p>
     <div class="upgrade-choice" id="shippingChoices"></div>
-    <div id="shippingAddressField" style="margin-top:12px"><label for="shippingAddress">收件地址／超商門市資料</label><input id="shippingAddress" type="text" maxlength="500" autocomplete="street-address" style="width:100%" placeholder="宅配填完整地址；店到店填超商名稱及門市名稱／店號"></div>
+    <div id="shippingAddressField" style="margin-top:14px;display:none">
+      <!-- 宅配到府：收件者／電話／郵遞區號／地址 -->
+      <div id="homeAddressGroup" style="display:none;background:#FAF8F5;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:10px">
+        <div style="font-weight:700;font-size:13.5px;color:var(--rose-d);margin-bottom:10px;display:flex;align-items:center;gap:6px">🚚 宅配到府收件資訊</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div>
+            <label for="homeRecipient" style="font-size:12px;color:var(--ink2);margin-bottom:4px">收件者</label>
+            <input id="homeRecipient" type="text" maxlength="50" placeholder="收件人姓名" autocomplete="name" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px">
+          </div>
+          <div>
+            <label for="homePhone" style="font-size:12px;color:var(--ink2);margin-bottom:4px">電話</label>
+            <input id="homePhone" type="tel" maxlength="20" placeholder="聯絡電話（例：0912345678）" autocomplete="tel" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:105px 1fr;gap:10px">
+          <div>
+            <label for="homeZip" style="font-size:12px;color:var(--ink2);margin-bottom:4px">郵遞區號</label>
+            <input id="homeZip" type="text" maxlength="6" placeholder="郵遞區號" autocomplete="postal-code" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px">
+          </div>
+          <div>
+            <label for="homeAddr" style="font-size:12px;color:var(--ink2);margin-bottom:4px">地址</label>
+            <input id="homeAddr" type="text" maxlength="200" placeholder="完整收件地址（縣市區路巷弄門牌樓層）" autocomplete="street-address" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px">
+          </div>
+        </div>
+      </div>
+
+      <!-- 超商店到店：收件者／電話／門市名稱（預設 7-11，門市名稱支援下拉式選項） -->
+      <div id="storeAddressGroup" style="display:none;background:#FAF8F5;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:10px">
+        <div style="font-weight:700;font-size:13.5px;color:var(--rose-d);margin-bottom:10px;display:flex;align-items:center;gap:6px">🏪 超商店到店門市資訊（預設 7-11）</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div>
+            <label for="storeRecipient" style="font-size:12px;color:var(--ink2);margin-bottom:4px">收件者</label>
+            <input id="storeRecipient" type="text" maxlength="50" placeholder="取件人姓名（核對證件）" autocomplete="name" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px">
+          </div>
+          <div>
+            <label for="storePhone" style="font-size:12px;color:var(--ink2);margin-bottom:4px">電話</label>
+            <input id="storePhone" type="tel" maxlength="20" placeholder="手機號碼（接收取貨簡訊）" autocomplete="tel" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px">
+          </div>
+        </div>
+        <div>
+          <label for="storeName" style="font-size:12px;color:var(--ink2);margin-bottom:4px">門市名稱（預設 7-11）</label>
+          <div style="display:flex;gap:8px;margin-bottom:6px">
+            <select id="storeChain" style="flex:0 0 95px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:13px">
+              <option value="7-11" selected>7-11</option>
+              <option value="全家">全家</option>
+            </select>
+            <select id="storeSelect" style="flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:13px">
+              <option value="">-- 可下拉選擇門市，或自行填寫 --</option>
+              <optgroup label="常用門市選項">
+                <option value="龍潭大昌門市 (981234)">7-11 龍潭大昌門市 (981234)</option>
+                <option value="中壢站前門市 (112233)">7-11 中壢站前門市 (112233)</option>
+                <option value="中壢中央門市 (156789)">7-11 中壢中央門市 (156789)</option>
+                <option value="龍潭北龍門市 (982345)">7-11 龍潭北龍門市 (982345)</option>
+                <option value="台北車站門市 (123456)">7-11 台北車站門市 (123456)</option>
+                <option value="市府門市 (234567)">7-11 市府門市 (234567)</option>
+                <option value="板橋新站門市 (345678)">7-11 板橋新站門市 (345678)</option>
+              </optgroup>
+              <option value="__custom__">✏️ 自行填寫門市名稱／店號</option>
+            </select>
+          </div>
+          <input id="storeName" type="text" maxlength="100" placeholder="請填寫 7-11 門市名稱或店號（例如：龍潭大昌門市）" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px">
+        </div>
+      </div>
+
+      <!-- 完整寄送資料（由上方欄位自動整理同步） -->
+      <div id="shippingSummaryBox" style="margin-top:10px;padding:10px 14px;background:#FAF8F5;border:1px dashed var(--line);border-radius:10px">
+        <label for="shippingAddress" style="font-size:12px;color:var(--ink2);margin-bottom:4px;display:block">完整寄送資料（由上方欄位自動整理，亦可微調）：</label>
+        <input type="text" id="shippingAddress" maxlength="300" placeholder="完整收件或門市資訊" style="width:100%;padding:8px 12px;font-size:13px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)">
+      </div>
+    </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px">
       <h3 style="font-size:15px;margin:0">深度推論報告</h3>
-      <button type="button" onclick="openSampleReportModal()" style="background:none;border:none;color:var(--rose-d);font-size:12.5px;cursor:pointer;text-decoration:underline;font-weight:600">📄 點此檢視報告試閱範例</button>
+      <button type="button" onclick="openSampleReportModal()" style="background:none;border:none;color:var(--rose-d);font-size:12.5px;cursor:pointer;text-decoration:underline;font-weight:600">📄 點此檢視深度命理堆論報告說明</button>
     </div>
     <div class="upgrade-choice" id="deepReportChoices"></div>
     <div class="order-summary">
@@ -171,39 +240,57 @@ footer{padding:26px 20px 96px;text-align:center;}
 
 <!-- 深度推論報告試閱彈窗 -->
 <div id="sampleModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(16,24,40,0.68);z-index:999;backdrop-filter:blur(4px);padding:20px;overflow-y:auto;align-items:center;justify-content:center">
-  <div style="background:#fff;border-radius:16px;max-width:620px;width:100%;max-height:88vh;overflow-y:auto;padding:22px;border:1px solid var(--line);box-shadow:0 12px 36px rgba(0,0,0,0.25);margin:auto;position:relative">
+  <div style="background:#fff;border-radius:16px;max-width:640px;width:100%;max-height:88vh;overflow-y:auto;padding:22px;border:1px solid var(--line);box-shadow:0 12px 36px rgba(0,0,0,0.25);margin:auto;position:relative">
     <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:14px">
-      <h3 style="margin:0;font-size:17px;color:var(--rose-d);display:flex;align-items:center;gap:6px">📄 深度命理推論報告 · 內容試閱範例</h3>
+      <h3 style="margin:0;font-size:17px;color:var(--rose-d);display:flex;align-items:center;gap:6px">📄 深度命理堆論報告說明</h3>
       <button type="button" onclick="closeSampleReportModal()" aria-label="關閉" style="border:none;background:none;font-size:24px;line-height:1;cursor:pointer;color:var(--ink2)">&times;</button>
     </div>
     <div style="font-size:13px;line-height:1.8;color:var(--ink)">
       <div style="background:var(--warm2);padding:10px 14px;border-radius:10px;border-left:3px solid var(--gold);margin-bottom:14px">
-        💡 <b>加購交付說明：</b>加購深度推論報告後，於手串出貨時同步交付專屬線上永久查閱連結與 PDF 下載。報告結合<b>五派合參命理、正典數值模型與現代心理自我覺察</b>，全文約 8～12 頁，以下為精華章節示意：
+        💡 <b>加購交付說明：</b>加購深度推論報告後，於手串出貨時同步交付專屬線上永久查閱連結與 PDF 下載。報告結合<b>五派合參命理、正典數值模型與現代心理自我覺察</b>，全文約 8～12 頁，以下為精華章節示意與表格呈現：
       </div>
-      <div style="background:#FAF8F5;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px">
+      <div style="background:#FAF8F5;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:12px">
         <b style="color:var(--rose-d);font-size:14px">第①章・本命日主與五行權重分佈</b>
-        <p class="muted" style="font-size:12px;margin:3px 0 6px">分析生辰八字日元特質、五行生剋平衡（金/木/水/火/土權重分析表）。</p>
-        <div style="background:#fff;border:1px solid #eee;padding:8px 10px;border-radius:6px;font-family:monospace;font-size:12px">
-          📊 本命五行盤：日主【辛金】身稍弱 ｜ 喜用【水、木】 ｜ 忌神【火、土】<br>
-          • 金 18% ｜ 木 32% ｜ 水 28% ｜ 火 12% ｜ 土 10%
-        </div>
+        <p class="muted" style="font-size:12px;margin:3px 0 6px">分析生辰八字日元特質、五行生剋平衡（金/木/水/火/土權重分析表）：</p>
+        <pre style="font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#fff;border:1px solid #e2d9cd;padding:8px 10px;border-radius:6px;font-size:11.5px;line-height:1.55;overflow-x:auto;color:#2A3342;margin:6px 0">| 五行元素 | 金 | 木 | 水 | 火 | 土 |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **本命分佈** | 18% | 32% | 28% | 12% | 10% |
+| **命局判定** | 忌神 | 喜用 | 喜用 | 忌神 | 忌神 |</pre>
+        <pre style="font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#fff;border:1px solid #e2d9cd;padding:8px 10px;border-radius:6px;font-size:11.5px;line-height:1.55;overflow-x:auto;color:#2A3342;margin:6px 0">| 分析維度 | 命格判定 | 核心推論說明 |
+| :--- | :--- | :--- |
+| **日主日元** | 辛金（身稍弱） | 清潤秀氣之辛金，需水木通關順流 |
+| **調候喜用** | 水、木 | 潤局生發，強化自驅力與執行耐力 |
+| **避忌五行** | 火、土 | 避免燥熱積滯、防厚土重埋受困 |</pre>
       </div>
-      <div style="background:#FAF8F5;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px">
+      <div style="background:#FAF8F5;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:12px">
         <b style="color:var(--rose-d);font-size:14px">第②章・當前歲運課題與流年節奏引動</b>
-        <p class="muted" style="font-size:12px;margin:3px 0 6px">針對當年度歲運交替帶來的氛圍變化，提示關鍵注意事項與生活步調調節重點。</p>
-        <p style="margin:0;font-size:12.5px">「今年歲運火行偏旺，易在溝通或決策上感到急進。手串特別選用水行黑曜石與木行綠幽靈，以水制火、以木通關，協助維持沉穩理性的心境…」</p>
+        <p class="muted" style="font-size:12px;margin:3px 0 6px">針對當年度歲運交替帶來的氛圍變化，提示關鍵注意事項與生活步調調節重點：</p>
+        <pre style="font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#fff;border:1px solid #e2d9cd;padding:8px 10px;border-radius:6px;font-size:11.5px;line-height:1.55;overflow-x:auto;color:#2A3342;margin:6px 0">| 歲運階段 | 節奏引動特質 | 調候與配戴指引 |
+| :--- | :--- | :--- |
+| **上半年（春夏季）** | 火行旺相，易在溝通與決策感到急進 | 水行黑曜石制火降燥、沉穩定心 |
+| **下半年（秋冬季）** | 節奏放緩，適合聚焦深耕與資源積累 | 木行綠幽靈生發契機、穩定前行 |</pre>
       </div>
-      <div style="background:#FAF8F5;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px">
+      <div style="background:#FAF8F5;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:12px">
         <b style="color:var(--rose-d);font-size:14px">第③章・客製手串晶石特質與微觀配戴指引</b>
-        <p class="muted" style="font-size:12px;margin:3px 0 6px">詳細說明每顆天然晶石的礦物物理特性、色彩光譜心理投射與日常保養要點。</p>
+        <p class="muted" style="font-size:12px;margin:3px 0 6px">詳細說明每顆天然晶石的礦物特性、心理投射與日常保養要點：</p>
+        <pre style="font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#fff;border:1px solid #e2d9cd;padding:8px 10px;border-radius:6px;font-size:11.5px;line-height:1.55;overflow-x:auto;color:#2A3342;margin:6px 0">| 水晶名稱 | 五行 | 顆數 | 佔比 | 核心雙主效與日常實踐指引 |
+| :--- | :---: | :---: | :---: | :--- |
+| **黑曜石** | 水 | 6 顆 | 30% | **【拒絕內耗穩住心態】＋【隔絕職場是非與有毒社交】**<br>面對外界吵鬧或別人亂甩鍋時守住心理界線，不被負面情緒牽著走；過濾消耗你的小人與爛事，把精力留給自己的成長。 |
+| **綠幽靈** | 木 | 8 顆 | 40% | **【踏實自律不浮躁】＋【事業正財累積與升遷格局】**<br>戒掉三分鐘熱度與焦慮，把專業底牌堆高；傳統著名的事業之石，象徵正財豐收與職涯拓展，提醒你把時間花在累積資產上，穩步拿下大成果。 |
+| **白水晶** | 金 | 4 顆 | 20% | **【大腦重開機清空雜念】＋【做事專注高效、提升成果品質】**<br>資訊爆炸或焦慮打結時快速幫腦袋清出乾淨空間；在備考、工作、重要專案時進入高專注狀態，思緒不亂、效率翻倍。 |
+| **茶水晶** | 土 | 2 顆 | 10% | **【告別慌張踏實落地】＋【抗壓排毒、穩固個人陣腳】**<br>面對未知挑戰或壓力山大時不自亂陣腳；穩穩踩住地面，一件一件把事情理順，在動盪環境中站穩自己的生活步調。 |</pre>
       </div>
       <div style="background:#FAF8F5;border:1px solid var(--line);border-radius:10px;padding:12px 14px">
         <b style="color:var(--rose-d);font-size:14px">第④章・生活作息與自我覺察調和方案</b>
-        <p class="muted" style="font-size:12px;margin:3px 0 6px">結合色彩學、生活作息節奏與環境整理建議，提供具體可落地的日常調和習慣。</p>
+        <p class="muted" style="font-size:12px;margin:3px 0 6px">結合色彩意象、生活作息節奏與環境整理建議，提供具體可落地的日常調和習慣：</p>
+        <pre style="font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#fff;border:1px solid #e2d9cd;padding:8px 10px;border-radius:6px;font-size:11.5px;line-height:1.55;overflow-x:auto;color:#2A3342;margin:6px 0">| 調和維度 | 建議手法 | 具體落地行動指引 |
+| :--- | :--- | :--- |
+| **空間環境** | 增加水綠植栽 | 工作桌面左側擺放綠色植栽、維持通風明亮 |
+| **作息節奏** | 平衡身心負荷 | 避開子時重大決策，晨間深呼吸晚間溫水泡腳 |</pre>
       </div>
     </div>
     <div style="text-align:right;margin-top:16px;padding-top:12px;border-top:1px solid var(--line)">
-      <button type="button" class="btn sm" onclick="closeSampleReportModal()">關閉試閱視窗</button>
+      <button type="button" class="btn sm" onclick="closeSampleReportModal()">關閉說明視窗</button>
     </div>
   </div>
 </div>
@@ -450,10 +537,51 @@ function render(){
 
   selectedChoice = selectedPlan.upgrade_choices.find(c=>c.choice_id === 'none');
   selectedShipping = ORDER.shipping_choices.find(c=>c.choice_id===ORDER.default_shipping_choice_id);
-  $('#shippingAddress').value = ORDER.shipping_address || '';
-  $('#shippingAddress').addEventListener('input',updateTotal);
   selectedDeepReport = selectedPlan.deep_report_choices.find(c=>c.choice_id===selectedPlan.default_deep_report_choice_id);
   if(wantUpgrade) selectedChoice = selectedPlan.upgrade_choices.find(c=>+c.server_total === +selectedPlan.server_total_upgraded) || selectedChoice;
+
+  // 配送地址欄位事件綁定與初始值帶入
+  ['#homeRecipient', '#homePhone', '#homeZip', '#homeAddr', '#storeRecipient', '#storePhone', '#storeName'].forEach(sel => {
+    const el = $(sel);
+    if(el) el.addEventListener('input', updateTotal);
+  });
+  if($('#storeChain')) $('#storeChain').addEventListener('change', updateTotal);
+  if($('#storeSelect')) $('#storeSelect').addEventListener('change', e=>{
+    const val = e.target.value;
+    if(val && val !== '__custom__'){
+      if($('#storeName')) $('#storeName').value = val;
+    } else if(val === '__custom__'){
+      if($('#storeName')){ $('#storeName').value = ''; $('#storeName').focus(); }
+    }
+    updateTotal();
+  });
+  if($('#shippingAddress')) $('#shippingAddress').addEventListener('input', updateTotal);
+
+  if(ORDER.shipping_address && typeof ORDER.shipping_address === 'string') {
+    const s = ORDER.shipping_address;
+    if($('#shippingAddress')) $('#shippingAddress').value = s;
+    if(s.includes('收件者：')) {
+      const mRec = s.match(/收件者：([^/]+)/);
+      const mPhone = s.match(/電話：([^/]+)/);
+      const mZip = s.match(/郵遞區號：([^/]+)/);
+      const mAddr = s.match(/地址：(.+)/);
+      const mStore = s.match(/取貨門市：(?:7-11|全家)?\s*(.+)/);
+      if(mRec && $('#homeRecipient')) { $('#homeRecipient').value = mRec[1].trim(); $('#storeRecipient').value = mRec[1].trim(); }
+      if(mPhone && $('#homePhone')) { $('#homePhone').value = mPhone[1].trim(); $('#storePhone').value = mPhone[1].trim(); }
+      if(mZip && $('#homeZip')) { $('#homeZip').value = mZip[1].trim(); }
+      if(mAddr && $('#homeAddr')) { $('#homeAddr').value = mAddr[1].trim(); }
+      if(mStore && $('#storeName')) { $('#storeName').value = mStore[1].trim(); }
+    }
+  }
+  if($('#homeRecipient') && !$('#homeRecipient').value && ORDER.name) {
+    $('#homeRecipient').value = ORDER.name;
+    if($('#storeRecipient')) $('#storeRecipient').value = ORDER.name;
+  }
+  if($('#homePhone') && !$('#homePhone').value && ORDER.contact && /^09\d{8}$/.test(String(ORDER.contact).replace(/\D/g,''))) {
+    $('#homePhone').value = ORDER.contact;
+    if($('#storePhone')) $('#storePhone').value = ORDER.contact;
+  }
+
   renderUpgradeChoices();
   renderOrderChoices();
 
@@ -511,6 +639,79 @@ function previewHold(){
     : `這是報價信放行前的預覽：方案與金額可以先看，但信還沒寄給客戶，所以送出確認先關著。放行之後從客戶收到的信點進來才能送出；要直接改內容請加 LINE ${LINE_ID}。`;
 }
 
+function syncShippingAddress(){
+  const isHome = selectedShipping && selectedShipping.choice_id === 'home';
+  const isStore = selectedShipping && selectedShipping.choice_id === 'store';
+  const isSelf = selectedShipping && selectedShipping.choice_id === 'self';
+
+  const field = $('#shippingAddressField');
+  const homeGrp = $('#homeAddressGroup');
+  const storeGrp = $('#storeAddressGroup');
+
+  if(field) field.style.display = (isHome || isStore) ? 'block' : 'none';
+  if(homeGrp) homeGrp.style.display = isHome ? 'block' : 'none';
+  if(storeGrp) storeGrp.style.display = isStore ? 'block' : 'none';
+
+  if(isSelf){
+    return { valid: true, missingMsg: '', needsAddress: false };
+  }
+
+  let valid = true;
+  let combined = '';
+  let missingMsg = '';
+  const shipAddrInput = $('#shippingAddress');
+  const currentDirect = shipAddrInput ? shipAddrInput.value.trim() : '';
+
+  if(isHome){
+    const rec = $('#homeRecipient') ? $('#homeRecipient').value.trim() : '';
+    const phone = $('#homePhone') ? $('#homePhone').value.trim() : '';
+    const zip = $('#homeZip') ? $('#homeZip').value.trim() : '';
+    const addr = $('#homeAddr') ? $('#homeAddr').value.trim() : '';
+    const anySub = Boolean(rec || phone || zip || addr);
+    if(anySub){
+      if(rec && phone && addr){
+        combined = `收件者：${rec} / 電話：${phone}${zip ? ' / 郵遞區號：' + zip : ''} / 地址：${addr}`;
+        valid = true;
+      } else {
+        valid = false;
+        missingMsg = '請填寫完整宅配收件資訊（收件者、電話、地址）';
+      }
+    } else if(currentDirect){
+      combined = currentDirect;
+      valid = true;
+    } else {
+      valid = false;
+      missingMsg = '請填寫完整宅配收件資訊（收件者、電話、地址）';
+    }
+  } else if(isStore){
+    const rec = $('#storeRecipient') ? $('#storeRecipient').value.trim() : '';
+    const phone = $('#storePhone') ? $('#storePhone').value.trim() : '';
+    const chain = ($('#storeChain') && $('#storeChain').value) ? $('#storeChain').value : '7-11';
+    const store = $('#storeName') ? $('#storeName').value.trim() : '';
+    const anySub = Boolean(rec || phone || store);
+    if(anySub){
+      if(rec && phone && store){
+        combined = `收件者：${rec} / 電話：${phone} / 取貨門市：${chain} ${store}`;
+        valid = true;
+      } else {
+        valid = false;
+        missingMsg = '請填寫完整超商取貨資訊（收件者、電話、門市名稱）';
+      }
+    } else if(currentDirect){
+      combined = currentDirect;
+      valid = true;
+    } else {
+      valid = false;
+      missingMsg = '請填寫完整超商取貨資訊（收件者、電話、門市名稱）';
+    }
+  }
+
+  if(shipAddrInput){
+    shipAddrInput.value = combined;
+  }
+  return { valid, missingMsg, needsAddress: (isHome || isStore) };
+}
+
 /* 顯示金額只讀後端 offer 的總額。前端不再持有 base、mult 或商品價格公式。 */
 function updateTotal(){
   $('#upgradeSection').style.display = selectedPlan.upgrade_choices.length > 1 ? 'block' : 'none';
@@ -520,11 +721,13 @@ function updateTotal(){
   $('#orderShipping').textContent = '配送：' + selectedShipping.label + '，運費 NT$' + selectedShipping.amount.toLocaleString();
   $('#orderDeepReport').textContent = selectedDeepReport.label + '，NT$' + selectedDeepReport.amount.toLocaleString();
   $('#cfShip').textContent = total ? '已含所選配送及報告費用' : '此組合目前無法報價，請調整選項或聯絡店長';
-  const needsAddress = selectedShipping.choice_id==='home' || selectedShipping.choice_id==='store';
-  $('#shippingAddressField').style.display = needsAddress ? 'block' : 'none';
-  $('#shippingAddress').required = needsAddress;
-  $('#confirmBtn').disabled = !total || (needsAddress && !$('#shippingAddress').value.trim());
-  if(total && needsAddress && !$('#shippingAddress').value.trim()) $('#cfShip').textContent = '請填收件地址或超商門市資料';
+
+  const addrState = syncShippingAddress();
+  const addressOk = !addrState.needsAddress || addrState.valid;
+  $('#confirmBtn').disabled = !total || !addressOk;
+  if(total && !addressOk && addrState.missingMsg){
+    $('#cfShip').textContent = addrState.missingMsg;
+  }
   previewHold();
 }
 
