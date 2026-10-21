@@ -2125,7 +2125,7 @@ html:not(.app-ready) #tocBall,html:not(.app-ready) #tocPanel{display:none}
       </div>
       <div id="ppsGateMsg" style="font-size:12px;color:#E06C75;min-height:18px;margin-bottom:12px;text-align:center"></div>
       <div style="display:flex;gap:10px;justify-content:center;margin-bottom:10px">
-        <button type="button" id="ppsGateSubmit" class="btn" style="width:100%;padding:10px;font-size:14px">驗證進入</button>
+        <button type="button" id="ppsGateSubmit" class="btn" style="width:100%;padding:10px;font-size:14px">驗證進入後台</button>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:12px;color:var(--muted)">
         <label style="cursor:pointer;display:inline-flex;align-items:center;gap:4px">
@@ -2133,21 +2133,18 @@ html:not(.app-ready) #tocBall,html:not(.app-ready) #tocPanel{display:none}
         </label>
         <span id="ppsGateHint" style="font-size:11px;opacity:.65">預設碼: pps8788</span>
       </div>
+      <div style="margin-top:14px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center">
+        <button type="button" id="ppsGateChangePassBtn" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline">修改通行碼</button>
+        <button type="button" id="ppsGateForgetBtn" style="background:none;border:none;color:#E06C75;font-size:12px;cursor:pointer">清除記憶</button>
+      </div>
     </div>
 
     <div id="ppsGateSuccessBody" style="display:none;margin-top:16px">
-      <p style="font-size:13px;color:var(--mu-lit);margin-bottom:14px">✓ 身分驗證成功，請選擇前往目標：</p>
+      <p style="font-size:13px;color:var(--mu-lit);margin-bottom:14px">✓ 身分驗證成功，正在前往管理後台...</p>
       <div style="display:flex;flex-direction:column;gap:10px">
-        <a id="ppsGateLocalLink" href="http://127.0.0.1:8788/admin.html" target="_blank" rel="noopener" class="btn" style="text-decoration:none;padding:11px;font-size:14px;background:linear-gradient(120deg,var(--mu),#3D8060);color:#fff">
-          💻 開啟本機後台 (127.0.0.1:8788)
+        <a id="ppsGateDirectLink" href="admin.html" class="btn" style="text-decoration:none;padding:11px;font-size:14px;background:linear-gradient(120deg,var(--mu),#3D8060);color:#fff">
+          📁 立即前往後台 (admin.html)
         </a>
-        <a id="ppsGateDirectLink" href="admin.html" target="_blank" rel="noopener" class="btn-ghost" style="border:1px solid #364B73;color:var(--glow-soft);padding:10px;border-radius:999px;font-size:13.5px;text-align:center;text-decoration:none">
-          📁 開啟同層後台 (admin.html)
-        </a>
-      </div>
-      <div style="margin-top:16px;padding-top:12px;border-top:1px solid #23314A;display:flex;justify-content:space-between;align-items:center">
-        <button type="button" id="ppsGateChangePassBtn" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline">修改通行碼</button>
-        <button type="button" id="ppsGateForgetBtn" style="background:none;border:none;color:#E06C75;font-size:12px;cursor:pointer">清除裝置記憶</button>
       </div>
     </div>
   </div>
@@ -4008,13 +4005,20 @@ $('#emailHelpCustom').addEventListener('click',noEmailHelp);
     return false;
   }
 
+  function getAdminUrl() {
+    if (location.hostname.includes('github.io')) {
+      return 'https://shop.anwer3712.com/admin.html';
+    }
+    return 'admin.html';
+  }
+
   function openGate(autoCheckRemember = true) {
     modal.style.display = 'flex';
     const locked = updateLockoutUI();
     if (locked) return;
 
     if (autoCheckRemember && localStorage.getItem(LS_REMEMBER_KEY) === '1') {
-      showSuccessView();
+      location.href = getAdminUrl();
       return;
     }
 
@@ -4022,6 +4026,8 @@ $('#emailHelpCustom').addEventListener('click',noEmailHelp);
     successBody.style.display = 'none';
     passInput.value = '';
     msgEl.textContent = '';
+    msgEl.style.color = '#E06C75';
+    submitBtn.disabled = false;
     setTimeout(() => { passInput.focus(); }, 150);
   }
 
@@ -4035,20 +4041,15 @@ $('#emailHelpCustom').addEventListener('click',noEmailHelp);
   function showSuccessView() {
     authBody.style.display = 'none';
     successBody.style.display = 'block';
-
-    const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:';
-    if (isLocal) {
-      directLink.style.display = 'block';
-      directLink.style.background = 'linear-gradient(120deg,var(--mu),#3D8060)';
-      directLink.style.color = '#fff';
-      directLink.style.fontWeight = 'bold';
-    }
+    const link = document.getElementById('ppsGateDirectLink');
+    if (link) link.href = getAdminUrl();
   }
 
   async function handleAuth() {
     if (updateLockoutUI()) return;
     const pass = passInput.value.trim();
     if (!pass) {
+      msgEl.style.color = '#E06C75';
       msgEl.textContent = '請輸入通行碼';
       return;
     }
@@ -4056,25 +4057,24 @@ $('#emailHelpCustom').addEventListener('click',noEmailHelp);
     const hashed = await sha256Hex(SALT + pass);
     if (hashed === getExpectedHash()) {
       clearAttempts();
-      msgEl.textContent = '';
+      msgEl.style.color = '#6FD08C';
+      msgEl.textContent = '✓ 通行碼正確，正在前往管理後台...';
+      submitBtn.disabled = true;
       if (rememberChk && rememberChk.checked) {
         localStorage.setItem(LS_REMEMBER_KEY, '1');
       }
 
-      // 若已在 8788 本機後台或 file: 離線檔案，直達 admin.html
-      if (location.port === '8788' || location.protocol === 'file:') {
-        location.href = 'admin.html';
-        return;
-      }
-
-      // 在官網環境（shop.anwer3712.com / Caddy），展示管理通道選項
-      showSuccessView();
+      // 驗證成功，直接跳轉前往管理後台
+      setTimeout(() => {
+        location.href = getAdminUrl();
+      }, 200);
     } else {
       const waitSec = recordFailedAttempt();
       if (waitSec > 0) {
         updateLockoutUI();
       } else {
         const attempts = parseInt(sessionStorage.getItem(ATTEMPTS_KEY) || '0', 10);
+        msgEl.style.color = '#E06C75';
         msgEl.textContent = `通行碼不正確（剩餘 ${3 - attempts} 次嘗試機會）`;
       }
       passInput.value = '';
@@ -4151,11 +4151,10 @@ $('#emailHelpCustom').addEventListener('click',noEmailHelp);
   if (forgetBtn) {
     forgetBtn.addEventListener('click', () => {
       localStorage.removeItem(LS_REMEMBER_KEY);
-      authBody.style.display = 'block';
-      successBody.style.display = 'none';
-      passInput.value = '';
       if (rememberChk) rememberChk.checked = false;
-      alert('已清除此裝置的記憶授權。');
+      msgEl.style.color = '#6FD08C';
+      msgEl.textContent = '已清除此裝置的記憶授權';
+      setTimeout(() => { msgEl.textContent = ''; }, 2000);
     });
   }
 })();

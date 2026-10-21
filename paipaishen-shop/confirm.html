@@ -100,6 +100,9 @@ footer{padding:26px 20px 96px;text-align:center;}
   .cf-bar{left:50%;transform:translateX(-50%);max-width:680px;border-radius:16px 16px 0 0;}
 }
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+.plan-draft-thumb{transition:transform .18s,box-shadow .18s;}
+.plan-draft-thumb:hover{transform:scale(1.06);box-shadow:0 4px 10px rgba(0,0,0,0.16);}
 </style>
 </head>
 <body>
@@ -129,9 +132,37 @@ footer{padding:26px 20px 96px;text-align:center;}
   <div id="holdBox" class="msg warn hide"></div>
 
   <!-- 2026-08-15d：報價內容整份搬到這頁（信件只剩一顆連結鈕）。
-       內容由 WF2 產生、CONFIRM_LOOKUP 回傳，是我們自己的 HTML，不是使用者輸入。 -->
-  <section class="cf-card" id="quoteSection" style="display:none">
+       內容由 WF2 產生、CONFIRM_LOOKUP 回傳，是我們自己的 HTML，不是使用者輸入。 -->  <section class="cf-card" id="quoteSection" style="display:none">
     <div id="quoteBody" class="quote-body"></div>
+  </section>
+
+  <!-- 設計初稿／示意圖獨立區塊（支援主方案與錦囊組雙分區展示） -->
+  <section class="cf-card" id="draftsSection" style="display:none">
+    <div class="sec-head2 sm">
+      <div class="chapter-mark">🎨</div>
+      <div><h2>設計初稿／示意圖</h2></div>
+    </div>
+    <p class="sec-lead">先讓您看看目前的設計方向與排珠示意，實際成品會照此精準選珠製作。若有想微調的地方，可於下方備註提出。</p>
+    
+    <div id="draftMainGroup" style="display:none;margin-bottom:16px;background:rgba(232,201,122,0.08);border:1.5px solid var(--gold);border-radius:14px;padding:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <h3 style="font-size:15px;color:var(--rose-d);margin:0;display:flex;align-items:center;gap:6px">🪷 主方案設計初稿／示意圖</h3>
+        <span class="rec-tag">核心配置</span>
+      </div>
+      <p style="font-size:12.5px;color:var(--ink2);margin-bottom:10px">立體回應您的核心訴求與先天用神喜用，為日常核心配戴手串。</p>
+      <div id="draftMainGallery" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px 0"></div>
+      <div id="draftMainNote" style="display:none;margin-top:10px;background:#fff;border-left:3px solid var(--gold);padding:8px 12px;font-size:12.5px;color:var(--ink);border-radius:4px"></div>
+    </div>
+
+    <div id="draftBagGroup" style="display:none;margin-bottom:12px;background:rgba(92,122,153,0.08);border:1.5px solid #5C7A99;border-radius:14px;padding:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <h3 style="font-size:15px;color:#355373;margin:0;display:flex;align-items:center;gap:6px">💫 錦囊組設計初稿／示意圖</h3>
+        <span class="rec-tag" style="background:#5C7A99">流年加乘</span>
+      </div>
+      <p style="font-size:12.5px;color:var(--ink2);margin-bottom:10px">放寬主方案視覺限制，特別調和生辰流年課題與命盤盲區。</p>
+      <div id="draftBagGallery" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px 0"></div>
+      <div id="draftBagNote" style="display:none;margin-top:10px;background:#fff;border-left:3px solid #5C7A99;padding:8px 12px;font-size:12.5px;color:var(--ink);border-radius:4px"></div>
+    </div>
   </section>
 
   <section class="cf-card" id="noteSection" style="display:none">
@@ -386,6 +417,16 @@ function demoOrder(){
     ]
   };
   // 示範資料的固定價目；正式訂單只使用伺服器簽發的組合總額。
+  demo.design_drafts = {
+    main: {
+      note: '主方案以青金石、綠幽靈為主調，立體回應核心訴求。',
+      photos: [{ n: 1, url: 'photos/w2.jpg', thumb: 'photos/w2.jpg' }]
+    },
+    bag: {
+      note: '錦囊組加強火土能量調和，特別補足流年盲區。',
+      photos: [{ n: 1, url: 'photos/w4.jpg', thumb: 'photos/w4.jpg' }]
+    }
+  };
   demo.shipping_choices = [{choice_id:'home',label:'宅配到府',amount:130},{choice_id:'store',label:'店到店',amount:60},{choice_id:'self',label:'中壢–龍潭面交',amount:0}];
   demo.default_shipping_choice_id = 'home';
   demo.plans.forEach(p=>{
@@ -502,7 +543,7 @@ async function loadOrder(){
 function deadEnd(){
   $('#loadingBox').classList.add('hide');
   $('#demoBadge').classList.add('hide');
-  ['#quoteSection','#planSection','#upgradeSection','#noteSection'].forEach(s=>{ $(s).style.display='none'; });
+  ['#quoteSection','#planSection','#upgradeSection','#noteSection','#draftsSection'].forEach(s=>{ $(s).style.display='none'; });
   $('#doneBox').className = 'msg warn';
   $('#doneBox').innerHTML = `這頁現在讀不到訂單內容，沒辦法在這裡選方案——可能是報價信還沒放行，或連結已過期。<br>請直接回覆您收到的報價 Email，或點此 <a href="mailto:${BOSS_EMAIL}?subject=訂單確認諮詢" style="color:var(--rose-d);font-weight:700">寄信給店長 (${BOSS_EMAIL})</a>` + (LINE_ID ? `，或加 LINE ${LINE_ID}` : '') + `，我們會直接為您確認！`;
   $('#confirmBtn').disabled = true;
@@ -619,6 +660,67 @@ function initStoreCascading(){
   });
 }
 
+
+// 智慧提取本單專屬核心功效（免除空洞贅字，客戶可快速直觀決策）
+function getOrderEffects(){
+  let core = ORDER.core_function || '';
+  let pain = ORDER.painpoints || '';
+  let loved = ORDER.loved_elements || '';
+  let liunian = ORDER.liunian || '';
+
+  const q = ORDER.quote_html || '';
+  if(!core || !pain){
+    const mPain = q.match(/你希望處理「(.*?)」，目前的痛點是「(.*?)」/);
+    if(mPain){
+      if(!core) core = mPain[1];
+      if(!pain) pain = mPain[2];
+    }
+  }
+  if(!loved){
+    const mLoved = q.match(/本次喜用(?:五行)?為「(.*?)」/);
+    if(mLoved) loved = mLoved[1];
+  }
+  if(!liunian){
+    const mYear = q.match(/流年提醒<\/b><br>(.*?)(?:<\/p>|<)/s);
+    if(mYear) liunian = mYear[1].replace(/<[^>]+>/g, '').trim();
+  }
+
+  // 兜底說明（示範單或極簡單）
+  if(!core) core = '突破當前事業瓶頸、吸引正偏財貴人、聚心穩神';
+  if(!pain) pain = '思緒過度緊繃內耗、日常壓力大、睡眠品質需改善';
+  if(!loved) loved = '土、水、金（喜用五行能量）';
+  if(!liunian) liunian = '補足命盤盲區與流年弱項、化解人際摩擦';
+
+  return { core, pain, loved, liunian };
+}
+
+// 取得主方案與錦囊組設計初稿縮圖（供方案卡片直接視覺對照）
+function getDraftPhotos(){
+  const dd = ORDER.design_drafts || {};
+  let mainPhotos = [];
+  let bagPhotos = [];
+
+  if(dd.main && Array.isArray(dd.main.photos) && dd.main.photos.length){
+    mainPhotos = dd.main.photos;
+  } else if(Array.isArray(dd.photos) && dd.photos.length){
+    mainPhotos = dd.photos;
+  }
+
+  if(dd.bag && Array.isArray(dd.bag.photos) && dd.bag.photos.length){
+    bagPhotos = dd.bag.photos;
+  }
+
+  function fixUrl(u){
+    if(!u) return '';
+    return u.replace(/https:\/\/drive\.google\.com\/(?:uc\?(?:export=view&(?:amp;)?|id=)|file\/d\/)(?:id=)?([a-zA-Z0-9_-]+)(?:[^\s"'>]*)/g, 'https://lh3.googleusercontent.com/d/$1');
+  }
+
+  return {
+    main: mainPhotos.map(p => ({ url: fixUrl(p.url), thumb: fixUrl(p.thumb || p.url) })),
+    bag: bagPhotos.map(p => ({ url: fixUrl(p.url), thumb: fixUrl(p.thumb || p.url) }))
+  };
+}
+
 function render(){
   $('#loadingBox').classList.add('hide');
   $('#orderNoShow').textContent = ORDER.order_no;
@@ -637,28 +739,162 @@ function render(){
       box.style.overflowX = 'auto';
       t.parentNode.insertBefore(box, t);
       box.appendChild(t);
-    });
-    $('#quoteSection').style.display = 'block';
+    });    $('#quoteSection').style.display = 'block';
   }
+
+  // 渲染獨立設計初稿／示意圖區塊（劃分主方案與錦囊組雙分區）
+  function renderDraftGallery(containerId, noteId, groupId, groupData, fallbackLabel){
+    const container = $(containerId);
+    const noteEl = $(noteId);
+    const groupEl = $(groupId);
+    if(!container || !groupEl) return false;
+    const ph = (groupData && groupData.photos) || [];
+    if(!ph.length){
+      groupEl.style.display = 'none';
+      return false;
+    }
+    groupEl.style.display = 'block';
+    container.innerHTML = ph.map(p => {
+      const u = p.url || '';
+      const t = p.thumb || p.url || '';
+      const fixedU = u.replace(/https:\/\/drive\.google\.com\/(?:uc\?(?:export=view&(?:amp;)?|id=)|file\/d\/)(?:id=)?([a-zA-Z0-9_-]+)(?:[^\s"'>]*)/g, 'https://lh3.googleusercontent.com/d/$1');
+      const fixedT = t.replace(/https:\/\/drive\.google\.com\/(?:uc\?(?:export=view&(?:amp;)?|id=)|file\/d\/)(?:id=)?([a-zA-Z0-9_-]+)(?:[^\s"'>]*)/g, 'https://lh3.googleusercontent.com/d/$1');
+      return `<a href="${esc(fixedU)}" target="_blank" style="display:inline-block;border-radius:10px;overflow:hidden;border:1.5px solid var(--line);box-shadow:0 2px 6px rgba(0,0,0,0.06);margin:4px">
+        <img src="${esc(fixedT)}" alt="${esc(fallbackLabel)}" style="width:180px;max-width:100%;height:135px;object-fit:cover;display:block">
+      </a>`;
+    }).join('');
+    if(noteEl){
+      if(groupData.note){
+        noteEl.innerHTML = `💬 <b>設計師備註：</b>${esc(groupData.note)}`;
+        noteEl.style.display = 'block';
+      }else{
+        noteEl.style.display = 'none';
+      }
+    }
+    return true;
+  }
+
+  const dd = ORDER.design_drafts;
+  let hasDraftSection = false;
+  const qHtmlRaw = ORDER.quote_html || '';
+  const qHasInline = qHtmlRaw.includes('主方案設計初稿') || qHtmlRaw.includes('錦囊組設計初稿');
+  if(!qHasInline && dd){
+    const dMain = dd.main || (dd.photos && !dd.bag ? dd : null);
+    const dBag = dd.bag || null;
+    const okMain = renderDraftGallery('#draftMainGallery', '#draftMainNote', '#draftMainGroup', dMain, '主方案示意圖');
+    const okBag = renderDraftGallery('#draftBagGallery', '#draftBagNote', '#draftBagGroup', dBag, '錦囊組示意圖');
+    if(okMain || okBag){
+      $('#draftsSection').style.display = 'block';
+      hasDraftSection = true;
+    }
+  }
+  if(!hasDraftSection && $('#draftsSection')) $('#draftsSection').style.display = 'none';
 
   $('#planSection').style.display = 'block';
   $('#noteSection').style.display = 'block';
 
-  // 網址只能預選 offer 內既有的 plan_id；不存在就用推薦案或第一案。
-  selectedPlan = ORDER.plans.find(p=>p.plan_id===wantPlan)
+  // 網址只能預選 offer 內既有的 plan_id；不存在就用推薦案或第一案。  selectedPlan = ORDER.plans.find(p=>p.plan_id===wantPlan)
               || ORDER.plans.find(p=>p.recommended) || ORDER.plans[0];
+
+  const eff = getOrderEffects();
+  const draftPhotos = getDraftPhotos();
+
   $('#planList').innerHTML = ORDER.plans.map(p => {
     const itemText = p.items.map(item=>item.label + ' × ' + item.bracelet_count).join('、');
     const isBag = (p.plan_id||'').includes('bag') || (p.items||[]).some(it=>it.role==='bag');
-    const bagBadge = isBag ? `<div style="margin-top:8px;background:var(--warm2);border:1px solid var(--gold);padding:8px 12px;border-radius:10px;font-size:12.5px;color:var(--rose-d);line-height:1.6">💫 <b>雙串相生互補加乘建議：</b><br>• <b>主方案</b>：立體回應您當下最核心的訴求，穩固個人心境。<br>• <b>錦囊組</b>：放寬主方案的色系限制，專門調和您命盤的流年課題與盲區。<br>雙串可依日常穿著交替配戴，或一同配戴達到全方位五行平衡。</div>` : '';
+
+    // ① 方案卡片右上方「設計初稿／示意圖圖示」
+    let draftThumbsHtml = '';
+    if(!isBag){
+      const mPhoto = (draftPhotos.main && draftPhotos.main[0]) || null;
+      if(mPhoto){
+        draftThumbsHtml = `
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">
+            <a href="${esc(mPhoto.url)}" target="_blank" onclick="event.stopPropagation()" class="plan-draft-thumb" style="display:block;border-radius:8px;overflow:hidden;border:1.5px solid var(--gold);box-shadow:0 2px 6px rgba(0,0,0,0.08)" title="點擊放大查看主方案設計初稿">
+              <img src="${esc(mPhoto.thumb)}" alt="主方案設計初稿" style="width:68px;height:68px;object-fit:cover;display:block">
+            </a>
+            <span style="font-size:10.5px;color:var(--rose-d);font-weight:600">🎨 主方案初稿</span>
+          </div>
+        `;
+      } else {
+        draftThumbsHtml = `
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 10px;background:rgba(232,201,122,0.12);border:1px dashed var(--gold);border-radius:8px;flex-shrink:0">
+            <span style="font-size:22px;line-height:1">🪷</span>
+            <span style="font-size:10.5px;color:var(--rose-d);font-weight:600">主方案示意圖</span>
+          </div>
+        `;
+      }
+    } else {
+      const mPhoto = (draftPhotos.main && draftPhotos.main[0]) || { url:'photos/w2.jpg', thumb:'photos/w2.jpg' };
+      const bPhoto = (draftPhotos.bag && draftPhotos.bag[0]) || { url:'photos/w4.jpg', thumb:'photos/w4.jpg' };
+      draftThumbsHtml = `
+        <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+            <a href="${esc(mPhoto.url)}" target="_blank" onclick="event.stopPropagation()" class="plan-draft-thumb" style="display:block;border-radius:8px;overflow:hidden;border:1.5px solid var(--gold);box-shadow:0 2px 5px rgba(0,0,0,0.08)" title="點擊放大查看主方案初稿">
+              <img src="${esc(mPhoto.thumb)}" alt="主方案初稿" style="width:52px;height:52px;object-fit:cover;display:block">
+            </a>
+            <span style="font-size:10px;color:var(--rose-d);font-weight:600">主方案</span>
+          </div>
+          <span style="font-size:13px;color:var(--gold);font-weight:bold">＋</span>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+            <a href="${esc(bPhoto.url)}" target="_blank" onclick="event.stopPropagation()" class="plan-draft-thumb" style="display:block;border-radius:8px;overflow:hidden;border:1.5px solid #5C7A99;box-shadow:0 2px 5px rgba(0,0,0,0.08)" title="點擊放大查看錦囊組初稿">
+              <img src="${esc(bPhoto.thumb)}" alt="錦囊組初稿" style="width:52px;height:52px;object-fit:cover;display:block">
+            </a>
+            <span style="font-size:10px;color:#355373;font-weight:600">錦囊組</span>
+          </div>
+        </div>
+      `;
+    }
+
+    // ② 方案直接主要功效直擊註解（讓不看長文的客戶一眼看清功效做決定）
+    let effectBadge = '';
+    if(!isBag){
+      effectBadge = `
+        <div style="margin-top:10px;background:rgba(232,201,122,0.12);border:1.5px solid var(--gold);border-radius:10px;padding:10px 14px;font-size:12.5px;color:var(--ink);line-height:1.65">
+          <div style="font-weight:700;color:var(--rose-d);margin-bottom:4px;display:flex;align-items:center;gap:6px">
+            <span>🎯 本方案核心主要功效：</span>
+          </div>
+          <div style="color:#3e4249">
+            • <b>聚焦推進心願</b>：全力強化「<b>${esc(eff.core)}</b>」，提升日常行動底氣與貴人運勢。<br>
+            • <b>直擊痛點撫平</b>：針對「<b>${esc(eff.pain)}</b>」挑選專屬晶石安定情緒，穩固專注力與睡眠心境。<br>
+            • <b>先天喜用護持</b>：精準配置五行「<b>${esc(eff.loved)}</b>」，作為日常隨身最核心之能量手串。
+          </div>
+          <div style="margin-top:6px;font-size:11.5px;color:var(--rose-d);font-weight:600;background:rgba(255,255,255,0.7);padding:3px 8px;border-radius:4px;display:inline-block">
+            👉 適合想立即集中改善當前最迫切課題與痛點的您！
+          </div>
+        </div>
+      `;
+    } else {
+      effectBadge = `
+        <div style="margin-top:10px;background:rgba(92,122,153,0.08);border:1.5px solid #5C7A99;border-radius:10px;padding:10px 14px;font-size:12.5px;color:var(--ink);line-height:1.65">
+          <div style="font-weight:700;color:#2C4B6E;margin-bottom:4px;display:flex;align-items:center;gap:6px">
+            <span>💫 雙串相生互補・全方位功效加乘：</span>
+          </div>
+          <div style="color:#2a3440">
+            • <b>主方案功效（日常實踐）</b>：直擊「<b>${esc(eff.core)}</b>」與改善「<b>${esc(eff.pain)}</b>」，日常核心穩固聚氣。<br>
+            • <b>錦囊組功效（命格補漏）</b>：放寬主串色系限制，專攻流年考驗「<b>${esc(eff.liunian)}</b>」與命盤盲區，深層修復弱項。<br>
+            • <b>雙串合璧加乘</b>：現實突破 ＋ 長期流年雙軌護航！可依穿著單串交替佩戴，亦可一同佩戴達到五行生生不息之全方位大平衡。
+          </div>
+          <div style="margin-top:6px;font-size:11.5px;color:#2C4B6E;font-weight:600;background:rgba(255,255,255,0.75);padding:3px 8px;border-radius:4px;display:inline-block">
+            👉 適合想眼前訴求與長期流年一次到位、追求全方位五行平衡的您！（店長推薦）
+          </div>
+        </div>
+      `;
+    }
+
     return `
     <label class="plan-card">
       <input type="radio" name="plan" value="${esc(p.plan_id)}" ${p===selectedPlan?'checked':''}>
       <div class="plan-body">
-        <div class="plan-title">${esc(p.label)}${p.recommended?' <span class="rec-tag">推薦</span>':''}${isBag?' <span class="rec-tag" style="background:#5C7A99">💫 雙串互補加乘</span>':''}</div>
-        <p>${esc(p.desc)}</p>
-        <p style="font-size:13px;color:#666">${esc(itemText)}</p>
-        ${bagBadge}
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;min-width:180px">
+            <div class="plan-title">${esc(p.label)}${p.recommended?' <span class="rec-tag">推薦</span>':''}${isBag?' <span class="rec-tag" style="background:#5C7A99">💫 雙串互補加乘</span>':''}</div>
+            <p style="margin:4px 0 6px 0;font-size:13px;color:var(--ink2)">${esc(p.desc)}</p>
+            <p style="font-size:12.5px;color:#888;margin-bottom:6px">${esc(itemText)}</p>
+          </div>
+          ${draftThumbsHtml}
+        </div>
+        ${effectBadge}
       </div>
     </label>`;
   }).join('');
