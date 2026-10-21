@@ -541,6 +541,14 @@ section.block{padding:clamp(46px,7vw,84px) 0;background:var(--paper)}
 .lb-prev{left:16px}.lb-next{right:16px}
 .lb-close{position:absolute;top:18px;right:18px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,.14);color:#fff;font-size:20px;cursor:pointer}
 
+/* ── 內部管理入口門禁 ── */
+.pps-gate-modal{position:fixed;inset:0;background:rgba(16,24,40,.72);backdrop-filter:blur(6px);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;animation:ppsFadeIn .2s ease}
+.pps-gate-box{background:linear-gradient(165deg,#131B2E,#1A263D);border:1px solid rgba(232,201,122,.28);box-shadow:0 24px 60px rgba(0,0,0,.5);border-radius:20px;padding:26px 22px;max-width:380px;width:100%;text-align:center;position:relative}
+.pps-gate-close{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,.08);color:#C4D1EB;font-size:15px;cursor:pointer;display:grid;place-items:center;transition:background .2s;z-index:10}
+.pps-gate-close:hover{background:rgba(255,255,255,.18);color:#fff}
+.pps-gate-emblem{font-size:22px;color:var(--glow);margin-bottom:6px;filter:drop-shadow(0 0 8px rgba(232,201,122,.4))}
+@keyframes ppsFadeIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+
 /* ── 軌道卡 / 時間軸 / 表單 ── */
 .tracks{grid-template-columns:repeat(3,1fr)}
 .track-card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:26px;box-shadow:var(--shadow-sm);position:relative}
@@ -1574,12 +1582,12 @@ html:not(.app-ready) #tocBall,html:not(.app-ready) #tocPanel{display:none}
       <!-- 三軌方案（次要資訊，壓縮後移到後段） -->
       <div class="reveal" style="max-width:820px;margin:0 auto 34px">
         <h3 style="font-size:18px;margin-bottom:8px">想多做一條？三軌方案給你參考</h3>
-        <p style="color:var(--muted);font-size:14.5px;margin-bottom:14px">同一次命盤運算，可以只做一條，也可以加開別條、覆蓋不同面向。這不是必要選項，下方問卷的「訂製數量」就對應這裡。</p>
+        <p style="color:var(--muted);font-size:14.5px;margin-bottom:14px">貫徹雙軌解耦分解定理：主方案承載美學陪伴，錦囊組直擊深層命理，兩條加總承載全額 1.00 總應補五行。下方問卷的「訂製數量」直接對應此處選單：</p>
         <div class="mt-wrap"><table class="mt" style="min-width:520px">
-          <tr><th>方案</th><th>內容</th><th>適合</th></tr>
-          <tr><td>A 主方案</td><td>五行配比內以視覺喜好選石</td><td>初次訂製、重穿搭</td></tr>
-          <tr><td>B ＋錦囊組</td><td>加一條用神導向中性色系，直擊缺口</td><td>轉折期、需要決斷力</td></tr>
-          <tr><td>C 完整三條</td><td>再加最柔和一條，貼合本命比例</td><td>想靜心、睡前配戴</td></tr>
+          <tr><th>方案</th><th>內容與權重邊界</th><th>適合情境</th></tr>
+          <tr><td><b>A 主方案（1 條）</b></td><td><b>尊崇意志款</b>：五行配比內依個人視覺體感選石（邊界 [0.05, 0.35]）</td><td>初次訂製、重視日常穿搭美感</td></tr>
+          <tr><td><b>B ＋錦囊組（2 條・雙軌推薦）</b></td><td><b>主方案 0.5 ＋ 錦囊組 0.5</b>：錦囊組用神導向直擊缺口（邊界放寬至 [0.03, 0.60]），深層命理無視覺限制</td><td>轉折期、需要決斷力、兼顧穿搭與深層修復</td></tr>
+          <tr><td><b>C 完整三條（3 條）</b></td><td>A＋B＋第 3 條<b>「本源重置款」</b>：選用最柔和晶石貼合本命比例</td><td>想靜心、睡前獨處配戴</td></tr>
         </table></div>
       </div>
 
@@ -1609,10 +1617,10 @@ html:not(.app-ready) #tocBall,html:not(.app-ready) #tocPanel{display:none}
               <div><label>珠徑 mm<span class="req">必填</span></label><select name="a_bead" required><option value="">選擇</option></select></div>
             </div>
             <div class="fcol"><label>核心功能（擇一）</label><div class="opts" id="coreA"></div></div>
-            <div class="fcol"><label>目前的痛點／煩惱（可空，最多寫三項）</label><textarea name="a_pain" maxlength="300" placeholder="例：工作壓力大、睡不好、想有勇氣開口……"></textarea></div>
+            <div class="fcol"><label>目前的痛點／煩惱（可空，最多寫三項）<span class="d" style="font-weight:normal;color:var(--muted);font-size:12px;margin-left:8px">客觀命理真實不可侵犯：意圖用於同五行晶石排序，不強改八字配比</span></label><textarea name="a_pain" maxlength="300" placeholder="例：工作壓力大、睡不好、想有勇氣開口……"></textarea></div>
             <div class="fcol"><label>視覺體感（擇一）</label><div class="opts" id="visA"></div></div>
             <div class="fcol"><label class="opt"><input type="checkbox" name="a_deep"><span><b>加購：深度命理推論報告</b>（+300／串）<span class="d">不加購也有完整基本報告。個人加購另附九節深度報告；情侶深度報告需先確認可交付內容。推導過程包含：為什麼選這個用神、五派意見打架的地方怎麼裁、被換掉的方案為什麼被換。想知道「為什麼」而不只是「是什麼」再加。</span></span></label></div>
-            <div class="fcol" id="qtyWrap"><label>訂製數量</label><select name="qty"><option value="1">1 條</option><option value="2">2 條</option><option value="3">3 條</option></select></div>
+            <div class="fcol" id="qtyWrap"><label>訂製數量</label><select name="qty"><option value="1">1 條（方案 A：主方案・日常美學陪伴款）</option><option value="2">2 條（方案 B：推薦雙軌解耦・主方案＋錦囊組）</option><option value="3">3 條（方案 C：完整三條・含夜間本源重置款）</option></select></div>
           </fieldset>
 
           <fieldset class="fieldset" id="stepB" style="display:none">
@@ -1635,7 +1643,7 @@ html:not(.app-ready) #tocBall,html:not(.app-ready) #tocPanel{display:none}
               <div><label>珠徑 mm</label><select name="b_bead"><option value="">選擇</option></select></div>
             </div>
             <div class="fcol"><label>為 TA 選的核心功能（擇一）</label><div class="opts" id="coreB"></div></div>
-            <div class="fcol"><label>你希望 TA 調整的部分（可空，最多三項）</label><textarea name="b_pain" maxlength="300" placeholder="例：想要更沉穩、想要對方多一點行動力……"></textarea></div>
+            <div class="fcol"><label>你希望 TA 調整的部分（可空，最多三項）<span class="d" style="font-weight:normal;color:var(--muted);font-size:12px;margin-left:8px">客觀命理真實不可侵犯：意圖用於同五行晶石排序，不強改八字配比</span></label><textarea name="b_pain" maxlength="300" placeholder="例：想要更沉穩、想要對方多一點行動力……"></textarea></div>
             <div class="fcol"><label>TA 的視覺體感（擇一）</label><div class="opts" id="visB"></div></div>
             <div class="frow">
               <div><label>目前的關係階段</label><select name="stage"></select><p id="stageNote" style="font-size:13px;color:var(--muted);margin-top:6px"></p></div>
@@ -2095,10 +2103,55 @@ html:not(.app-ready) #tocBall,html:not(.app-ready) #tocPanel{display:none}
     </div>
     <p class="disclaimer">
       本產品為傳統文化意象與心理學自我覺察工具之結合，非醫療、心理治療或命運預測，效果因人感受而異。<br>
-      <span class="sign">拍拍深五行水晶設計研究所</span>　·　© 2026　·　龍潭—中壢
+      <span class="sign">拍拍深五行水晶設計研究所</span>　·　© 2026　·　<span id="ppsGateTrigger" style="user-select:none;cursor:pointer" title="內部管理">龍潭—中壢</span>　·　<a href="#admin" id="ppsAdminLink" style="color:var(--muted);opacity:.42;font-size:12px;text-decoration:none;cursor:pointer;transition:opacity .2s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='.42'" title="拍拍深內部管理入口">〔內部入口〕</a>
     </p>
   </div>
 </footer>
+
+<!-- ══ 拍拍深 內部管理入口門禁 ══ -->
+<div id="ppsGateModal" class="pps-gate-modal" role="dialog" aria-modal="true" aria-label="管理存取" style="display:none">
+  <div class="pps-gate-box">
+    <button type="button" class="pps-gate-close" id="ppsGateClose" aria-label="關閉">✕</button>
+    <div class="pps-gate-header">
+      <div class="pps-gate-emblem">✦</div>
+      <h3 style="font-family:var(--serif);font-size:18px;color:#FBF9F4;margin-bottom:4px">拍拍深 · 營運管理入口</h3>
+      <p style="font-size:11.5px;color:var(--muted);letter-spacing:1px">QUINTESSURA MANAGEMENT CONSOLE</p>
+    </div>
+    
+    <div id="ppsGateAuthBody">
+      <div style="margin:16px 0 10px">
+        <label for="ppsGatePass" style="display:block;font-size:13px;color:var(--glow-soft);margin-bottom:6px;text-align:left">管理通行碼</label>
+        <input type="password" id="ppsGatePass" placeholder="請輸入通行碼" autocomplete="current-password" style="background:#182236;border:1.5px solid #2D3E5F;color:#fff;border-radius:10px;padding:10px 12px;font-size:15px;width:100%;text-align:center;letter-spacing:2px">
+      </div>
+      <div id="ppsGateMsg" style="font-size:12px;color:#E06C75;min-height:18px;margin-bottom:12px;text-align:center"></div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-bottom:10px">
+        <button type="button" id="ppsGateSubmit" class="btn" style="width:100%;padding:10px;font-size:14px">驗證進入</button>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:12px;color:var(--muted)">
+        <label style="cursor:pointer;display:inline-flex;align-items:center;gap:4px">
+          <input type="checkbox" id="ppsGateRemember" style="width:auto;accent-color:var(--glow)"> 記住此裝置
+        </label>
+        <span id="ppsGateHint" style="font-size:11px;opacity:.65">預設碼: pps8788</span>
+      </div>
+    </div>
+
+    <div id="ppsGateSuccessBody" style="display:none;margin-top:16px">
+      <p style="font-size:13px;color:var(--mu-lit);margin-bottom:14px">✓ 身分驗證成功，請選擇前往目標：</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <a id="ppsGateLocalLink" href="http://127.0.0.1:8788/admin.html" target="_blank" rel="noopener" class="btn" style="text-decoration:none;padding:11px;font-size:14px;background:linear-gradient(120deg,var(--mu),#3D8060);color:#fff">
+          💻 開啟本機後台 (127.0.0.1:8788)
+        </a>
+        <a id="ppsGateDirectLink" href="admin.html" target="_blank" rel="noopener" class="btn-ghost" style="border:1px solid #364B73;color:var(--glow-soft);padding:10px;border-radius:999px;font-size:13.5px;text-align:center;text-decoration:none">
+          📁 開啟同層後台 (admin.html)
+        </a>
+      </div>
+      <div style="margin-top:16px;padding-top:12px;border-top:1px solid #23314A;display:flex;justify-content:space-between;align-items:center">
+        <button type="button" id="ppsGateChangePassBtn" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline">修改通行碼</button>
+        <button type="button" id="ppsGateForgetBtn" style="background:none;border:none;color:#E06C75;font-size:12px;cursor:pointer">清除裝置記憶</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- 遮罩 / 商品 modal / 購物車 / lightbox -->
 <div class="mask" id="mask"></div>
@@ -3878,6 +3931,235 @@ $('#emailHelpCustom').addEventListener('click',noEmailHelp);
 })();
 
 /* ═══════════ 啟動 ═══════════ */
+
+/* ═══════════ 後台暗門管理入口 ═══════════ */
+(function setupAdminGate(){
+  const trigger = document.getElementById('ppsGateTrigger');
+  const modal = document.getElementById('ppsGateModal');
+  const closeBtn = document.getElementById('ppsGateClose');
+  const passInput = document.getElementById('ppsGatePass');
+  const submitBtn = document.getElementById('ppsGateSubmit');
+  const msgEl = document.getElementById('ppsGateMsg');
+  const rememberChk = document.getElementById('ppsGateRemember');
+  const authBody = document.getElementById('ppsGateAuthBody');
+  const successBody = document.getElementById('ppsGateSuccessBody');
+  const changePassBtn = document.getElementById('ppsGateChangePassBtn');
+  const forgetBtn = document.getElementById('ppsGateForgetBtn');
+  const directLink = document.getElementById('ppsGateDirectLink');
+
+  if (!modal) return;
+
+  const SALT = 'pps_gate_salt_2026';
+  // 預設密碼 pps8788 的 SHA-256 (加鹽)
+  const DEFAULT_HASH = 'e929d86e7107224023f7264b46e5e7b725aac8fda05e3fe09b011d2c280fe374';
+  const LS_HASH_KEY = 'pps_gate_hash';
+  const LS_REMEMBER_KEY = 'pps_gate_remember';
+  const LOCKOUT_KEY = 'pps_gate_lockout';
+  const ATTEMPTS_KEY = 'pps_gate_attempts';
+
+  async function sha256Hex(str) {
+    if (!window.crypto || !crypto.subtle) {
+      let h = 0;
+      for (let i = 0; i < str.length; i++) { h = Math.imul(31, h) + str.charCodeAt(i) | 0; }
+      return String(h);
+    }
+    const buf = new TextEncoder().encode(str);
+    const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+    const arr = Array.from(new Uint8Array(hashBuf));
+    return arr.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  function getExpectedHash() {
+    return localStorage.getItem(LS_HASH_KEY) || DEFAULT_HASH;
+  }
+
+  function isLockedOut() {
+    const lockUntil = parseInt(sessionStorage.getItem(LOCKOUT_KEY) || '0', 10);
+    const remaining = Math.ceil((lockUntil - Date.now()) / 1000);
+    return remaining > 0 ? remaining : 0;
+  }
+
+  function recordFailedAttempt() {
+    let attempts = parseInt(sessionStorage.getItem(ATTEMPTS_KEY) || '0', 10) + 1;
+    sessionStorage.setItem(ATTEMPTS_KEY, String(attempts));
+    if (attempts >= 3) {
+      sessionStorage.setItem(LOCKOUT_KEY, String(Date.now() + 60000));
+      sessionStorage.removeItem(ATTEMPTS_KEY);
+      return 60;
+    }
+    return 0;
+  }
+
+  function clearAttempts() {
+    sessionStorage.removeItem(ATTEMPTS_KEY);
+    sessionStorage.removeItem(LOCKOUT_KEY);
+  }
+
+  function updateLockoutUI() {
+    const rem = isLockedOut();
+    if (rem > 0) {
+      msgEl.textContent = `嘗試次數過多，已被鎖定。請於 ${rem} 秒後重試`;
+      submitBtn.disabled = true;
+      passInput.disabled = true;
+      return true;
+    }
+    submitBtn.disabled = false;
+    passInput.disabled = false;
+    return false;
+  }
+
+  function openGate(autoCheckRemember = true) {
+    modal.style.display = 'flex';
+    const locked = updateLockoutUI();
+    if (locked) return;
+
+    if (autoCheckRemember && localStorage.getItem(LS_REMEMBER_KEY) === '1') {
+      showSuccessView();
+      return;
+    }
+
+    authBody.style.display = 'block';
+    successBody.style.display = 'none';
+    passInput.value = '';
+    msgEl.textContent = '';
+    setTimeout(() => { passInput.focus(); }, 150);
+  }
+
+  function closeGate() {
+    modal.style.display = 'none';
+    if (location.hash === '#admin') {
+      try { history.replaceState(null, '', location.pathname + location.search); } catch(_) {}
+    }
+  }
+
+  function showSuccessView() {
+    authBody.style.display = 'none';
+    successBody.style.display = 'block';
+
+    const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:';
+    if (isLocal) {
+      directLink.style.display = 'block';
+      directLink.style.background = 'linear-gradient(120deg,var(--mu),#3D8060)';
+      directLink.style.color = '#fff';
+      directLink.style.fontWeight = 'bold';
+    }
+  }
+
+  async function handleAuth() {
+    if (updateLockoutUI()) return;
+    const pass = passInput.value.trim();
+    if (!pass) {
+      msgEl.textContent = '請輸入通行碼';
+      return;
+    }
+
+    const hashed = await sha256Hex(SALT + pass);
+    if (hashed === getExpectedHash()) {
+      clearAttempts();
+      msgEl.textContent = '';
+      if (rememberChk && rememberChk.checked) {
+        localStorage.setItem(LS_REMEMBER_KEY, '1');
+      }
+
+      // 若已在 8788 本機後台或 file: 離線檔案，直達 admin.html
+      if (location.port === '8788' || location.protocol === 'file:') {
+        location.href = 'admin.html';
+        return;
+      }
+
+      // 在官網環境（shop.anwer3712.com / Caddy），展示管理通道選項
+      showSuccessView();
+    } else {
+      const waitSec = recordFailedAttempt();
+      if (waitSec > 0) {
+        updateLockoutUI();
+      } else {
+        const attempts = parseInt(sessionStorage.getItem(ATTEMPTS_KEY) || '0', 10);
+        msgEl.textContent = `通行碼不正確（剩餘 ${3 - attempts} 次嘗試機會）`;
+      }
+      passInput.value = '';
+      passInput.focus();
+    }
+  }
+
+  // 點擊頁尾「內部入口」或「龍潭—中壢」直接開啟
+  const adminLink = document.getElementById('ppsAdminLink');
+  if (adminLink) {
+    adminLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      openGate();
+    });
+  }
+  if (trigger) {
+    trigger.addEventListener('click', (e) => {
+      e.preventDefault();
+      openGate();
+    });
+  }
+
+  // 鍵盤快捷鍵：Alt+A、Ctrl+Alt+A、Alt+Shift+P、Ctrl+Shift+A
+  document.addEventListener('keydown', (e) => {
+    const isAltA = e.altKey && (e.key === 'a' || e.key === 'A');
+    const isCtrlAltA = e.ctrlKey && e.altKey && (e.key === 'a' || e.key === 'A');
+    const isCtrlShiftA = (e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a');
+    const isAltShiftP = e.altKey && e.shiftKey && (e.key === 'P' || e.key === 'p');
+
+    if (isAltA || isCtrlAltA || isCtrlShiftA || isAltShiftP) {
+      e.preventDefault();
+      openGate();
+    } else if (e.key === 'Escape' && modal.style.display === 'flex') {
+      closeGate();
+    }
+  });
+
+  // 全域暴露，方便於主控台直接呼叫
+  window.openAdminGate = openGate;
+
+  function checkUrlTrigger() {
+    if (location.hash === '#admin' || location.search.includes('admin=1')) {
+      openGate();
+    }
+  }
+  window.addEventListener('hashchange', checkUrlTrigger);
+  checkUrlTrigger();
+
+  if (closeBtn) closeBtn.addEventListener('click', closeGate);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeGate(); });
+  if (submitBtn) submitBtn.addEventListener('click', handleAuth);
+  if (passInput) passInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAuth(); });
+
+  if (changePassBtn) {
+    changePassBtn.addEventListener('click', async () => {
+      const oldPass = prompt('請輸入目前的管理通行碼：');
+      if (!oldPass) return;
+      const oldHashed = await sha256Hex(SALT + oldPass.trim());
+      if (oldHashed !== getExpectedHash()) {
+        alert('目前的通行碼不正確！');
+        return;
+      }
+      const newPass = prompt('請設定新的管理通行碼（建議 6 碼以上）：');
+      if (!newPass || newPass.trim().length < 4) {
+        alert('密碼太短，未變更。');
+        return;
+      }
+      const newHashed = await sha256Hex(SALT + newPass.trim());
+      localStorage.setItem(LS_HASH_KEY, newHashed);
+      alert('管理通行碼已成功更新！');
+    });
+  }
+
+  if (forgetBtn) {
+    forgetBtn.addEventListener('click', () => {
+      localStorage.removeItem(LS_REMEMBER_KEY);
+      authBody.style.display = 'block';
+      successBody.style.display = 'none';
+      passInput.value = '';
+      if (rememberChk) rememberChk.checked = false;
+      alert('已清除此裝置的記憶授權。');
+    });
+  }
+})();
+
 route(); observeReveals(); observeMotion(); cmsBoot();
 document.documentElement.classList.add('app-ready');
 </script>
