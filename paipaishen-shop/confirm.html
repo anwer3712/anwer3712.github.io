@@ -628,7 +628,8 @@ function render(){
      所以直接 innerHTML。讀不到就整區收起來，退化成舊樣子（只有方案選擇），
      不要留一塊空白卡片在畫面上。 */
   if(ORDER.quote_html){
-    $('#quoteBody').innerHTML = ORDER.quote_html;
+    let qHtml = ORDER.quote_html.replace(/https:\/\/drive\.google\.com\/(?:uc\?(?:export=view&(?:amp;)?|id=)|file\/d\/)(?:id=)?([a-zA-Z0-9_-]+)(?:[^\s"'>]*)/g, 'https://lh3.googleusercontent.com/d/$1');
+    $('#quoteBody').innerHTML = qHtml;
     // 那份 HTML 是照 600px 桌機寬排的。手機上讓表格各自橫向捲，
     // 不能讓整個 body 跟著橫捲——底部那條固定的金額列會跟著飄掉。
     $('#quoteBody').querySelectorAll('table').forEach(t=>{
