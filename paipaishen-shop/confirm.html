@@ -793,7 +793,8 @@ function render(){
   $('#planSection').style.display = 'block';
   $('#noteSection').style.display = 'block';
 
-  // 網址只能預選 offer 內既有的 plan_id；不存在就用推薦案或第一案。  selectedPlan = ORDER.plans.find(p=>p.plan_id===wantPlan)
+  // 網址只能預選 offer 內既有的 plan_id；不存在就用推薦案或第一案。
+  selectedPlan = ORDER.plans.find(p=>p.plan_id===wantPlan)
               || ORDER.plans.find(p=>p.recommended) || ORDER.plans[0];
 
   const eff = getOrderEffects();
