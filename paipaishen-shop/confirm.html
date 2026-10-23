@@ -146,22 +146,32 @@ footer{padding:26px 20px 96px;text-align:center;}
     
     <div id="draftMainGroup" style="display:none;margin-bottom:16px;background:rgba(232,201,122,0.08);border:1.5px solid var(--gold);border-radius:14px;padding:16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <h3 style="font-size:15px;color:var(--rose-d);margin:0;display:flex;align-items:center;gap:6px">🪷 主方案設計初稿／示意圖</h3>
-        <span class="rec-tag">核心配置</span>
+        <h3 id="draftMainTitle" style="font-size:15px;color:var(--rose-d);margin:0;display:flex;align-items:center;gap:6px">🪷 主方案設計初稿／示意圖</h3>
+        <span id="draftMainBadge" class="rec-tag">核心配置</span>
       </div>
-      <p style="font-size:12.5px;color:var(--ink2);margin-bottom:10px">立體回應您的核心訴求與先天用神喜用，為日常核心配戴手串。</p>
+      <p id="draftMainSubtitle" style="font-size:12.5px;color:var(--ink2);margin-bottom:10px">立體回應您的核心訴求與先天用神喜用，為日常核心配戴手串。</p>
       <div id="draftMainGallery" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px 0"></div>
       <div id="draftMainNote" style="display:none;margin-top:10px;background:#fff;border-left:3px solid var(--gold);padding:8px 12px;font-size:12.5px;color:var(--ink);border-radius:4px"></div>
     </div>
 
     <div id="draftBagGroup" style="display:none;margin-bottom:12px;background:rgba(92,122,153,0.08);border:1.5px solid #5C7A99;border-radius:14px;padding:16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <h3 style="font-size:15px;color:#355373;margin:0;display:flex;align-items:center;gap:6px">💫 錦囊組設計初稿／示意圖</h3>
-        <span class="rec-tag" style="background:#5C7A99">流年加乘</span>
+        <h3 id="draftBagTitle" style="font-size:15px;color:#355373;margin:0;display:flex;align-items:center;gap:6px">💫 錦囊組設計初稿／示意圖</h3>
+        <span id="draftBagBadge" class="rec-tag" style="background:#5C7A99">流年加乘</span>
       </div>
-      <p style="font-size:12.5px;color:var(--ink2);margin-bottom:10px">放寬主方案視覺限制，特別調和生辰流年課題與命盤盲區。</p>
+      <p id="draftBagSubtitle" style="font-size:12.5px;color:var(--ink2);margin-bottom:10px">放寬主方案視覺限制，特別調和生辰流年課題與命盤盲區。</p>
       <div id="draftBagGallery" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px 0"></div>
       <div id="draftBagNote" style="display:none;margin-top:10px;background:#fff;border-left:3px solid #5C7A99;padding:8px 12px;font-size:12.5px;color:var(--ink);border-radius:4px"></div>
+    </div>
+
+    <div id="draftResetGroup" style="display:none;margin-bottom:12px;background:rgba(44,62,80,0.06);border:1.5px solid #4A6572;border-radius:14px;padding:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <h3 id="draftResetTitle" style="font-size:15px;color:#2C3E50;margin:0;display:flex;align-items:center;gap:6px">🌙 ③【本源重置款】設計初稿／示意圖（夜間靜心）</h3>
+        <span class="rec-tag" style="background:#4A6572">夜間靜心</span>
+      </div>
+      <p style="font-size:12.5px;color:var(--ink2);margin-bottom:10px">特別配置最溫和沉靜之微量晶石，專供夜間睡眠、靜心撫平思緒、卸除整日精神疲憊。</p>
+      <div id="draftResetGallery" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px 0"></div>
+      <div id="draftResetNote" style="display:none;margin-top:10px;background:#fff;border-left:3px solid #4A6572;padding:8px 12px;font-size:12.5px;color:var(--ink);border-radius:4px"></div>
     </div>
   </section>
 
@@ -289,53 +299,184 @@ footer{padding:26px 20px 96px;text-align:center;}
 
 <!-- 深度推論報告試閱彈窗 -->
 <div id="sampleModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(16,24,40,0.68);z-index:999;backdrop-filter:blur(4px);padding:20px;overflow-y:auto;align-items:center;justify-content:center">
-  <div style="background:#fff;border-radius:16px;max-width:640px;width:100%;max-height:88vh;overflow-y:auto;padding:22px;border:1px solid var(--line);box-shadow:0 12px 36px rgba(0,0,0,0.25);margin:auto;position:relative">
+  <div style="background:#fff;border-radius:16px;max-width:680px;width:100%;max-height:88vh;overflow-y:auto;padding:22px;border:1px solid var(--line);box-shadow:0 12px 36px rgba(0,0,0,0.25);margin:auto;position:relative">
     <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:14px">
-      <h3 style="margin:0;font-size:17px;color:var(--rose-d);display:flex;align-items:center;gap:6px">📄 深度命理堆論報告說明</h3>
+      <h3 style="margin:0;font-size:17px;color:var(--rose-d);display:flex;align-items:center;gap:6px">📄 深度命理推論報告說明</h3>
       <button type="button" onclick="closeSampleReportModal()" aria-label="關閉" style="border:none;background:none;font-size:24px;line-height:1;cursor:pointer;color:var(--ink2)">&times;</button>
     </div>
     <div style="font-size:13px;line-height:1.8;color:var(--ink)">
       <div style="background:var(--warm2);padding:10px 14px;border-radius:10px;border-left:3px solid var(--gold);margin-bottom:14px">
-        💡 <b>加購交付說明：</b>加購深度推論報告後，於手串出貨時同步交付專屬線上永久查閱連結與 PDF 下載。報告結合<b>五派合參命理、正典數值模型與現代心理自我覺察</b>，全文約 8～12 頁，以下為精華章節示意與表格呈現：
+        💡 <b>加購交付說明：</b>加購深度推論報告後，於手串出貨時同步交付專屬線上永久查閱連結與 PDF 下載。報告結合<b>五派合參命理、正典數值模型與現代心理自我覺察</b>，全文約 8～12 頁，以下為精華章節示意與正式表格呈現：
       </div>
-      <div style="background:#FAF8F5;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:12px">
+      
+      <!-- 第①章 -->
+      <div style="background:#FAF8F5;border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px">
         <b style="color:var(--rose-d);font-size:14px">第①章・本命日主與五行權重分佈</b>
-        <p class="muted" style="font-size:12px;margin:3px 0 6px">分析生辰八字日元特質、五行生剋平衡（金/木/水/火/土權重分析表）：</p>
-        <pre style="font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#fff;border:1px solid #e2d9cd;padding:8px 10px;border-radius:6px;font-size:11.5px;line-height:1.55;overflow-x:auto;color:#2A3342;margin:6px 0">| 五行元素 | 金 | 木 | 水 | 火 | 土 |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **本命分佈** | 18% | 32% | 28% | 12% | 10% |
-| **命局判定** | 忌神 | 喜用 | 喜用 | 忌神 | 忌神 |</pre>
-        <pre style="font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#fff;border:1px solid #e2d9cd;padding:8px 10px;border-radius:6px;font-size:11.5px;line-height:1.55;overflow-x:auto;color:#2A3342;margin:6px 0">| 分析維度 | 命格判定 | 核心推論說明 |
-| :--- | :--- | :--- |
-| **日主日元** | 辛金（身稍弱） | 清潤秀氣之辛金，需水木通關順流 |
-| **調候喜用** | 水、木 | 潤局生發，強化自驅力與執行耐力 |
-| **避忌五行** | 火、土 | 避免燥熱積滯、防厚土重埋受困 |</pre>
+        <p class="muted" style="font-size:12px;margin:3px 0 8px">分析生辰八字日元特質、五行生剋平衡（金/木/水/火/土權重分析表）：</p>
+        
+        <table style="width:100%;border-collapse:collapse;margin:8px 0;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #E2D9CD;font-size:12px">
+          <thead>
+            <tr style="background:#F2EDE4;color:#5C4B37;border-bottom:1.5px solid #D6C9B6">
+              <th style="padding:8px 10px;text-align:left">五行元素</th>
+              <th style="padding:8px;text-align:center">金</th>
+              <th style="padding:8px;text-align:center">木</th>
+              <th style="padding:8px;text-align:center">水</th>
+              <th style="padding:8px;text-align:center">火</th>
+              <th style="padding:8px;text-align:center">土</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid #EEE5D8">
+              <td style="padding:8px 10px;font-weight:bold;color:#2A3342">本命分佈</td>
+              <td style="padding:8px;text-align:center">18%</td>
+              <td style="padding:8px;text-align:center;font-weight:600;color:#2E7D32">32%</td>
+              <td style="padding:8px;text-align:center;font-weight:600;color:#1565C0">28%</td>
+              <td style="padding:8px;text-align:center">12%</td>
+              <td style="padding:8px;text-align:center">10%</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 10px;font-weight:bold;color:#2A3342">命局判定</td>
+              <td style="padding:8px;text-align:center"><span style="background:#FDE8E8;color:#9B1C1C;padding:2px 6px;border-radius:4px;font-size:11px">忌神</span></td>
+              <td style="padding:8px;text-align:center"><span style="background:#DEF7EC;color:#03543F;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:bold">喜用</span></td>
+              <td style="padding:8px;text-align:center"><span style="background:#E1EFFE;color:#1E429F;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:bold">喜用</span></td>
+              <td style="padding:8px;text-align:center"><span style="background:#FDE8E8;color:#9B1C1C;padding:2px 6px;border-radius:4px;font-size:11px">忌神</span></td>
+              <td style="padding:8px;text-align:center"><span style="background:#FDE8E8;color:#9B1C1C;padding:2px 6px;border-radius:4px;font-size:11px">忌神</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <table style="width:100%;border-collapse:collapse;margin:8px 0;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #E2D9CD;font-size:12px">
+          <thead>
+            <tr style="background:#F2EDE4;color:#5C4B37;border-bottom:1.5px solid #D6C9B6">
+              <th style="padding:8px 10px;text-align:left;width:25%">分析維度</th>
+              <th style="padding:8px 10px;text-align:left;width:30%">命格判定</th>
+              <th style="padding:8px 10px;text-align:left">核心推論說明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid #EEE5D8">
+              <td style="padding:8px 10px;font-weight:bold;color:#2A3342">日主日元</td>
+              <td style="padding:8px 10px;color:#8B4513;font-weight:600">辛金（身稍弱）</td>
+              <td style="padding:8px 10px;color:#555">清潤秀氣之辛金，需水木通關順流生發</td>
+            </tr>
+            <tr style="border-bottom:1px solid #EEE5D8">
+              <td style="padding:8px 10px;font-weight:bold;color:#2A3342">調候喜用</td>
+              <td style="padding:8px 10px;color:#03543F;font-weight:600">水、木</td>
+              <td style="padding:8px 10px;color:#555">潤局生發，強化自驅力與執行耐力</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 10px;font-weight:bold;color:#2A3342">避忌五行</td>
+              <td style="padding:8px 10px;color:#9B1C1C;font-weight:600">火、土</td>
+              <td style="padding:8px 10px;color:#555">避免燥熱積滯，防厚土重埋受困</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <div style="background:#FAF8F5;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:12px">
+
+      <!-- 第②章 -->
+      <div style="background:#FAF8F5;border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px">
         <b style="color:var(--rose-d);font-size:14px">第②章・當前歲運課題與流年節奏引動</b>
-        <p class="muted" style="font-size:12px;margin:3px 0 6px">針對當年度歲運交替帶來的氛圍變化，提示關鍵注意事項與生活步調調節重點：</p>
-        <pre style="font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#fff;border:1px solid #e2d9cd;padding:8px 10px;border-radius:6px;font-size:11.5px;line-height:1.55;overflow-x:auto;color:#2A3342;margin:6px 0">| 歲運階段 | 節奏引動特質 | 調候與配戴指引 |
-| :--- | :--- | :--- |
-| **上半年（春夏季）** | 火行旺相，易在溝通與決策感到急進 | 水行黑曜石制火降燥、沉穩定心 |
-| **下半年（秋冬季）** | 節奏放緩，適合聚焦深耕與資源積累 | 木行綠幽靈生發契機、穩定前行 |</pre>
+        <p class="muted" style="font-size:12px;margin:3px 0 8px">針對當年度歲運交替帶來的氛圍變化，提示關鍵注意事項與生活步調調節重點：</p>
+        
+        <table style="width:100%;border-collapse:collapse;margin:8px 0;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #E2D9CD;font-size:12px">
+          <thead>
+            <tr style="background:#F2EDE4;color:#5C4B37;border-bottom:1.5px solid #D6C9B6">
+              <th style="padding:8px 10px;text-align:left;width:32%">歲運階段</th>
+              <th style="padding:8px 10px;text-align:left;width:36%">節奏引動特質</th>
+              <th style="padding:8px 10px;text-align:left">調候與配戴指引</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid #EEE5D8">
+              <td style="padding:8px 10px;font-weight:bold;color:#8B4513">上半年（春夏季）</td>
+              <td style="padding:8px 10px;color:#555">火行旺相，易在溝通與決策感到急進</td>
+              <td style="padding:8px 10px;color:#1E429F;font-weight:600">水行黑曜石制火降燥、沉穩定心</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 10px;font-weight:bold;color:#8B4513">下半年（秋冬季）</td>
+              <td style="padding:8px 10px;color:#555">節奏放緩，適合聚焦深耕與資源積累</td>
+              <td style="padding:8px 10px;color:#03543F;font-weight:600">木行綠幽靈生發契機、穩定前行</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <div style="background:#FAF8F5;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:12px">
+
+      <!-- 第③章 -->
+      <div style="background:#FAF8F5;border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px">
         <b style="color:var(--rose-d);font-size:14px">第③章・客製手串晶石特質與微觀配戴指引</b>
-        <p class="muted" style="font-size:12px;margin:3px 0 6px">詳細說明每顆天然晶石的礦物特性、心理投射與日常保養要點：</p>
-        <pre style="font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#fff;border:1px solid #e2d9cd;padding:8px 10px;border-radius:6px;font-size:11.5px;line-height:1.55;overflow-x:auto;color:#2A3342;margin:6px 0">| 水晶名稱 | 五行 | 顆數 | 佔比 | 核心雙主效與日常實踐指引 |
-| :--- | :---: | :---: | :---: | :--- |
-| **黑曜石** | 水 | 6 顆 | 30% | **【拒絕內耗穩住心態】＋【隔絕職場是非與有毒社交】**<br>面對外界吵鬧或別人亂甩鍋時守住心理界線，不被負面情緒牽著走；過濾消耗你的小人與爛事，把精力留給自己的成長。 |
-| **綠幽靈** | 木 | 8 顆 | 40% | **【踏實自律不浮躁】＋【事業正財累積與升遷格局】**<br>戒掉三分鐘熱度與焦慮，把專業底牌堆高；傳統著名的事業之石，象徵正財豐收與職涯拓展，提醒你把時間花在累積資產上，穩步拿下大成果。 |
-| **白水晶** | 金 | 4 顆 | 20% | **【大腦重開機清空雜念】＋【做事專注高效、提升成果品質】**<br>資訊爆炸或焦慮打結時快速幫腦袋清出乾淨空間；在備考、工作、重要專案時進入高專注狀態，思緒不亂、效率翻倍。 |
-| **茶水晶** | 土 | 2 顆 | 10% | **【告別慌張踏實落地】＋【抗壓排毒、穩固個人陣腳】**<br>面對未知挑戰或壓力山大時不自亂陣腳；穩穩踩住地面，一件一件把事情理順，在動盪環境中站穩自己的生活步調。 |</pre>
+        <p class="muted" style="font-size:12px;margin:3px 0 8px">詳細說明每顆天然晶石的礦物特性、心理投射與日常保養要點：</p>
+        
+        <table style="width:100%;border-collapse:collapse;margin:8px 0;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #E2D9CD;font-size:12px">
+          <thead>
+            <tr style="background:#F2EDE4;color:#5C4B37;border-bottom:1.5px solid #D6C9B6">
+              <th style="padding:8px 10px;text-align:left;width:18%">水晶名稱</th>
+              <th style="padding:8px;text-align:center;width:12%">五行/顆數</th>
+              <th style="padding:8px 10px;text-align:left">核心雙主效與日常實踐指引</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid #EEE5D8">
+              <td style="padding:8px 10px;font-weight:bold;color:#1565C0">黑曜石</td>
+              <td style="padding:8px;text-align:center"><span style="background:#E1EFFE;color:#1E429F;padding:2px 6px;border-radius:4px;font-size:11px">水 · 6顆</span></td>
+              <td style="padding:8px 10px;color:#444;line-height:1.6">
+                <b style="color:#1E429F">【拒絕內耗穩住心態】＋【隔絕是非與有毒社交】</b><br>
+                面對外界雜音守住心理界線，不被負面情緒牽著走；過濾消耗你的小人與爛事，把精力留給自我成長。
+              </td>
+            </tr>
+            <tr style="border-bottom:1px solid #EEE5D8">
+              <td style="padding:8px 10px;font-weight:bold;color:#2E7D32">綠幽靈</td>
+              <td style="padding:8px;text-align:center"><span style="background:#DEF7EC;color:#03543F;padding:2px 6px;border-radius:4px;font-size:11px">木 · 8顆</span></td>
+              <td style="padding:8px 10px;color:#444;line-height:1.6">
+                <b style="color:#03543F">【踏實自律不浮躁】＋【事業正財累積格局】</b><br>
+                戒掉三分鐘熱度與焦慮，把專業底牌堆高；象徵正財豐收與職涯拓展，專注累積高價值成果。
+              </td>
+            </tr>
+            <tr style="border-bottom:1px solid #EEE5D8">
+              <td style="padding:8px 10px;font-weight:bold;color:#B45309">白水晶</td>
+              <td style="padding:8px;text-align:center"><span style="background:#FEF3C7;color:#92400E;padding:2px 6px;border-radius:4px;font-size:11px">金 · 4顆</span></td>
+              <td style="padding:8px 10px;color:#444;line-height:1.6">
+                <b style="color:#92400E">【大腦重開機清空雜念】＋【做事專注高效】</b><br>
+                資訊爆炸時快速為腦袋清出乾淨空間；重要專案時進入高專注心流，思緒不亂、效率翻倍。
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 10px;font-weight:bold;color:#78350F">茶水晶</td>
+              <td style="padding:8px;text-align:center"><span style="background:#F3F4F6;color:#374151;padding:2px 6px;border-radius:4px;font-size:11px">土 · 2顆</span></td>
+              <td style="padding:8px 10px;color:#444;line-height:1.6">
+                <b style="color:#78350F">【告別慌張踏實落地】＋【抗壓穩固個人陣腳】</b><br>
+                面對未知挑戰不自亂陣腳；穩穩踩住地面，一件一件理順，在動盪環境中站穩生活節奏。
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <div style="background:#FAF8F5;border:1px solid var(--line);border-radius:10px;padding:12px 14px">
+
+      <!-- 第④章 -->
+      <div style="background:#FAF8F5;border:1px solid var(--line);border-radius:10px;padding:14px">
         <b style="color:var(--rose-d);font-size:14px">第④章・生活作息與自我覺察調和方案</b>
-        <p class="muted" style="font-size:12px;margin:3px 0 6px">結合色彩意象、生活作息節奏與環境整理建議，提供具體可落地的日常調和習慣：</p>
-        <pre style="font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#fff;border:1px solid #e2d9cd;padding:8px 10px;border-radius:6px;font-size:11.5px;line-height:1.55;overflow-x:auto;color:#2A3342;margin:6px 0">| 調和維度 | 建議手法 | 具體落地行動指引 |
-| :--- | :--- | :--- |
-| **空間環境** | 增加水綠植栽 | 工作桌面左側擺放綠色植栽、維持通風明亮 |
-| **作息節奏** | 平衡身心負荷 | 避開子時重大決策，晨間深呼吸晚間溫水泡腳 |</pre>
+        <p class="muted" style="font-size:12px;margin:3px 0 8px">結合色彩意象、生活作息節奏與環境整理建議，提供具體可落地的日常調和習慣：</p>
+        
+        <table style="width:100%;border-collapse:collapse;margin:8px 0;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #E2D9CD;font-size:12px">
+          <thead>
+            <tr style="background:#F2EDE4;color:#5C4B37;border-bottom:1.5px solid #D6C9B6">
+              <th style="padding:8px 10px;text-align:left;width:25%">調和維度</th>
+              <th style="padding:8px 10px;text-align:left;width:28%">建議手法</th>
+              <th style="padding:8px 10px;text-align:left">具體落地行動指引</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid #EEE5D8">
+              <td style="padding:8px 10px;font-weight:bold;color:#2A3342">空間環境</td>
+              <td style="padding:8px 10px;color:#03543F;font-weight:600">增加水綠植栽</td>
+              <td style="padding:8px 10px;color:#555">工作桌面左側擺放綠色植栽、維持通風明亮</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 10px;font-weight:bold;color:#2A3342">作息節奏</td>
+              <td style="padding:8px 10px;color:#8B4513;font-weight:600">平衡身心負荷</td>
+              <td style="padding:8px 10px;color:#555">避開子時重大決策，晨間深呼吸、晚間溫水泡腳</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
     <div style="text-align:right;margin-top:16px;padding-top:12px;border-top:1px solid var(--line)">
@@ -420,11 +561,11 @@ function demoOrder(){
   demo.design_drafts = {
     main: {
       note: '主方案以青金石、綠幽靈為主調，立體回應核心訴求。',
-      photos: [{ n: 1, url: 'photos/w2.jpg', thumb: 'photos/w2.jpg' }]
+      photos: []
     },
     bag: {
-      note: '錦囊組加強火土能量調和，特別補足流年盲區。',
-      photos: [{ n: 1, url: 'photos/w4.jpg', thumb: 'photos/w4.jpg' }]
+      note: '錦囊組加強火土調和，特別補足流年盲區。',
+      photos: []
     }
   };
   demo.shipping_choices = [{choice_id:'home',label:'宅配到府',amount:130},{choice_id:'store',label:'店到店',amount:60},{choice_id:'self',label:'中壢–龍潭面交',amount:0}];
@@ -688,26 +829,48 @@ function getOrderEffects(){
   // 兜底說明（示範單或極簡單）
   if(!core) core = '突破當前事業瓶頸、吸引正偏財貴人、聚心穩神';
   if(!pain) pain = '思緒過度緊繃內耗、日常壓力大、睡眠品質需改善';
-  if(!loved) loved = '土、水、金（喜用五行能量）';
+  if(!loved) loved = '土、水、金（喜用五行）';
   if(!liunian) liunian = '補足命盤盲區與流年弱項、化解人際摩擦';
 
   return { core, pain, loved, liunian };
 }
 
-// 取得主方案與錦囊組設計初稿縮圖（供方案卡片直接視覺對照）
+// 取得各方案與款式設計初稿縮圖（供方案卡片直接視覺對照）
 function getDraftPhotos(){
-  const dd = ORDER.design_drafts || {};
+  let dd = ORDER.design_drafts || {};
+  if(typeof dd === 'string'){
+    try { dd = JSON.parse(dd); } catch(_) { dd = {}; }
+  }
   let mainPhotos = [];
   let bagPhotos = [];
+  let resetPhotos = [];
+  let partnerAPhotos = [];
+  let partnerBPhotos = [];
 
   if(dd.main && Array.isArray(dd.main.photos) && dd.main.photos.length){
     mainPhotos = dd.main.photos;
-  } else if(Array.isArray(dd.photos) && dd.photos.length){
+  } else if(Array.isArray(dd.photos) && dd.photos.length && !dd.bag){
     mainPhotos = dd.photos;
   }
 
   if(dd.bag && Array.isArray(dd.bag.photos) && dd.bag.photos.length){
     bagPhotos = dd.bag.photos;
+  }
+
+  if(dd.reset && Array.isArray(dd.reset.photos) && dd.reset.photos.length){
+    resetPhotos = dd.reset.photos;
+  }
+
+  if(dd.partner_a && Array.isArray(dd.partner_a.photos) && dd.partner_a.photos.length){
+    partnerAPhotos = dd.partner_a.photos;
+  } else if(mainPhotos.length){
+    partnerAPhotos = mainPhotos;
+  }
+
+  if(dd.partner_b && Array.isArray(dd.partner_b.photos) && dd.partner_b.photos.length){
+    partnerBPhotos = dd.partner_b.photos;
+  } else if(bagPhotos.length){
+    partnerBPhotos = bagPhotos;
   }
 
   function fixUrl(u){
@@ -717,7 +880,10 @@ function getDraftPhotos(){
 
   return {
     main: mainPhotos.map(p => ({ url: fixUrl(p.url), thumb: fixUrl(p.thumb || p.url) })),
-    bag: bagPhotos.map(p => ({ url: fixUrl(p.url), thumb: fixUrl(p.thumb || p.url) }))
+    bag: bagPhotos.map(p => ({ url: fixUrl(p.url), thumb: fixUrl(p.thumb || p.url) })),
+    reset: resetPhotos.map(p => ({ url: fixUrl(p.url), thumb: fixUrl(p.thumb || p.url) })),
+    partner_a: partnerAPhotos.map(p => ({ url: fixUrl(p.url), thumb: fixUrl(p.thumb || p.url) })),
+    partner_b: partnerBPhotos.map(p => ({ url: fixUrl(p.url), thumb: fixUrl(p.thumb || p.url) }))
   };
 }
 
@@ -774,16 +940,42 @@ function render(){
     return true;
   }
 
-  const dd = ORDER.design_drafts;
+  let dd = ORDER.design_drafts;
+  if(typeof dd === 'string'){
+    try { dd = JSON.parse(dd); } catch(_) { dd = null; }
+  }
   let hasDraftSection = false;
   const qHtmlRaw = ORDER.quote_html || '';
-  const qHasInline = qHtmlRaw.includes('主方案設計初稿') || qHtmlRaw.includes('錦囊組設計初稿');
+  const qHasInline = qHtmlRaw.includes('主方案設計初稿') || qHtmlRaw.includes('錦囊組設計初稿') || qHtmlRaw.includes('專屬五行手串初稿');
+  const isCoupleOrder = ORDER.product_mode === 'couple';
+  const nameA = (ORDER.A && ORDER.A.name) || ORDER.name || 'Partner A';
+  const nameB = (ORDER.B && ORDER.B.name) || 'Partner B';
+
   if(!qHasInline && dd){
-    const dMain = dd.main || (dd.photos && !dd.bag ? dd : null);
-    const dBag = dd.bag || null;
-    const okMain = renderDraftGallery('#draftMainGallery', '#draftMainNote', '#draftMainGroup', dMain, '主方案示意圖');
-    const okBag = renderDraftGallery('#draftBagGallery', '#draftBagNote', '#draftBagGroup', dBag, '錦囊組示意圖');
-    if(okMain || okBag){
+    let okMain = false, okBag = false, okReset = false;
+    if(isCoupleOrder){
+      if($('#draftMainTitle')) $('#draftMainTitle').innerHTML = `🪷【${esc(nameA)}】專屬手串設計初稿／示意圖`;
+      if($('#draftMainSubtitle')) $('#draftMainSubtitle').textContent = `立體回應核心訴求與先天用神喜用，為個人核心配戴手串。`;
+      if($('#draftMainBadge')) $('#draftMainBadge').textContent = '伴侶A 專屬';
+      if($('#draftBagTitle')) $('#draftBagTitle').innerHTML = `💫【${esc(nameB)}】專屬手串設計初稿／示意圖`;
+      if($('#draftBagSubtitle')) $('#draftBagSubtitle').textContent = `調和個人命盤流年課題，與伴侶手串五行相生相伴、默契加深。`;
+      if($('#draftBagBadge')) $('#draftBagBadge').textContent = '伴侶B 專屬';
+      okMain = renderDraftGallery('#draftMainGallery', '#draftMainNote', '#draftMainGroup', dd.partner_a || dd.main, nameA + ' 示意圖');
+      okBag = renderDraftGallery('#draftBagGallery', '#draftBagNote', '#draftBagGroup', dd.partner_b || dd.bag, nameB + ' 示意圖');
+      if($('#draftResetGroup')) $('#draftResetGroup').style.display = 'none';
+    } else {
+      const dMain = dd.main || (dd.photos && !dd.bag ? dd : null);
+      const dBag = dd.bag || null;
+      const dReset = dd.reset || null;
+      okMain = renderDraftGallery('#draftMainGallery', '#draftMainNote', '#draftMainGroup', dMain, '主方案示意圖');
+      okBag = renderDraftGallery('#draftBagGallery', '#draftBagNote', '#draftBagGroup', dBag, '錦囊組示意圖');
+      if(dReset){
+        okReset = renderDraftGallery('#draftResetGallery', '#draftResetNote', '#draftResetGroup', dReset, '本源重置款示意圖');
+      } else if($('#draftResetGroup')) {
+        $('#draftResetGroup').style.display = 'none';
+      }
+    }
+    if(okMain || okBag || okReset){
       $('#draftsSection').style.display = 'block';
       hasDraftSection = true;
     }
@@ -802,11 +994,59 @@ function render(){
 
   $('#planList').innerHTML = ORDER.plans.map(p => {
     const itemText = p.items.map(item=>item.label + ' × ' + item.bracelet_count).join('、');
-    const isBag = (p.plan_id||'').includes('bag') || (p.items||[]).some(it=>it.role==='bag');
+    const isPlanCouple = isCoupleOrder || (p.plan_id||'').includes('couple');
+    const isReset = (p.plan_id||'').includes('reset') || (p.items||[]).some(it=>it.role==='reset') || (p.items||[]).length >= 3;
+    const isBag = !isReset && ((p.plan_id||'').includes('bag') || (p.items||[]).some(it=>it.role==='bag'));
 
     // ① 方案卡片右上方「設計初稿／示意圖圖示」
     let draftThumbsHtml = '';
-    if(!isBag){
+    if(isPlanCouple){
+      const aPhoto = (draftPhotos.partner_a && draftPhotos.partner_a[0]) || (draftPhotos.main && draftPhotos.main[0]) || null;
+      const bPhoto = (draftPhotos.partner_b && draftPhotos.partner_b[0]) || (draftPhotos.bag && draftPhotos.bag[0]) || null;
+      draftThumbsHtml = `
+        <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+            ${aPhoto ? `
+            <a href="${esc(aPhoto.url)}" target="_blank" onclick="event.stopPropagation()" class="plan-draft-thumb" style="display:block;border-radius:8px;overflow:hidden;border:1.5px solid var(--gold);box-shadow:0 2px 5px rgba(0,0,0,0.08)" title="點擊放大查看 ${esc(nameA)} 初稿">
+              <img src="${esc(aPhoto.thumb)}" alt="${esc(nameA)} 初稿" style="width:52px;height:52px;object-fit:cover;display:block">
+            </a>` : `
+            <div style="width:52px;height:52px;border-radius:8px;border:1px dashed var(--gold);background:rgba(232,201,122,0.12);display:flex;align-items:center;justify-content:center;font-size:18px" title="${esc(nameA)} 初稿示意">🪷</div>`}
+            <span style="font-size:10px;color:var(--rose-d);font-weight:600">${esc(nameA)}</span>
+          </div>
+          <span style="font-size:13px;color:var(--gold);font-weight:bold">＆</span>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+            ${bPhoto ? `
+            <a href="${esc(bPhoto.url)}" target="_blank" onclick="event.stopPropagation()" class="plan-draft-thumb" style="display:block;border-radius:8px;overflow:hidden;border:1.5px solid #5C7A99;box-shadow:0 2px 5px rgba(0,0,0,0.08)" title="點擊放大查看 ${esc(nameB)} 初稿">
+              <img src="${esc(bPhoto.thumb)}" alt="${esc(nameB)} 初稿" style="width:52px;height:52px;object-fit:cover;display:block">
+            </a>` : `
+            <div style="width:52px;height:52px;border-radius:8px;border:1px dashed #5C7A99;background:rgba(92,122,153,0.1);display:flex;align-items:center;justify-content:center;font-size:18px" title="${esc(nameB)} 初稿示意">💫</div>`}
+            <span style="font-size:10px;color:#355373;font-weight:600">${esc(nameB)}</span>
+          </div>
+        </div>
+      `;
+    } else if(isReset){
+      const mPhoto = (draftPhotos.main && draftPhotos.main[0]) || null;
+      const bPhoto = (draftPhotos.bag && draftPhotos.bag[0]) || null;
+      const rPhoto = (draftPhotos.reset && draftPhotos.reset[0]) || null;
+      draftThumbsHtml = `
+        <div style="display:flex;gap:5px;align-items:center;flex-shrink:0">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+            ${mPhoto ? `<a href="${esc(mPhoto.url)}" target="_blank" onclick="event.stopPropagation()" class="plan-draft-thumb" style="display:block;border-radius:6px;overflow:hidden;border:1px solid var(--gold)"><img src="${esc(mPhoto.thumb)}" alt="主方案初稿" style="width:44px;height:44px;object-fit:cover;display:block"></a>` : `<div style="width:44px;height:44px;border-radius:6px;border:1px dashed var(--gold);background:rgba(232,201,122,0.12);display:flex;align-items:center;justify-content:center;font-size:16px">🪷</div>`}
+            <span style="font-size:9.5px;color:var(--rose-d);font-weight:600">主方案</span>
+          </div>
+          <span style="font-size:11px;color:var(--gold);font-weight:bold">＋</span>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+            ${bPhoto ? `<a href="${esc(bPhoto.url)}" target="_blank" onclick="event.stopPropagation()" class="plan-draft-thumb" style="display:block;border-radius:6px;overflow:hidden;border:1px solid #5C7A99"><img src="${esc(bPhoto.thumb)}" alt="錦囊組初稿" style="width:44px;height:44px;object-fit:cover;display:block"></a>` : `<div style="width:44px;height:44px;border-radius:6px;border:1px dashed #5C7A99;background:rgba(92,122,153,0.1);display:flex;align-items:center;justify-content:center;font-size:16px">💫</div>`}
+            <span style="font-size:9.5px;color:#355373;font-weight:600">錦囊組</span>
+          </div>
+          <span style="font-size:11px;color:#4A6572;font-weight:bold">＋</span>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+            ${rPhoto ? `<a href="${esc(rPhoto.url)}" target="_blank" onclick="event.stopPropagation()" class="plan-draft-thumb" style="display:block;border-radius:6px;overflow:hidden;border:1px solid #4A6572"><img src="${esc(rPhoto.thumb)}" alt="本源重置款初稿" style="width:44px;height:44px;object-fit:cover;display:block"></a>` : `<div style="width:44px;height:44px;border-radius:6px;border:1px dashed #4A6572;background:rgba(44,62,80,0.08);display:flex;align-items:center;justify-content:center;font-size:16px">🌙</div>`}
+            <span style="font-size:9.5px;color:#2C3E50;font-weight:600">重置款</span>
+          </div>
+        </div>
+      `;
+    } else if(!isBag){
       const mPhoto = (draftPhotos.main && draftPhotos.main[0]) || null;
       if(mPhoto){
         draftThumbsHtml = `
@@ -826,30 +1066,66 @@ function render(){
         `;
       }
     } else {
-      const mPhoto = (draftPhotos.main && draftPhotos.main[0]) || { url:'photos/w2.jpg', thumb:'photos/w2.jpg' };
-      const bPhoto = (draftPhotos.bag && draftPhotos.bag[0]) || { url:'photos/w4.jpg', thumb:'photos/w4.jpg' };
+      const mPhoto = (draftPhotos.main && draftPhotos.main[0]) || null;
+      const bPhoto = (draftPhotos.bag && draftPhotos.bag[0]) || null;
       draftThumbsHtml = `
         <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
           <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+            ${mPhoto ? `
             <a href="${esc(mPhoto.url)}" target="_blank" onclick="event.stopPropagation()" class="plan-draft-thumb" style="display:block;border-radius:8px;overflow:hidden;border:1.5px solid var(--gold);box-shadow:0 2px 5px rgba(0,0,0,0.08)" title="點擊放大查看主方案初稿">
               <img src="${esc(mPhoto.thumb)}" alt="主方案初稿" style="width:52px;height:52px;object-fit:cover;display:block">
-            </a>
+            </a>` : `
+            <div style="width:52px;height:52px;border-radius:8px;border:1px dashed var(--gold);background:rgba(232,201,122,0.12);display:flex;align-items:center;justify-content:center;font-size:18px" title="主方案初稿示意">🪷</div>`}
             <span style="font-size:10px;color:var(--rose-d);font-weight:600">主方案</span>
           </div>
           <span style="font-size:13px;color:var(--gold);font-weight:bold">＋</span>
           <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+            ${bPhoto ? `
             <a href="${esc(bPhoto.url)}" target="_blank" onclick="event.stopPropagation()" class="plan-draft-thumb" style="display:block;border-radius:8px;overflow:hidden;border:1.5px solid #5C7A99;box-shadow:0 2px 5px rgba(0,0,0,0.08)" title="點擊放大查看錦囊組初稿">
               <img src="${esc(bPhoto.thumb)}" alt="錦囊組初稿" style="width:52px;height:52px;object-fit:cover;display:block">
-            </a>
+            </a>` : `
+            <div style="width:52px;height:52px;border-radius:8px;border:1px dashed #5C7A99;background:rgba(92,122,153,0.1);display:flex;align-items:center;justify-content:center;font-size:18px" title="錦囊組初稿示意">💫</div>`}
             <span style="font-size:10px;color:#355373;font-weight:600">錦囊組</span>
           </div>
         </div>
       `;
     }
 
-    // ② 方案直接主要功效直擊註解（讓不看長文的客戶一眼看清功效做決定）
+    // ② 方案直接主要功效直擊註解
     let effectBadge = '';
-    if(!isBag){
+    if(isPlanCouple){
+      effectBadge = `
+        <div style="margin-top:10px;background:rgba(232,201,122,0.12);border:1.5px solid var(--gold);border-radius:10px;padding:10px 14px;font-size:12.5px;color:var(--ink);line-height:1.65">
+          <div style="font-weight:700;color:var(--rose-d);margin-bottom:4px;display:flex;align-items:center;gap:6px">
+            <span>💫 情侶雙串合璧・深層同頻相伴：</span>
+          </div>
+          <div style="color:#3e4249">
+            • <b>【${esc(nameA)}】專屬手串</b>：立體回應個人核心心願，依先天五行喜用平衡補氣。<br>
+            • <b>【${esc(nameB)}】專屬手串</b>：針對伴侶特質與流年課題選珠調和，安神穩心。<br>
+            • <b>雙串相生守護</b>：兩串各自獨立成章，合則五行循環相生，守護日常默契與共鳴。
+          </div>
+          <div style="margin-top:6px;font-size:11.5px;color:var(--rose-d);font-weight:600;background:rgba(255,255,255,0.7);padding:3px 8px;border-radius:4px;display:inline-block">
+            👉 專為伴侶雙方量身訂製，相生相伴、情意長存！
+          </div>
+        </div>
+      `;
+    } else if(isReset){
+      effectBadge = `
+        <div style="margin-top:10px;background:rgba(44,62,80,0.06);border:1.5px solid #4A6572;border-radius:10px;padding:10px 14px;font-size:12.5px;color:var(--ink);line-height:1.65">
+          <div style="font-weight:700;color:#2C3E50;margin-bottom:4px;display:flex;align-items:center;gap:6px">
+            <span>🌙 完整三條・日夜全方位守護（含夜間本源重置款）：</span>
+          </div>
+          <div style="color:#2a3440">
+            • <b>① 主方案功效（日常實踐）</b>：直擊「<b>${esc(eff.core)}</b>」與改善「<b>${esc(eff.pain)}</b>」，日常核心穩固聚氣。<br>
+            • <b>② 錦囊組功效（命格補漏）</b>：放寬主串色系限制，專攻流年考驗「<b>${esc(eff.liunian)}</b>」與命盤盲區。<br>
+            • <b>③ 本源重置款（夜間靜心）</b>：精選最溫和沉靜之微量晶石，專為夜間睡眠調配，卸除整日精神疲憊，撫平思緒。
+          </div>
+          <div style="margin-top:6px;font-size:11.5px;color:#2C3E50;font-weight:600;background:rgba(255,255,255,0.8);padding:3px 8px;border-radius:4px;display:inline-block">
+            👉 白天雙串衝刺事業與流年平衡、夜晚靜心深層修復，日夜全方位呵護！
+          </div>
+        </div>
+      `;
+    } else if(!isBag){
       effectBadge = `
         <div style="margin-top:10px;background:rgba(232,201,122,0.12);border:1.5px solid var(--gold);border-radius:10px;padding:10px 14px;font-size:12.5px;color:var(--ink);line-height:1.65">
           <div style="font-weight:700;color:var(--rose-d);margin-bottom:4px;display:flex;align-items:center;gap:6px">
@@ -858,7 +1134,7 @@ function render(){
           <div style="color:#3e4249">
             • <b>聚焦推進心願</b>：全力強化「<b>${esc(eff.core)}</b>」，提升日常行動底氣與貴人運勢。<br>
             • <b>直擊痛點撫平</b>：針對「<b>${esc(eff.pain)}</b>」挑選專屬晶石安定情緒，穩固專注力與睡眠心境。<br>
-            • <b>先天喜用護持</b>：精準配置五行「<b>${esc(eff.loved)}</b>」，作為日常隨身最核心之能量手串。
+            • <b>先天喜用護持</b>：精準配置五行「<b>${esc(eff.loved)}</b>」，作為日常隨身最核心之五行相生手串。
           </div>
           <div style="margin-top:6px;font-size:11.5px;color:var(--rose-d);font-weight:600;background:rgba(255,255,255,0.7);padding:3px 8px;border-radius:4px;display:inline-block">
             👉 適合想立即集中改善當前最迫切課題與痛點的您！
@@ -883,13 +1159,15 @@ function render(){
       `;
     }
 
+    const badgeText = isPlanCouple ? ' <span class="rec-tag" style="background:var(--rose-d)">💫 情侶對串</span>' : (isReset ? ' <span class="rec-tag" style="background:#4A6572">🌙 三條全套・日夜守護</span>' : (isBag ? ' <span class="rec-tag" style="background:#5C7A99">💫 雙串互補加乘</span>' : ''));
+
     return `
     <label class="plan-card">
       <input type="radio" name="plan" value="${esc(p.plan_id)}" ${p===selectedPlan?'checked':''}>
       <div class="plan-body">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
           <div style="flex:1;min-width:180px">
-            <div class="plan-title">${esc(p.label)}${p.recommended?' <span class="rec-tag">推薦</span>':''}${isBag?' <span class="rec-tag" style="background:#5C7A99">💫 雙串互補加乘</span>':''}</div>
+            <div class="plan-title">${esc(p.label)}${p.recommended?' <span class="rec-tag">推薦</span>':''}${badgeText}</div>
             <p style="margin:4px 0 6px 0;font-size:13px;color:var(--ink2)">${esc(p.desc)}</p>
             <p style="font-size:12.5px;color:#888;margin-bottom:6px">${esc(itemText)}</p>
           </div>
@@ -973,13 +1251,23 @@ function render(){
 }
 
 function renderUpgradeChoices(){
-  $('#upgradeChoices').innerHTML = selectedPlan.upgrade_choices.map(c=>`
-    <label class="opt"><input type="radio" name="upg" value="${esc(c.choice_id)}" ${c===selectedChoice?'checked':''}>
-      <span><b>${esc(c.label)}</b><span class="d">${+c.upgrade_amount > 0 ? '＋NT$' + (+c.upgrade_amount).toLocaleString() : '不加價'}</span></span>
-    </label>`).join('');
-  document.querySelectorAll('input[name=upg]').forEach(r=>r.addEventListener('change',()=>{
-    selectedChoice = selectedPlan.upgrade_choices.find(c=>c.choice_id===r.value); updateTotal();
-  }));
+  const upWrap = $('#upgradeChoices');
+  if(!upWrap) return;
+  if(selectedPlan.upgrade_choices && selectedPlan.upgrade_choices.length > 1){
+    upWrap.innerHTML = selectedPlan.upgrade_choices.map(c=>`
+      <label class="opt"><input type="radio" name="upg" value="${esc(c.choice_id)}" ${c===selectedChoice?'checked':''}>
+        <span><b>${esc(c.label)}</b><span class="d">${+c.upgrade_amount > 0 ? '＋NT$' + (+c.upgrade_amount).toLocaleString() : '不加價'}</span></span>
+      </label>`).join('');
+    document.querySelectorAll('input[name=upg]').forEach(r=>r.addEventListener('change',()=>{
+      selectedChoice = selectedPlan.upgrade_choices.find(c=>c.choice_id===r.value); updateTotal();
+    }));
+  } else {
+    upWrap.innerHTML = `
+      <div style="background:#FAF8F5;border:1px dashed var(--gold);border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--ink);line-height:1.6">
+        <span style="font-weight:700;color:var(--rose-d)">💎 晶石品質規格客製升級：</span><br>
+        目前已為您配置嚴選天然晶石。若您希望升級為更高品級珍稀晶石（如高透碧璽、特級極光23、滿絲頂級鈦晶、頂級月光石等，每串升級約 NT$300～NT$600），歡迎在下方「想補充的話」備註說明，設計師將為您評估更換！
+      </div>`;
+  }
 }
 
 function renderOrderChoices(){
@@ -1099,8 +1387,11 @@ function syncShippingAddress(){
 
 /* 顯示金額只讀後端 offer 的總額。前端不再持有 base、mult 或商品價格公式。 */
 function updateTotal(){
-  $('#upgradeSection').style.display = selectedPlan.upgrade_choices.length > 1 ? 'block' : 'none';
+  $('#upgradeSection').style.display = 'block';
   const total = selectedTotalChoice();
+  const isCouple = ORDER.product_mode === 'couple';
+  const qtyDesc = isCouple ? '情侶對串（共 2 條手串）' : (ORDER.qty ? ('訂製規格：' + ORDER.qty + ' 條手串') : '客製五行手串');
+  if($('#cfBar small')) $('#cfBar small').textContent = qtyDesc + ' · 目前選擇金額';
   $('#cfTotal').textContent = total ? 'NT$ ' + total.server_total.toLocaleString() : '—';
   $('#orderTotal').textContent = $('#cfTotal').textContent;
   $('#orderShipping').textContent = '配送：' + selectedShipping.label + '，運費 NT$' + selectedShipping.amount.toLocaleString();
