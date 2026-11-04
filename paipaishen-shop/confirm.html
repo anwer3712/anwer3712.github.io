@@ -55,18 +55,45 @@ button{font-family:inherit;}
 .quote-body>div{max-width:100% !important;}
 .quote-body table{max-width:100%;}
 .quote-body img{max-width:100%;height:auto;}
-.plan-card{display:flex;gap:12px;border:1.5px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px;cursor:pointer;background:#fff;transition:.15s;}
-.plan-card:hover{border-color:var(--dawn2);}
-.plan-card:has(input:checked){border-color:var(--rose);background:#EAF7F1;}
-.plan-card input{margin-top:4px;accent-color:var(--rose);flex:none;}
-.plan-body{flex:1;}
-.plan-title{font-size:15px;font-weight:700;letter-spacing:.03em;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.rec-tag{font-size:10px;background:var(--gold);color:#fff;padding:2px 9px;border-radius:10px;letter-spacing:.1em;font-weight:500;}
+.plan-list{display:flex;flex-direction:row;gap:14px;overflow-x:auto;padding:4px 4px 14px 4px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;margin-bottom:12px;}
+.plan-list::-webkit-scrollbar{height:6px;}
+.plan-list::-webkit-scrollbar-track{background:rgba(0,0,0,0.04);border-radius:3px;}
+.plan-list::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px;}
+.plan-card{flex:0 0 280px;min-width:260px;max-width:320px;scroll-snap-align:start;display:flex;flex-direction:column;border:1.5px solid var(--line);border-radius:14px;padding:16px;margin-bottom:0;cursor:pointer;background:#fff;transition:all .18s ease;box-shadow:0 2px 8px rgba(0,0,0,0.04);}
+.plan-card:hover{border-color:var(--dawn2);transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,0.08);}
+.plan-card:has(input:checked){border-color:var(--rose);background:#FFFDF9;outline:2px solid var(--gold);box-shadow:0 6px 18px rgba(201,162,75,0.22);}
+.plan-card input{margin-top:2px;accent-color:var(--rose-d);flex:none;}
+.plan-body{flex:1;display:flex;flex-direction:column;}
+.plan-title{font-size:15px;font-weight:700;letter-spacing:.03em;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.rec-tag{font-size:10px;background:var(--gold);color:#fff;padding:2px 8px;border-radius:10px;letter-spacing:.08em;font-weight:600;}
 .plan-body p{font-size:12.5px;color:var(--ink2);font-weight:300;margin:6px 0;}
+.plan-list:has(.plan-card:only-child) .plan-card{flex:1;max-width:100%;}
+@media(min-width:960px){
+  .wrap{max-width:960px;}
+  .plan-card{flex:1 1 0;max-width:none;}
+  .plan-scroll-hint{display:none !important;}
+}
+.plan-config-section{margin-top:18px;display:flex;flex-direction:column;gap:14px;}
+.plan-config-banner{background:linear-gradient(135deg,rgba(232,201,122,.16),rgba(201,138,146,.12));border:1.5px solid var(--gold);border-radius:12px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;box-shadow:0 2px 8px rgba(201,162,75,.12);transition:all .25s ease;}
+.plan-config-banner-title{display:flex;align-items:center;gap:8px;font-size:14.5px;color:var(--ink);}
+.plan-config-banner-title b{color:var(--rose-d);font-size:15px;}
+.plan-config-banner-sub{font-size:12px;color:#786652;font-weight:500;}
+.config-step-card{background:#FFFDF9;border:1.5px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:0 2px 6px rgba(0,0,0,.03);transition:border-color .2s,box-shadow .2s;}
+.config-step-card:hover{border-color:#E2D9CD;box-shadow:0 4px 12px rgba(0,0,0,.05);}
+.config-step-header{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+.step-badge{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--rose-d);color:#fff;font-size:13px;font-weight:700;box-shadow:0 2px 4px rgba(155,28,28,.2);flex-shrink:0;}
+.step-title{font-size:15px;margin:0;color:var(--ink);font-weight:700;}
+.btn-sample-report{background:none;border:none;color:var(--rose-d);font-size:12.5px;cursor:pointer;text-decoration:underline;font-weight:600;padding:2px 6px;}
+.btn-sample-report:hover{color:#7a1515;}
+.order-summary-card{background:#FAF8F5;border:1.5px solid var(--line);border-radius:14px;padding:18px 20px;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.summary-card-title{font-weight:700;font-size:14.5px;margin-bottom:10px;color:var(--ink);padding-bottom:8px;border-bottom:1px solid var(--line);}
+.summary-breakdown p{margin:4px 0;font-size:13px;color:var(--ink2);}
 .order-summary{border-top:1px solid var(--line);margin-top:20px;padding-top:16px;font-size:13px;}
 .order-summary p{margin-bottom:6px;color:var(--ink2);}
 .order-total{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-weight:700;}
 .order-total output{font-size:22px;color:var(--rose-d);}
+@keyframes planExpandAnim{0%{opacity:.6;transform:translateY(6px);}100%{opacity:1;transform:translateY(0);}}
+.anim-expand{animation:planExpandAnim .28s ease-out;}
 
 .upgrade-choice{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
 .opt{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;font-size:13px;transition:.15s;}
@@ -183,113 +210,160 @@ footer{padding:26px 20px 96px;text-align:center;}
 
   <section class="cf-card" id="planSection" style="display:none">
     <div class="sec-head2 sm"><div><h2>選擇你的方案</h2></div></div>
-    <p class="sec-lead">主方案回應你的核心功能與痛點；需要補足命格缺口與個人特質不足，也可以加選錦囊組。</p>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+      <p class="sec-lead" style="margin:0">主方案回應核心功能；加選錦囊組或本源重置款，日夜相生相伴。</p>
+      <span class="plan-scroll-hint" style="font-size:12px;color:var(--rose-d);font-weight:600;display:flex;align-items:center;gap:4px">👉 左右滑動比較各方案</span>
+    </div>
     <div class="plan-list" id="planList"></div>
-    <div id="upgradeSection" style="display:none">
-      <h3 style="font-size:15px;margin-top:18px">晶石升級推薦</h3>
-      <p class="sec-lead">依上方設計說明，選擇要升級的配置。</p>
-      <div class="upgrade-choice" id="upgradeChoices"></div>
-    </div>
-    <h3 style="font-size:15px;margin-top:18px">配送方式</h3>
-    <p class="sec-lead">已預選你先前填寫的方式，可在送出前調整。</p>
-    <div class="upgrade-choice" id="shippingChoices"></div>
-    <div id="shippingAddressField" style="margin-top:14px;display:none">
-      <!-- 宅配到府：收件者／電話／郵遞區號／地址 -->
-      <div id="homeAddressGroup" style="display:none;background:#FAF8F5;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:10px">
-        <div style="font-weight:700;font-size:13.5px;color:var(--rose-d);margin-bottom:10px;display:flex;align-items:center;gap:6px">🚚 宅配到府收件資訊</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-          <div>
-            <label for="homeRecipient" style="font-size:12px;color:var(--ink2);margin-bottom:4px">收件者</label>
-            <input id="homeRecipient" type="text" maxlength="50" placeholder="收件人姓名" autocomplete="name" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px">
-          </div>
-          <div>
-            <label for="homePhone" style="font-size:12px;color:var(--ink2);margin-bottom:4px">電話</label>
-            <input id="homePhone" type="tel" maxlength="20" placeholder="聯絡電話（例：0912345678）" autocomplete="tel" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px">
-          </div>
+    <!-- 方案設定專屬展開區塊：點選任一方案即隨即展開 A.晶石升級 B.配送方式 C.深度推論報告 與 訂單總價金額 -->
+    <div id="planConfigSection" class="plan-config-section">
+      <div class="plan-config-banner" id="planConfigBanner">
+        <div class="plan-config-banner-title">
+          <span style="font-size:16px">✨</span>
+          <span>已選取方案：<b id="selectedPlanTitle">載入中…</b></span>
         </div>
-        <div style="display:grid;grid-template-columns:105px 1fr;gap:10px">
-          <div>
-            <label for="homeZip" style="font-size:12px;color:var(--ink2);margin-bottom:4px">郵遞區號</label>
-            <input id="homeZip" type="text" maxlength="6" placeholder="郵遞區號" autocomplete="postal-code" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px">
-          </div>
-          <div>
-            <label for="homeAddr" style="font-size:12px;color:var(--ink2);margin-bottom:4px">地址</label>
-            <input id="homeAddr" type="text" maxlength="200" placeholder="完整收件地址（縣市區路巷弄門牌樓層）" autocomplete="street-address" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px">
-          </div>
+        <span class="plan-config-banner-sub">隨即展開專屬客製選項與配送設定</span>
+      </div>
+
+      <!-- A. 晶石升級推薦是否加購選項 -->
+      <div class="config-step-card" id="configBlockA">
+        <div class="config-step-header">
+          <span class="step-badge">A</span>
+          <h3 class="step-title">晶石升級推薦是否加購選項</h3>
+        </div>
+        <p class="sec-lead" style="margin:4px 0 10px 0">依上方設計說明，選擇是否為所選方案加購升級高品級晶石配置。</p>
+        <div id="upgradeSection" style="display:none">
+          <div class="upgrade-choice" id="upgradeChoices"></div>
         </div>
       </div>
 
-      <!-- 超商店到店：收件者／電話／超商名／全台門市選擇（7-11、全家、萊爾富＋客戶自填） -->
-      <div id="storeAddressGroup" style="display:none;background:#FAF8F5;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:10px">
-        <div style="font-weight:700;font-size:13.5px;color:var(--rose-d);margin-bottom:10px;display:flex;align-items:center;gap:6px">🏪 超商店到店門市資訊（全台 7-11／全家／萊爾富門市）</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-          <div>
-            <label for="storeRecipient" style="font-size:12px;color:var(--ink2);margin-bottom:4px;display:block">收件者</label>
-            <input id="storeRecipient" type="text" maxlength="50" placeholder="取件人姓名（核對證件）" autocomplete="name" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px">
-          </div>
-          <div>
-            <label for="storePhone" style="font-size:12px;color:var(--ink2);margin-bottom:4px;display:block">電話</label>
-            <input id="storePhone" type="tel" maxlength="20" placeholder="手機號碼（接收取貨簡訊）" autocomplete="tel" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px">
-          </div>
+      <!-- B. 配送方式 -->
+      <div class="config-step-card" id="configBlockB">
+        <div class="config-step-header">
+          <span class="step-badge">B</span>
+          <h3 class="step-title">配送方式</h3>
         </div>
-
-        <div style="margin-bottom:10px">
-          <label for="storeChain" style="font-size:12px;color:var(--ink2);margin-bottom:4px;display:block">超商品牌</label>
-          <select id="storeChain" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:13px">
-            <option value="7-11" selected>7-11（統一超商）</option>
-            <option value="全家">全家（FamilyMart）</option>
-            <option value="萊爾富">萊爾富（Hi-Life）</option>
-            <option value="自填">✏️ 其他超商／直接手動填寫</option>
-          </select>
-        </div>
-
-        <!-- 方案 A：全台縣市 ➔ 行政區 ➔ 門市 階層連動選單 -->
-        <div id="storeCascadeWrap" style="display:block;margin-bottom:10px">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
-            <div>
-              <label for="storeCity" style="font-size:12px;color:var(--ink2);margin-bottom:4px;display:block">選擇縣市</label>
-              <select id="storeCity" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:13px">
-                <option value="">-- 請選擇縣市 --</option>
-              </select>
+        <p class="sec-lead" style="margin:4px 0 10px 0">已預選你先前填寫的方式，可在送出前調整。</p>
+        <div class="upgrade-choice" id="shippingChoices"></div>
+        <div id="shippingAddressField" style="margin-top:14px;display:none">
+          <!-- 宅配到府：收件者／電話／郵遞區號／地址 -->
+          <div id="homeAddressGroup" style="display:none;background:#FAF8F5;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:10px">
+            <div style="font-weight:700;font-size:13.5px;color:var(--rose-d);margin-bottom:10px;display:flex;align-items:center;gap:6px">🚚 宅配到府收件資訊</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+              <div>
+                <label for="homeRecipient" style="font-size:12px;color:var(--ink2);margin-bottom:4px">收件者</label>
+                <input id="homeRecipient" type="text" maxlength="50" placeholder="收件人姓名" autocomplete="name" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px">
+              </div>
+              <div>
+                <label for="homePhone" style="font-size:12px;color:var(--ink2);margin-bottom:4px">電話</label>
+                <input id="homePhone" type="tel" maxlength="20" placeholder="聯絡電話（例：0912345678）" autocomplete="tel" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px">
+              </div>
             </div>
-            <div>
-              <label for="storeDistrict" style="font-size:12px;color:var(--ink2);margin-bottom:4px;display:block">選擇區域</label>
-              <select id="storeDistrict" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:13px" disabled>
-                <option value="">-- 先選縣市 --</option>
-              </select>
+            <div style="display:grid;grid-template-columns:105px 1fr;gap:10px">
+              <div>
+                <label for="homeZip" style="font-size:12px;color:var(--ink2);margin-bottom:4px">郵遞區號</label>
+                <input id="homeZip" type="text" maxlength="6" placeholder="郵遞區號" autocomplete="postal-code" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px">
+              </div>
+              <div>
+                <label for="homeAddr" style="font-size:12px;color:var(--ink2);margin-bottom:4px">地址</label>
+                <input id="homeAddr" type="text" maxlength="200" placeholder="完整收件地址（縣市區路巷弄門牌樓層）" autocomplete="street-address" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px">
+              </div>
             </div>
           </div>
 
-          <div style="margin-bottom:8px">
-            <label for="storeBranchSelect" style="font-size:12px;color:var(--ink2);margin-bottom:4px;display:block">選擇門市（全台資料）</label>
-            <select id="storeBranchSelect" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:13px" disabled>
-              <option value="">-- 請先選擇縣市與區域 --</option>
-            </select>
+          <!-- 超商店到店：收件者／電話／超商名／全台門市選擇（7-11、全家、萊爾富＋客戶自填） -->
+          <div id="storeAddressGroup" style="display:none;background:#FAF8F5;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:10px">
+            <div style="font-weight:700;font-size:13.5px;color:var(--rose-d);margin-bottom:10px;display:flex;align-items:center;gap:6px">🏪 超商店到店門市資訊（全台 7-11／全家／萊爾富門市）</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+              <div>
+                <label for="storeRecipient" style="font-size:12px;color:var(--ink2);margin-bottom:4px;display:block">收件者</label>
+                <input id="storeRecipient" type="text" maxlength="50" placeholder="取件人姓名（核對證件）" autocomplete="name" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px">
+              </div>
+              <div>
+                <label for="storePhone" style="font-size:12px;color:var(--ink2);margin-bottom:4px;display:block">電話</label>
+                <input id="storePhone" type="tel" maxlength="20" placeholder="手機號碼（接收取貨簡訊）" autocomplete="tel" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px">
+              </div>
+            </div>
+
+            <div style="margin-bottom:10px">
+              <label for="storeChain" style="font-size:12px;color:var(--ink2);margin-bottom:4px;display:block">超商品牌</label>
+              <select id="storeChain" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:13px">
+                <option value="7-11" selected>7-11（統一超商）</option>
+                <option value="全家">全家（FamilyMart）</option>
+                <option value="萊爾富">萊爾富（Hi-Life）</option>
+                <option value="自填">✏️ 其他超商／直接手動填寫</option>
+              </select>
+            </div>
+
+            <!-- 方案 A：全台縣市 ➔ 行政區 ➔ 門市 階層連動選單 -->
+            <div id="storeCascadeWrap" style="display:block;margin-bottom:10px">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
+                <div>
+                  <label for="storeCity" style="font-size:12px;color:var(--ink2);margin-bottom:4px;display:block">選擇縣市</label>
+                  <select id="storeCity" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:13px">
+                    <option value="">-- 請選擇縣市 --</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="storeDistrict" style="font-size:12px;color:var(--ink2);margin-bottom:4px;display:block">選擇區域</label>
+                  <select id="storeDistrict" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:13px" disabled>
+                    <option value="">-- 先選縣市 --</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="margin-bottom:8px">
+                <label for="storeBranchSelect" style="font-size:12px;color:var(--ink2);margin-bottom:4px;display:block">選擇門市（全台資料）</label>
+                <select id="storeBranchSelect" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:13px" disabled>
+                  <option value="">-- 請先選擇縣市與區域 --</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label for="storeName" style="font-size:12px;color:var(--ink2);margin-bottom:4px;display:block">門市名稱／店號（可手動修改）</label>
+              <input id="storeName" type="text" maxlength="150" placeholder="請選擇或填寫門市名稱與店號（例：龍潭大昌門市 981234）" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px">
+              <div id="storeAddrHint" style="font-size:12px;color:#786652;margin-top:4px;display:none"></div>
+            </div>
+          </div>
+
+          <!-- 完整寄送資料（由上方欄位自動整理同步） -->
+          <div id="shippingSummaryBox" style="margin-top:10px;padding:10px 14px;background:#FAF8F5;border:1px dashed var(--line);border-radius:10px">
+            <label for="shippingAddress" style="font-size:12px;color:var(--ink2);margin-bottom:4px;display:block">完整寄送資料（由上方欄位自動整理，亦可微調）：</label>
+            <input type="text" id="shippingAddress" maxlength="300" placeholder="完整收件或門市資訊" style="width:100%;padding:8px 12px;font-size:13px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)">
           </div>
         </div>
+      </div>
 
-        <div>
-          <label for="storeName" style="font-size:12px;color:var(--ink2);margin-bottom:4px;display:block">門市名稱／店號（可手動修改）</label>
-          <input id="storeName" type="text" maxlength="150" placeholder="請選擇或填寫門市名稱與店號（例：龍潭大昌門市 981234）" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px">
-          <div id="storeAddrHint" style="font-size:12px;color:#786652;margin-top:4px;display:none"></div>
+      <!-- C. 是否加購深度推論報告選項 -->
+      <div class="config-step-card" id="configBlockC">
+        <div class="config-step-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="step-badge">C</span>
+            <h3 class="step-title">是否加購深度推論報告選項</h3>
+          </div>
+          <button type="button" onclick="openSampleReportModal()" class="btn-sample-report">📄 點此檢視深度命理推論報告說明</button>
+        </div>
+        <p class="sec-lead" style="margin:4px 0 10px 0">由五派合參命理、八字喜用與現代心理微觀解讀，提供專屬個人深度分析（全文約 8～12 頁）：</p>
+        <div class="upgrade-choice" id="deepReportChoices"></div>
+      </div>
+
+      <!-- 訂單總價金額 -->
+      <div class="order-summary-card" id="configBlockSummary">
+        <div class="summary-card-title">
+          <span>🧾 訂單明細與總額試算</span>
+        </div>
+        <div class="summary-breakdown">
+          <p id="orderPlanChoice"></p>
+          <p id="orderUpgradeChoice"></p>
+          <p id="orderShipping"></p>
+          <p id="orderDeepReport"></p>
+        </div>
+        <div class="order-total">
+          <span>訂單總價金額</span>
+          <output id="orderTotal" aria-live="polite">—</output>
         </div>
       </div>
-
-      <!-- 完整寄送資料（由上方欄位自動整理同步） -->
-      <div id="shippingSummaryBox" style="margin-top:10px;padding:10px 14px;background:#FAF8F5;border:1px dashed var(--line);border-radius:10px">
-        <label for="shippingAddress" style="font-size:12px;color:var(--ink2);margin-bottom:4px;display:block">完整寄送資料（由上方欄位自動整理，亦可微調）：</label>
-        <input type="text" id="shippingAddress" maxlength="300" placeholder="完整收件或門市資訊" style="width:100%;padding:8px 12px;font-size:13px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)">
-      </div>
-    </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px">
-      <h3 style="font-size:15px;margin:0">深度推論報告</h3>
-      <button type="button" onclick="openSampleReportModal()" style="background:none;border:none;color:var(--rose-d);font-size:12.5px;cursor:pointer;text-decoration:underline;font-weight:600">📄 點此檢視深度命理堆論報告說明</button>
-    </div>
-    <div class="upgrade-choice" id="deepReportChoices"></div>
-    <div class="order-summary">
-      <p id="orderShipping"></p>
-      <p id="orderDeepReport"></p>
-      <div class="order-total"><span>訂單總價</span><output id="orderTotal" aria-live="polite">—</output></div>
     </div>
   </section>
 
@@ -554,6 +628,24 @@ function demoOrder(){
           {choice_id:'bag',label:'錦囊組晶石升級',roles:['bag'],upgrade_amount:300,server_total:2230},
           {choice_id:'both',label:'主方案＋錦囊組晶石升級',roles:['main','bag'],upgrade_amount:600,server_total:2530}
         ]
+      },
+      {
+        plan_id:'personal.main_bag_reset.v1', label:'③ 完整三條・日夜守護（含夜間本源重置款）',
+        desc:'白天雙串衝刺眼前目標與流年調和，夜晚本源重置深層靜心撫平思緒。',
+        items:[
+          { role:'main', label:'主方案', bracelet_count:1 },
+          { role:'bag', label:'錦囊組', bracelet_count:1 },
+          { role:'reset', label:'本源重置款', bracelet_count:1 }
+        ],
+        server_total:2830, server_total_upgraded:3730, upgrade_amount:900,
+        deep_report:{label:'深度推論報告',amount:0,selected:false},
+        upgrade_choices:[
+          {choice_id:'none',label:'維持原配置',roles:[],upgrade_amount:0,server_total:2830},
+          {choice_id:'main',label:'主方案晶石升級',roles:['main'],upgrade_amount:300,server_total:3130},
+          {choice_id:'bag',label:'錦囊組晶石升級',roles:['bag'],upgrade_amount:300,server_total:3130},
+          {choice_id:'reset',label:'本源重置款晶石升級',roles:['reset'],upgrade_amount:300,server_total:3130},
+          {choice_id:'all',label:'完整三條晶石升級',roles:['main','bag','reset'],upgrade_amount:900,server_total:3730}
+        ]
       }
     ]
   };
@@ -565,6 +657,10 @@ function demoOrder(){
     },
     bag: {
       note: '錦囊組加強火土調和，特別補足流年盲區。',
+      photos: []
+    },
+    reset: {
+      note: '本源重置款選用極柔月光石、白水晶微量靜心，專供夜間睡眠配戴。',
       photos: []
     }
   };
@@ -940,6 +1036,30 @@ function render(){
     return true;
   }
 
+  // 建立本源重置款初稿 HTML 卡片（用於內嵌 quoteBody）
+  function buildResetDraftBlock(resetData){
+    if(!resetData) return '';
+    const ph = (resetData && resetData.photos) || [];
+    if(!ph.length) return '';
+    const imgs = ph.slice(0,5).map(p => {
+      const u = p.url || '', t = p.thumb || p.url || '';
+      const fixedU = u.replace(/https:\/\/drive\.google\.com\/(?:uc\?(?:export=view&(?:amp;)?|id=)|file\/d\/)(?:id=)?([a-zA-Z0-9_-]+)(?:[^\s"'>]*)/g, 'https://lh3.googleusercontent.com/d/$1');
+      const fixedT = t.replace(/https:\/\/drive\.google\.com\/(?:uc\?(?:export=view&(?:amp;)?|id=)|file\/d\/)(?:id=)?([a-zA-Z0-9_-]+)(?:[^\s"'>]*)/g, 'https://lh3.googleusercontent.com/d/$1');
+      return `<a href="${esc(fixedU)}" target="_blank" style="display:inline-block;border-radius:10px;overflow:hidden;border:1.5px solid var(--line);box-shadow:0 2px 6px rgba(0,0,0,0.06);margin:4px">
+        <img src="${esc(fixedT)}" alt="🌙 ③【本源重置款】設計初稿／示意圖（夜間靜心）" style="width:170px;max-width:45%;border-radius:8px;object-fit:cover;display:block">
+      </a>`;
+    }).join('');
+    return `<div id="injectedDraftReset" style="margin:14px 0;padding:12px 14px;background:#FAF8F5;border:1px solid #CFD8DC;border-radius:10px">`
+      + `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">`
+      + `<h4 style="margin:0;color:#2C3E50;font-size:14.5px;display:flex;align-items:center;gap:6px">🌙 ③【本源重置款】設計初稿／示意圖（夜間靜心）</h4>`
+      + `<span class="rec-tag" style="background:#4A6572;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px">夜間靜心</span>`
+      + `</div>`
+      + `<p style="margin:0 0 6px 0;color:#666;font-size:12.5px">特別配置最溫和沉靜之微量晶石，專供夜間睡眠、靜心撫平思緒、卸除整日精神疲憊：</p>`
+      + `<div style="text-align:center;margin:6px 0">${imgs}</div>`
+      + (resetData.note ? `<p style="margin:6px 0 0;padding:6px 10px;background:#fff;border-left:3px solid #4A6572;border-radius:4px;font-size:12px;color:#555">💬 <b>設計師備註：</b>${esc(resetData.note)}</p>` : '')
+      + `</div>`;
+  }
+
   let dd = ORDER.design_drafts;
   if(typeof dd === 'string'){
     try { dd = JSON.parse(dd); } catch(_) { dd = null; }
@@ -950,6 +1070,23 @@ function render(){
   const isCoupleOrder = ORDER.product_mode === 'couple';
   const nameA = (ORDER.A && ORDER.A.name) || ORDER.name || 'Partner A';
   const nameB = (ORDER.B && ORDER.B.name) || 'Partner B';
+
+  // 若 quote_html 已有主方案/錦囊組初稿，但尚未包含本源重置款初稿，且後台已上傳本源重置款照片，則無縫追加至 quoteBody 之中
+  const qHasInlineReset = qHtmlRaw.includes('本源重置款】設計初稿') || qHtmlRaw.includes('本源重置款設計初稿');
+  if(qHasInline && dd && dd.reset && Array.isArray(dd.reset.photos) && dd.reset.photos.length && !qHasInlineReset && !document.getElementById('injectedDraftReset')){
+    const resetHtml = buildResetDraftBlock(dd.reset);
+    if(resetHtml && $('#quoteBody')){
+      const payH4 = Array.from($('#quoteBody').querySelectorAll('h4')).find(h => h.textContent.includes('收款資訊'));
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = resetHtml;
+      const resetNode = wrapper.firstElementChild;
+      if(payH4 && payH4.parentNode){
+        payH4.parentNode.insertBefore(resetNode, payH4);
+      } else {
+        $('#quoteBody').appendChild(resetNode);
+      }
+    }
+  }
 
   if(!qHasInline && dd){
     let okMain = false, okBag = false, okReset = false;
@@ -1163,17 +1300,21 @@ function render(){
 
     return `
     <label class="plan-card">
-      <input type="radio" name="plan" value="${esc(p.plan_id)}" ${p===selectedPlan?'checked':''}>
-      <div class="plan-body">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
-          <div style="flex:1;min-width:180px">
-            <div class="plan-title">${esc(p.label)}${p.recommended?' <span class="rec-tag">推薦</span>':''}${badgeText}</div>
-            <p style="margin:4px 0 6px 0;font-size:13px;color:var(--ink2)">${esc(p.desc)}</p>
-            <p style="font-size:12.5px;color:#888;margin-bottom:6px">${esc(itemText)}</p>
-          </div>
-          ${draftThumbsHtml}
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px">
+        <input type="radio" name="plan" value="${esc(p.plan_id)}" ${p===selectedPlan?'checked':''} style="margin-top:4px">
+        <div style="flex:1;min-width:0">
+          <div class="plan-title">${esc(p.label)}${p.recommended?' <span class="rec-tag">推薦</span>':''}${badgeText}</div>
+          <p style="margin:4px 0 0 0;font-size:12px;color:#888">${esc(itemText)}</p>
         </div>
-        ${effectBadge}
+      </div>
+      <div style="display:flex;justify-content:center;align-items:center;padding:10px 6px;margin:6px 0;background:#FAF8F5;border:1px dashed var(--line);border-radius:10px;min-height:76px">
+        ${draftThumbsHtml}
+      </div>
+      <div class="plan-body">
+        <p style="margin:4px 0 8px 0;font-size:12.5px;color:var(--ink2);line-height:1.6">${esc(p.desc)}</p>
+        <div style="margin-top:auto">
+          ${effectBadge}
+        </div>
       </div>
     </label>`;
   }).join('');
@@ -1234,6 +1375,21 @@ function render(){
   renderUpgradeChoices();
   renderOrderChoices();
 
+  function updatePlanConfigExpansion(animate){
+    if($('#selectedPlanTitle') && selectedPlan){
+      $('#selectedPlanTitle').textContent = selectedPlan.label;
+    }
+    const cfgSec = $('#planConfigSection');
+    if(cfgSec){
+      cfgSec.style.display = 'flex';
+      if(animate){
+        cfgSec.classList.remove('anim-expand');
+        void cfgSec.offsetWidth;
+        cfgSec.classList.add('anim-expand');
+      }
+    }
+  }
+
   document.querySelectorAll('input[name=plan]').forEach(r=>r.addEventListener('change',()=>{
     const previousDeep = selectedDeepReport;
     selectedPlan = ORDER.plans.find(p=>p.plan_id===r.value);
@@ -1243,8 +1399,23 @@ function render(){
     const deepRoles = previousDeep.roles.filter(role=>selectedPlan.items.some(item=>item.role===role));
     selectedDeepReport = selectedPlan.deep_report_choices.find(c=>c.roles.length===deepRoles.length && c.roles.every(role=>deepRoles.includes(role)))
       || selectedPlan.deep_report_choices.find(c=>c.choice_id===selectedPlan.default_deep_report_choice_id);
-    renderUpgradeChoices(); renderOrderChoices(); updateTotal();
+    renderUpgradeChoices();
+    renderOrderChoices();
+    updatePlanConfigExpansion(true);
+    updateTotal();
   }));
+
+  document.querySelectorAll('.plan-card').forEach(card=>{
+    card.addEventListener('click',()=>{
+      const radio = card.querySelector('input[name=plan]');
+      if(radio && !radio.checked){
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change'));
+      }
+    });
+  });
+
+  updatePlanConfigExpansion(false);
   $('#confirmBtn').disabled = false;
   updateTotal();
   previewHold();
@@ -1392,6 +1563,12 @@ function updateTotal(){
   const isCouple = ORDER.product_mode === 'couple';
   const qtyDesc = isCouple ? '情侶對串（共 2 條手串）' : (ORDER.qty ? ('訂製規格：' + ORDER.qty + ' 條手串') : '客製五行手串');
   if($('#cfBar small')) $('#cfBar small').textContent = qtyDesc + ' · 目前選擇金額';
+  if($('#selectedPlanTitle') && selectedPlan) $('#selectedPlanTitle').textContent = selectedPlan.label;
+  if($('#orderPlanChoice') && selectedPlan) $('#orderPlanChoice').textContent = '方案：' + selectedPlan.label;
+  if($('#orderUpgradeChoice') && selectedChoice) {
+    const upgExtra = +selectedChoice.upgrade_amount > 0 ? '（＋NT$' + (+selectedChoice.upgrade_amount).toLocaleString() + '）' : '（不加價）';
+    $('#orderUpgradeChoice').textContent = '晶石升級：' + selectedChoice.label + ' ' + upgExtra;
+  }
   $('#cfTotal').textContent = total ? 'NT$ ' + total.server_total.toLocaleString() : '—';
   $('#orderTotal').textContent = $('#cfTotal').textContent;
   $('#orderShipping').textContent = '配送：' + selectedShipping.label + '，運費 NT$' + selectedShipping.amount.toLocaleString();
