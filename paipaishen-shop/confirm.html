@@ -102,6 +102,27 @@ button{font-family:inherit;}
 .opt b{font-weight:700;font-size:13.5px;display:block;}
 .opt .d{color:var(--ink2);font-weight:300;display:block;font-size:12px;margin-top:2px;}
 
+.choice-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:8px;}
+@media(min-width:640px){
+  .choice-grid.two-col{grid-template-columns:1fr 1fr;}
+}
+.decision-card{border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;background:#fff;cursor:pointer;transition:all .18s ease;display:flex;align-items:flex-start;gap:10px;box-shadow:0 2px 6px rgba(0,0,0,.03);}
+.decision-card:hover{border-color:var(--dawn2);transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,0.06);}
+.decision-card.selected{border-color:var(--rose);background:#FFFDF9;outline:2px solid var(--gold);box-shadow:0 4px 14px rgba(201,162,75,0.2);}
+.decision-card input[type=radio]{margin-top:3px;accent-color:var(--rose-d);flex-shrink:0;}
+.decision-card-body{flex:1;}
+.decision-card-title{font-size:14px;font-weight:700;color:var(--ink);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px;}
+.decision-card-sub{font-size:12px;color:var(--ink2);margin-top:4px;line-height:1.5;}
+.decision-card-tag{font-size:10px;background:var(--gold);color:#fff;padding:2px 7px;border-radius:8px;font-weight:600;}
+
+.custom-toggle-btn{background:none;border:none;color:var(--rose-d);font-size:12.5px;cursor:pointer;padding:8px 2px;font-weight:600;display:inline-flex;align-items:center;gap:4px;}
+.custom-toggle-btn:hover{text-decoration:underline;}
+.custom-checklist{background:#FAF8F5;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:6px;display:flex;flex-direction:column;gap:8px;}
+.custom-check-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;background:#fff;border:1px solid #EBE5DD;cursor:pointer;transition:.15s;}
+.custom-check-item:hover{border-color:var(--gold);}
+.custom-check-item.active{border-color:var(--rose);background:#FFFDF9;}
+.custom-check-item input[type=checkbox]{accent-color:var(--rose-d);width:16px;height:16px;flex-shrink:0;}
+
 label{display:block;font-size:13px;font-weight:500;margin-bottom:6px;}
 textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font:inherit;font-size:13.5px;min-height:64px;resize:vertical;background:#fff;color:var(--ink);}
 textarea:focus{outline:2px solid var(--dawn2);border-color:var(--dawn2);}
@@ -1424,20 +1445,245 @@ function render(){
 function renderUpgradeChoices(){
   const upWrap = $('#upgradeChoices');
   if(!upWrap) return;
-  if(selectedPlan.upgrade_choices && selectedPlan.upgrade_choices.length > 1){
-    upWrap.innerHTML = selectedPlan.upgrade_choices.map(c=>`
-      <label class="opt"><input type="radio" name="upg" value="${esc(c.choice_id)}" ${c===selectedChoice?'checked':''}>
-        <span><b>${esc(c.label)}</b><span class="d">${+c.upgrade_amount > 0 ? '＋NT$' + (+c.upgrade_amount).toLocaleString() : '不加價'}</span></span>
-      </label>`).join('');
-    document.querySelectorAll('input[name=upg]').forEach(r=>r.addEventListener('change',()=>{
-      selectedChoice = selectedPlan.upgrade_choices.find(c=>c.choice_id===r.value); updateTotal();
-    }));
-  } else {
+  const choices = selectedPlan.upgrade_choices || [];
+  const paidChoices = choices.filter(c => +c.upgrade_amount > 0);
+
+  // 老闆未上傳或未設定此方案之升級加價：顯示純粹質樸說明，不產生多餘選項
+  if(!paidChoices.length){
     upWrap.innerHTML = `
-      <div style="background:#FAF8F5;border:1px dashed var(--gold);border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--ink);line-height:1.6">
-        <span style="font-weight:700;color:var(--rose-d)">💎 晶石品質規格客製升級：</span><br>
-        目前已為您配置嚴選天然晶石。若您希望升級為更高品級珍稀晶石（如高透碧璽、特級極光23、滿絲頂級鈦晶、頂級月光石等，每串升級約 NT$300～NT$600），歡迎在下方「想補充的話」備註說明，設計師將為您評估更換！
+      <div style="background:#FAF8F5;border:1.5px solid #E2D9CD;border-radius:12px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px">
+        <span style="font-size:20px;flex-shrink:0;line-height:1">🌿</span>
+        <div>
+          <div style="font-weight:700;font-size:13.5px;color:var(--ink);margin-bottom:3px">維持嚴選天然原配置（最佳品質・不加價）</div>
+          <p style="margin:0;font-size:12.5px;color:var(--ink2);line-height:1.6">
+            此方案已由店長為您精選頂規等級天然晶石，維持原配置即為最佳狀態，無額外加價升級項目。
+          </p>
+        </div>
       </div>`;
+    selectedChoice = choices.find(c=>c.choice_id==='none') || choices[0];
+    return;
+  }
+
+  // 老闆有主動建議並設定升級項目：僅針對老闆主動建議的水晶與手串提供升級
+  const noneChoice = choices.find(c => c.choice_id === 'none') || { choice_id:'none', label:'維持原配置', upgrade_amount:0, roles:[] };
+  const allChoice = paidChoices.reduce((max, c) => c.upgrade_amount > max.upgrade_amount ? c : max, paidChoices[0]);
+  const singleChoices = paidChoices.filter(c => c.roles && c.roles.length === 1);
+
+  // 解析 quote_html 中老闆主動上傳之特定升級水晶名稱
+  const qHtml = ORDER.quote_html || '';
+  const stoneNameMap = {};
+  const regUpgrade = /<h4[^>]*>✨\s*([^<]+?水晶升級推薦)<\/h4>[\s\S]*?<div[^>]*><b>([^<]+)<\/b>/gi;
+  let matchUp;
+  while ((matchUp = regUpgrade.exec(qHtml)) !== null) {
+    const t = matchUp[1];
+    const s = matchUp[2].trim();
+    if (t.includes('主方案')) stoneNameMap['main'] = s;
+    if (t.includes('錦囊組')) stoneNameMap['bag'] = s;
+    if (t.includes('本源重置')) stoneNameMap['reset'] = s;
+  }
+
+  function getTrackDesc(roles){
+    if(!roles || !roles.length) return '';
+    return roles.map(r => {
+      const it = selectedPlan.items.find(i=>i.role===r);
+      const label = it ? it.label : r;
+      const stone = stoneNameMap[r];
+      return stone ? `${label}【${stone}】` : label;
+    }).join('、');
+  }
+
+  const isAllSelected = selectedChoice && allChoice && selectedChoice.choice_id === allChoice.choice_id;
+  const isNoneSelected = !selectedChoice || selectedChoice.choice_id === 'none';
+
+  let customHtml = '';
+  if (singleChoices.length > 1) {
+    const checkItems = singleChoices.map(c => {
+      const r = c.roles[0];
+      const it = selectedPlan.items.find(i=>i.role===r);
+      const itLabel = it ? it.label : c.label;
+      const stone = stoneNameMap[r];
+      const isChecked = selectedChoice && selectedChoice.roles && selectedChoice.roles.includes(r);
+      return `
+        <label class="custom-check-item ${isChecked ? 'active' : ''}">
+          <input type="checkbox" class="upg-sub-check" data-role="${esc(r)}" ${isChecked ? 'checked' : ''}>
+          <div style="flex:1">
+            <span style="font-weight:700;font-size:13px;color:var(--ink)">${esc(itLabel)} ${stone ? `<span style="color:var(--rose-d)">【${esc(stone)}】</span>` : ''}</span>
+            <span style="font-size:12px;color:var(--ink2);margin-left:6px">＋NT$ ${(+c.upgrade_amount).toLocaleString()}</span>
+          </div>
+        </label>`;
+    }).join('');
+
+    customHtml = `
+      <div style="margin-top:10px">
+        <button type="button" class="custom-toggle-btn" id="btnToggleUpgCustom">
+          ⚙️ 自選特定手串升級 ▾
+        </button>
+        <div id="upgCustomBox" class="custom-checklist" style="display:none">
+          <p style="margin:0 0 4px 0;font-size:12px;color:#786652">僅列出店長本次主動建議升級之手串與水晶項目：</p>
+          ${checkItems}
+        </div>
+      </div>`;
+  }
+
+  upWrap.innerHTML = `
+    <div class="choice-grid two-col">
+      <div class="decision-card ${isNoneSelected ? 'selected' : ''}" id="cardUpgNone">
+        <input type="radio" name="upg_mode" value="none" ${isNoneSelected ? 'checked' : ''}>
+        <div class="decision-card-body">
+          <div class="decision-card-title">
+            <span>🌿 維持嚴選原配置</span>
+            <span style="color:#555;font-weight:600;font-size:12.5px">不加價</span>
+          </div>
+          <div class="decision-card-sub">維持目前已規劃之天然嚴選晶石配置，成色勻淨自然。</div>
+        </div>
+      </div>
+
+      <div class="decision-card ${isAllSelected ? 'selected' : ''}" id="cardUpgAll">
+        <input type="radio" name="upg_mode" value="all" ${isAllSelected ? 'checked' : ''}>
+        <div class="decision-card-body">
+          <div class="decision-card-title">
+            <span>✨ 升級店長推薦晶石 <span class="decision-card-tag">店長推薦</span></span>
+            <span style="color:var(--rose-d);font-weight:700;font-size:13px">＋NT$ ${(+allChoice.upgrade_amount).toLocaleString()}</span>
+          </div>
+          <div class="decision-card-sub">針對店長主動建議項目升級（${esc(getTrackDesc(allChoice.roles))}）。</div>
+        </div>
+      </div>
+    </div>
+    ${customHtml}
+  `;
+
+  const cNone = $('#cardUpgNone');
+  const cAll = $('#cardUpgAll');
+  if(cNone) cNone.onclick = () => {
+    selectedChoice = noneChoice;
+    renderUpgradeChoices();
+    updateTotal();
+  };
+  if(cAll) cAll.onclick = () => {
+    selectedChoice = allChoice;
+    renderUpgradeChoices();
+    updateTotal();
+  };
+
+  const toggleBtn = $('#btnToggleUpgCustom');
+  const customBox = $('#upgCustomBox');
+  if(toggleBtn && customBox){
+    const hasPartial = !isNoneSelected && !isAllSelected;
+    if(hasPartial) customBox.style.display = 'flex';
+    toggleBtn.onclick = (e) => {
+      e.preventDefault();
+      customBox.style.display = customBox.style.display === 'none' ? 'flex' : 'none';
+    };
+
+    customBox.querySelectorAll('.upg-sub-check').forEach(chk => {
+      chk.onchange = () => {
+        const checkedRoles = Array.from(customBox.querySelectorAll('.upg-sub-check:checked')).map(c => c.dataset.role);
+        const match = choices.find(c => c.roles && c.roles.length === checkedRoles.length && c.roles.every(r => checkedRoles.includes(r)));
+        selectedChoice = match || (checkedRoles.length === 0 ? noneChoice : allChoice);
+        renderUpgradeChoices();
+        updateTotal();
+      };
+    });
+  }
+}
+
+function renderDeepReportChoices(){
+  const deepWrap = $('#deepReportChoices');
+  if(!deepWrap) return;
+  const choices = selectedPlan.deep_report_choices || [];
+  const noneChoice = choices.find(c => c.choice_id === 'none') || { choice_id:'none', label:'不加購深度推論報告', amount:0, roles:[] };
+  const allChoice = choices.reduce((max, c) => c.amount > (max ? max.amount : -1) ? c : max, choices[0] || noneChoice);
+  const items = selectedPlan.items || [];
+  const totalItems = items.length;
+
+  const isNone = !selectedDeepReport || selectedDeepReport.choice_id === 'none';
+  const isAll = selectedDeepReport && allChoice && selectedDeepReport.choice_id === allChoice.choice_id;
+
+  let customHtml = '';
+  if (totalItems > 1) {
+    const checkItems = items.map(it => {
+      const isChecked = selectedDeepReport && selectedDeepReport.roles && selectedDeepReport.roles.includes(it.role);
+      return `
+        <label class="custom-check-item ${isChecked ? 'active' : ''}">
+          <input type="checkbox" class="deep-sub-check" data-role="${esc(it.role)}" ${isChecked ? 'checked' : ''}>
+          <div style="flex:1">
+            <span style="font-weight:700;font-size:13px;color:var(--ink)">${esc(it.label)} 深度推論報告</span>
+            <span style="font-size:12px;color:var(--ink2);margin-left:6px">＋NT$ 300</span>
+          </div>
+        </label>`;
+    }).join('');
+
+    customHtml = `
+      <div style="margin-top:10px">
+        <button type="button" class="custom-toggle-btn" id="btnToggleDeepCustom">
+          ⚙️ 自選特定手串加購深度報告 ▾
+        </button>
+        <div id="deepCustomBox" class="custom-checklist" style="display:none">
+          <p style="margin:0 0 4px 0;font-size:12px;color:#786652">若僅需針對特定手串加購深入解讀，請勾選：</p>
+          ${checkItems}
+        </div>
+      </div>`;
+  }
+
+  deepWrap.innerHTML = `
+    <div class="choice-grid two-col">
+      <div class="decision-card ${isAll ? 'selected' : ''}" id="cardDeepAll">
+        <input type="radio" name="deep_mode" value="all" ${isAll ? 'checked' : ''}>
+        <div class="decision-card-body">
+          <div class="decision-card-title">
+            <span>📘 全套加購深度推論報告 <span class="decision-card-tag">推薦</span></span>
+            <span style="color:var(--rose-d);font-weight:700;font-size:13px">＋NT$ ${allChoice.amount.toLocaleString()}</span>
+          </div>
+          <div class="decision-card-sub">含 ${items.map(it=>it.label).join('、')} 完整五派合參及現代微觀心理分析（全文約 ${totalItems * 8}～${totalItems * 12} 頁）。</div>
+        </div>
+      </div>
+
+      <div class="decision-card ${isNone ? 'selected' : ''}" id="cardDeepNone">
+        <input type="radio" name="deep_mode" value="none" ${isNone ? 'checked' : ''}>
+        <div class="decision-card-body">
+          <div class="decision-card-title">
+            <span>⚪ 不加購深度推論報告</span>
+            <span style="color:#555;font-weight:600;font-size:12.5px">不加價</span>
+          </div>
+          <div class="decision-card-sub">手串隨附日常核心重點說明與命盤簡述即可，不另行加購報告。</div>
+        </div>
+      </div>
+    </div>
+    ${customHtml}
+  `;
+
+  const cAll = $('#cardDeepAll');
+  const cNone = $('#cardDeepNone');
+  if(cAll) cAll.onclick = () => {
+    selectedDeepReport = allChoice;
+    renderDeepReportChoices();
+    updateTotal();
+  };
+  if(cNone) cNone.onclick = () => {
+    selectedDeepReport = noneChoice;
+    renderDeepReportChoices();
+    updateTotal();
+  };
+
+  const toggleBtn = $('#btnToggleDeepCustom');
+  const customBox = $('#deepCustomBox');
+  if(toggleBtn && customBox){
+    const hasPartial = !isNone && !isAll;
+    if(hasPartial) customBox.style.display = 'flex';
+    toggleBtn.onclick = (e) => {
+      e.preventDefault();
+      customBox.style.display = customBox.style.display === 'none' ? 'flex' : 'none';
+    };
+
+    customBox.querySelectorAll('.deep-sub-check').forEach(chk => {
+      chk.onchange = () => {
+        const checkedRoles = Array.from(customBox.querySelectorAll('.deep-sub-check:checked')).map(c => c.dataset.role);
+        const match = choices.find(c => c.roles && c.roles.length === checkedRoles.length && c.roles.every(r => checkedRoles.includes(r)));
+        selectedDeepReport = match || (checkedRoles.length === 0 ? noneChoice : allChoice);
+        renderDeepReportChoices();
+        updateTotal();
+      };
+    });
   }
 }
 
@@ -1447,7 +1693,7 @@ function renderOrderChoices(){
     document.querySelectorAll(`input[name=${name}]`).forEach(r=>r.addEventListener('change',()=>{onChange(choices.find(c=>c.choice_id===r.value));updateTotal();}));
   }
   options('#shippingChoices','shipping',ORDER.shipping_choices,selectedShipping,c=>selectedShipping=c);
-  options('#deepReportChoices','deepReport',selectedPlan.deep_report_choices,selectedDeepReport,c=>selectedDeepReport=c);
+  renderDeepReportChoices();
 }
 
 /* 報價信放行前，WF2 的客戶等待節點還沒開始等——這時候按送出，resume 打過去也不會成立。
